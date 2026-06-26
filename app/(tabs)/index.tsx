@@ -1,4 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
+import { yunke } from '@/constants/Colors';
+import { FadeInUp } from '@/components/FadeInUp';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -26,6 +29,7 @@ type Sponsor = {
   id: string;
   nombre: string;
   logo_url: string | null;
+  portada_url: string | null;
 };
 
 export default function HomeScreen() {
@@ -53,7 +57,7 @@ export default function HomeScreen() {
           flatListRef.current?.scrollToIndex({ index: next, animated: true });
           return next;
         });
-      }, 4000); // Cambia cada 4 segundos
+      }, 4000);
 
       return () => clearInterval(interval);
     }
@@ -62,23 +66,22 @@ export default function HomeScreen() {
   const cargarDatos = async () => {
     setLoading(true);
     
-    // Traemos los próximos 5 partidos
-    const { data: partidosData, error: errPartidos } = await supabase
+    const { data: partidosData } = await supabase
       .from('partidos')
       .select('id, fecha, rival, es_local, competicion, categorias(nombre)')
       .gte('fecha', new Date().toISOString())
       .order('fecha', { ascending: true })
       .limit(5);
 
-    const { data: noticiasData, error: errNoticias } = await supabase
+    const { data: noticiasData } = await supabase
       .from('noticias')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(3);
 
-    const { data: sponsorsData, error: errSponsors } = await supabase
+    const { data: sponsorsData } = await supabase
       .from('sponsors')
-      .select('id, nombre, logo_url')
+      .select('id, nombre, logo_url, portada_url')
       .order('orden', { ascending: true });
 
     setProximosPartidos(partidosData || []);
@@ -102,7 +105,9 @@ export default function HomeScreen() {
       style={styles.sponsorCard} 
       onPress={() => router.push(`/sponsor/${item.id}`)}
     >
-      {item.logo_url ? (
+      {item.portada_url ? (
+        <Image source={{ uri: item.portada_url }} style={styles.sponsorCover} resizeMode="cover" />
+      ) : item.logo_url ? (
         <Image source={{ uri: item.logo_url }} style={styles.sponsorLogo} resizeMode="contain" />
       ) : (
         <Text style={styles.sponsorNameText}>{item.nombre}</Text>
@@ -110,55 +115,67 @@ export default function HomeScreen() {
     </Pressable>
   );
 
-  // Renderizado de las tarjetas de Partidos (Horizontales)
-  const renderPartido = ({ item }: { item: Partido }) => (
-    <View style={styles.matchCard}>
-      <View style={styles.matchTop}>
-        <Text style={styles.matchCategory}>
-          {item.categorias?.[0]?.nombre || 'General'} {item.competicion ? ` - ${item.competicion}` : ''}
-        </Text>
-      </View>
-      
-      <View style={styles.matchTeamsContainer}>
-        <View style={styles.teamColumn}>
-          <Text style={styles.teamNameShort} numberOfLines={1}>YUNKE</Text>
-          <Text style={styles.teamLabel}>{item.es_local ? 'LOCAL' : 'VISITANTE'}</Text>
+  // Renderizado de las tarjetas de Partidos (Horizontales) con fade in escalonado
+  const renderPartido = ({ item, index }: { item: Partido; index: number }) => (
+    <FadeInUp delay={index * 100}>
+      <View style={styles.matchCard}>
+        {/* Barra de acento rojo */}
+        <View style={styles.matchAccent} />
+        
+        <View style={styles.matchTop}>
+          <Text style={styles.matchCategory}>
+            {item.categorias?.[0]?.nombre || 'General'} {item.competicion ? ` - ${item.competicion}` : ''}
+          </Text>
         </View>
         
-        <View style={styles.vsContainer}>
-          <Text style={styles.vsText}>VS</Text>
+        <View style={styles.matchTeamsContainer}>
+          <View style={styles.teamColumn}>
+            <Text style={styles.teamNameShort} numberOfLines={1}>YUNKE</Text>
+            <Text style={styles.teamLabel}>{item.es_local ? 'LOCAL' : 'VISITANTE'}</Text>
+          </View>
+          
+          <View style={styles.vsContainer}>
+            <Text style={styles.vsText}>VS</Text>
+          </View>
+          
+          <View style={styles.teamColumn}>
+            <Text style={styles.teamNameShort} numberOfLines={1}>{item.rival.toUpperCase()}</Text>
+            <Text style={styles.teamLabel}>{item.es_local ? 'VISITANTE' : 'LOCAL'}</Text>
+          </View>
         </View>
-        
-        <View style={styles.teamColumn}>
-          <Text style={styles.teamNameShort} numberOfLines={1}>{item.rival.toUpperCase()}</Text>
-          <Text style={styles.teamLabel}>{item.es_local ? 'VISITANTE' : 'LOCAL'}</Text>
-        </View>
-      </View>
 
-      <View style={styles.matchFooter}>
-        <View style={styles.matchDateContainer}>
-          <Ionicons name="calendar-outline" size={14} color="#8E8E93" />
-          <Text style={styles.matchDateText}>{formatearFecha(item.fecha)}</Text>
-        </View>
-        <View style={styles.matchTimeContainer}>
-          <Ionicons name="time-outline" size={14} color="#FF3B30" />
-          <Text style={styles.matchTimeText}>{formatearHora(item.fecha)} HS</Text>
+        <View style={styles.matchFooter}>
+          <View style={styles.matchDateContainer}>
+            <Ionicons name="calendar-outline" size={14} color={yunke.textSecondary} />
+            <Text style={styles.matchDateText}>{formatearFecha(item.fecha)}</Text>
+          </View>
+          <View style={styles.matchTimeContainer}>
+            <Ionicons name="time-outline" size={14} color={yunke.red} />
+            <Text style={styles.matchTimeText}>{formatearHora(item.fecha)} HS</Text>
+          </View>
         </View>
       </View>
-    </View>
+    </FadeInUp>
   );
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color="#000" /></View>;
+    return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 30 }}>
-      <View style={styles.header}>
+      {/* HEADER CON GRADIENTE AZUL */}
+      <LinearGradient
+        colors={[yunke.primary, yunke.primaryDark]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}
+      >
         <Text style={styles.clubTitle}>AC YUNKE FC</Text>
-      </View>
+        <Text style={styles.clubSubtitle}>Club de Futsal</Text>
+      </LinearGradient>
 
-      {/* CARRUSEL DE SPONSORS (ARRIBA) */}
+      {/* CARRUSEL DE SPONSORS */}
       {sponsors.length > 0 && (
         <View style={styles.sponsorsSection}>
           <Text style={styles.sectionTitle}>Nuestros Sponsors</Text>
@@ -174,10 +191,24 @@ export default function HomeScreen() {
               setTimeout(() => flatListRef.current?.scrollToIndex({ index: info.index, animated: true }), 100);
             }}
           />
+          {/* Dots indicadores */}
+          {sponsors.length > 1 && (
+            <View style={styles.dotsContainer}>
+              {sponsors.map((_, i) => (
+                <View
+                  key={i}
+                  style={[
+                    styles.dot,
+                    i === currentSlide && styles.dotActive,
+                  ]}
+                />
+              ))}
+            </View>
+          )}
         </View>
       )}
 
-      {/* PRÓXIMOS PARTIDOS (LISTA HORIZONTAL) */}
+      {/* PRÓXIMOS PARTIDOS */}
       <View style={styles.matchesSection}>
         <Text style={styles.sectionTitle}>Próximos Partidos</Text>
         {proximosPartidos.length > 0 ? (
@@ -195,19 +226,16 @@ export default function HomeScreen() {
       </View>
 
       {/* BANNER HACERTE SOCIO */}
-      <Pressable 
-          style={styles.socioBanner} 
-          onPress={() => router.push('/benefits')}
-        >
+      <View style={styles.socioBanner}>
         <View style={styles.bannerIcon}>
-          <Ionicons name="star" size={24} color="#FF9500" />
+          <Ionicons name="star" size={24} color={yunke.gold} />
         </View>
-        <View style={styles.bannerTextContainer}>
+        <Pressable style={styles.bannerContent} onPress={() => router.push('/benefits')}>
           <Text style={styles.bannerTitle}>Beneficios Exclusivos</Text>
-          <Text style={styles.bannerSubtitle}>Descubre todo lo que ganás por ser socio del club</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={22} color="#C7C7CC" />
-      </Pressable>
+          <Text style={styles.bannerSubtitle}>Descubrí todo lo que ganás por ser socio del club</Text>
+        </Pressable>
+        <Ionicons name="chevron-forward" size={22} color={yunke.textTertiary} />
+      </View>
 
       {/* SECCIÓN DE NOTICIAS */}
       <View style={styles.sectionHeader}>
@@ -228,55 +256,86 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F2F2F7' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F2F2F7' },
-  header: { paddingHorizontal: 24, paddingTop: 60, paddingBottom: 10 },
-  clubTitle: { fontSize: 34, fontWeight: 'bold', color: '#1C1C1E', letterSpacing: -1 },
-  clubSubtitle: { fontSize: 17, color: '#8E8E93', marginTop: 4 },
+  container: { flex: 1, backgroundColor: yunke.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
+  
+  // Header con gradiente
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 70,
+    paddingBottom: 40,
+  },
+  clubTitle: {
+    fontSize: 34,
+    fontFamily: 'Montserrat_900Black',
+    color: yunke.white,
+    letterSpacing: -0.5,
+  },
+  clubSubtitle: {
+    fontSize: 16,
+    fontFamily: 'Montserrat_400Regular',
+    color: 'rgba(255,255,255,0.7)',
+    marginTop: 4,
+  },
   
   // Sponsors
-  sponsorsSection: { marginTop: 20, marginBottom: 10 },
-  sectionTitle: { fontSize: 22, fontWeight: 'bold', color: '#1C1C1E', marginBottom: 15, paddingHorizontal: 24 },
+  sponsorsSection: { marginTop: 24, marginBottom: 10 },
+  sectionTitle: {
+    fontSize: 22,
+    fontFamily: 'Montserrat_700Bold',
+    color: yunke.text,
+    marginBottom: 15,
+    paddingHorizontal: 24,
+  },
   sponsorCard: {
     width: width - 48,
     height: 110,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: yunke.card,
     borderRadius: 20,
     marginHorizontal: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: yunke.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
     elevation: 2,
   },
   sponsorLogo: { width: '80%', height: '80%' },
-  sponsorNameText: { fontSize: 20, fontWeight: 'bold', color: '#1C1C1E' },
+  sponsorCover: { width: '100%', height: '100%', borderRadius: 20 },
+  sponsorNameText: { fontSize: 20, fontWeight: 'bold', color: yunke.text },
 
-  // Partidos Horizontales
+  // Partidos
   matchesSection: { marginTop: 20 },
   matchCard: {
-    width: 280, // Ancho fijo para que se vean varios en pantalla
-    backgroundColor: '#FFFFFF',
+    width: 280,
+    backgroundColor: yunke.card,
     borderRadius: 20,
     padding: 20,
-    shadowColor: '#000',
+    paddingTop: 0,
+    shadowColor: yunke.dark,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
     elevation: 3,
+    overflow: 'hidden',
+  },
+  matchAccent: {
+    height: 4,
+    backgroundColor: yunke.red,
+    marginHorizontal: -20,
+    marginBottom: 16,
   },
   matchTop: {
     borderBottomWidth: 1,
-    borderBottomColor: '#F2F2F7',
+    borderBottomColor: yunke.border,
     paddingBottom: 12,
     marginBottom: 15,
   },
   matchCategory: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: yunke.textSecondary,
     textTransform: 'uppercase',
   },
   matchTeamsContainer: {
@@ -291,13 +350,13 @@ const styles = StyleSheet.create({
   },
   teamNameShort: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1C1C1E',
+    fontFamily: 'Montserrat_900Black',
+    color: yunke.text,
     textAlign: 'center',
   },
   teamLabel: {
     fontSize: 11,
-    color: '#C7C7CC',
+    color: yunke.textTertiary,
     fontWeight: '600',
     marginTop: 4,
   },
@@ -307,14 +366,14 @@ const styles = StyleSheet.create({
   vsText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#8E8E93',
+    color: yunke.textSecondary,
   },
   matchFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#F2F2F7',
+    borderTopColor: yunke.border,
     paddingTop: 15,
   },
   matchDateContainer: {
@@ -325,7 +384,7 @@ const styles = StyleSheet.create({
   },
   matchDateText: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: yunke.textSecondary,
     textTransform: 'capitalize',
   },
   matchTimeContainer: {
@@ -336,37 +395,45 @@ const styles = StyleSheet.create({
   matchTimeText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#FF3B30',
+    color: yunke.red,
   },
   emptyText: {
     textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
-    color: '#8E8E93',
+    color: yunke.textSecondary,
     paddingHorizontal: 24,
   },
 
   // Noticias
   sectionHeader: { paddingHorizontal: 24, marginTop: 30, marginBottom: 15 },
   newsCard: {
-    backgroundColor: '#FFFFFF', marginHorizontal: 24, marginBottom: 16, borderRadius: 16, padding: 20,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 8, elevation: 2,
+    backgroundColor: yunke.card,
+    marginHorizontal: 24,
+    marginBottom: 16,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: yunke.dark,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  newsTitle: { fontSize: 18, fontWeight: '600', color: '#1C1C1E', marginBottom: 8 },
-  newsContent: { fontSize: 15, color: '#3C3C43', lineHeight: 22, opacity: 0.8 },
-  newsDate: { fontSize: 13, color: '#8E8E93', marginTop: 12, textTransform: 'capitalize' },
+  newsTitle: { fontSize: 18, fontWeight: '600', color: yunke.text, marginBottom: 8 },
+  newsContent: { fontSize: 15, color: yunke.darkSoft, lineHeight: 22, opacity: 0.8 },
+  newsDate: { fontSize: 13, color: yunke.textSecondary, marginTop: 12, textTransform: 'capitalize' },
 
   // Banner Socio
   socioBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: yunke.card,
     marginHorizontal: 24,
     borderRadius: 16,
     padding: 16,
     marginTop: 20,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: yunke.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
@@ -376,22 +443,42 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: '#FFF4E6', // Fondo naranja muy suave
+    backgroundColor: yunke.goldLight + '30', // Dorado con 30% opacidad
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
   },
-  bannerTextContainer: {
+  bannerContent: {
     flex: 1,
   },
   bannerTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1C1C1E',
+    color: yunke.text,
   },
   bannerSubtitle: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: yunke.textSecondary,
     marginTop: 2,
+  },
+
+  // Dots del carrusel
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 12,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: yunke.border,
+  },
+  dotActive: {
+    width: 20,
+    backgroundColor: yunke.primary,
+    borderRadius: 3,
   },
 });

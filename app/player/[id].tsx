@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { yunke } from '@/constants/Colors';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { supabase } from '../../src/supabase';
@@ -69,19 +70,21 @@ export default function PlayerDetailScreen() {
   };
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color="#fff" /></View>;
+    return <View style={styles.center}><ActivityIndicator size="large" color={yunke.white} /></View>;
   }
 
   if (!jugador) {
-    return <View style={styles.center}><Text style={{color: '#fff'}}>No se encontró al jugador.</Text></View>;
+    return <View style={styles.center}><Text style={{color: yunke.white}}>No se encontró al jugador.</Text></View>;
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
-      {/* HEADER CON FONDO OSCURO */}
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+        {/* HEADER CON FONDO OSCURO */}
       <View style={styles.header}>
         <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
+          <Ionicons name="chevron-back" size={28} color={yunke.white} />
           <Text style={styles.backText}>Volver</Text>
         </Pressable>
 
@@ -104,7 +107,7 @@ export default function PlayerDetailScreen() {
           
           {jugador.instagram && (
             <Pressable style={styles.instagramBtn} onPress={() => openInstagram(jugador.instagram!)}>
-              <Ionicons name="logo-instagram" size={16} color="#FFFFFF" />
+              <Ionicons name="logo-instagram" size={16} color={yunke.white} />
               <Text style={styles.instagramText}>@{jugador.instagram}</Text>
             </Pressable>
           )}
@@ -152,60 +155,61 @@ export default function PlayerDetailScreen() {
         </View>
       )}
     </ScrollView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F2F2F7' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1C1C1E' },
+  container: { flex: 1, backgroundColor: yunke.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.dark },
   
   // Header Oscuro
   header: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: yunke.dark,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     paddingBottom: 30,
-    shadowColor: '#000',
+    shadowColor: yunke.dark,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 15,
     elevation: 10,
   },
   backButton: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingTop: 60, paddingBottom: 20 },
-  backText: { fontSize: 17, color: '#FFFFFF', marginLeft: -4 },
+  backText: { fontSize: 17, color: yunke.white, marginLeft: -4 },
   
   profileContainer: { alignItems: 'center' },
   photoWrapper: { position: 'relative', marginBottom: 15 },
-  profilePhoto: { width: 130, height: 130, borderRadius: 65, borderWidth: 3, borderColor: '#3C3C43' },
-  placeholderPhotoBg: { backgroundColor: '#3C3C43', justifyContent: 'center', alignItems: 'center' },
-  placeholderText: { fontSize: 50, fontWeight: 'bold', color: '#8E8E93' },
+  profilePhoto: { width: 130, height: 130, borderRadius: 65, borderWidth: 3, borderColor: yunke.darkSoft },
+  placeholderPhotoBg: { backgroundColor: yunke.darkSoft, justifyContent: 'center', alignItems: 'center' },
+  placeholderText: { fontSize: 50, fontWeight: 'bold', color: yunke.textSecondary },
   dorsalBadge: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#FF3B30',
+    backgroundColor: yunke.red,
     width: 40,
     height: 40,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#1C1C1E',
+    borderColor: yunke.dark,
   },
-  dorsalBadgeText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-  playerName: { fontSize: 28, fontWeight: 'bold', color: '#FFFFFF', textAlign: 'center' },
-  playerPosition: { fontSize: 15, color: '#8E8E93', marginTop: 4, textTransform: 'capitalize' },
+  dorsalBadgeText: { color: yunke.white, fontSize: 18, fontWeight: 'bold' },
+  playerName: { fontSize: 28, fontFamily: 'Montserrat_900Black', color: yunke.white, textAlign: 'center' },
+  playerPosition: { fontSize: 15, color: yunke.textSecondary, marginTop: 4, textTransform: 'capitalize' },
   instagramBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#3C3C43',
+    backgroundColor: yunke.darkSoft,
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 20,
     marginTop: 15,
     gap: 6,
   },
-  instagramText: { color: '#FFFFFF', fontSize: 14, fontWeight: '600' },
+  instagramText: { color: yunke.white, fontSize: 14, fontWeight: '600' },
 
   // Stats
   statsRow: {
@@ -218,23 +222,23 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: yunke.card,
     borderRadius: 16,
     paddingVertical: 15,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: yunke.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
   },
-  statValue: { fontSize: 18, fontWeight: 'bold', color: '#1C1C1E' },
-  statLabel: { fontSize: 12, color: '#8E8E93', marginTop: 4, textTransform: 'uppercase' },
+  statValue: { fontSize: 18, fontWeight: 'bold', color: yunke.text },
+  statLabel: { fontSize: 12, color: yunke.textSecondary, marginTop: 4, textTransform: 'uppercase' },
 
   // Sections
   section: { marginTop: 30, paddingHorizontal: 24 },
-  sectionTitle: { fontSize: 20, fontWeight: 'bold', color: '#1C1C1E', marginBottom: 15 },
-  bioText: { fontSize: 16, color: '#3C3C43', lineHeight: 24 },
+  sectionTitle: { fontSize: 20, fontFamily: 'Montserrat_700Bold', color: yunke.text, marginBottom: 15 },
+  bioText: { fontSize: 16, color: yunke.darkSoft, lineHeight: 24 },
 
   // Galería
   galleryPhoto: {

@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { yunke } from '@/constants/Colors';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { supabase } from '../../src/supabase';
@@ -139,19 +140,19 @@ export default function ProfileScreen() {
         <View style={styles.inputGroup}>
           {!isLogin && (
             <>
-              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor="#8E8E93" value={nombre} onChangeText={setNombre} />
+              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor={yunke.textSecondary} value={nombre} onChangeText={setNombre} />
               <View style={styles.inputDivider} />
-              <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor="#8E8E93" value={apellido} onChangeText={setApellido} />
+              <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor={yunke.textSecondary} value={apellido} onChangeText={setApellido} />
               <View style={styles.inputDivider} />
             </>
           )}
-          <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#8E8E93" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
+          <TextInput style={styles.input} placeholder="Email" placeholderTextColor={yunke.textSecondary} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
           <View style={styles.inputDivider} />
-          <TextInput style={styles.input} placeholder="Contraseña" placeholderTextColor="#8E8E93" value={password} onChangeText={setPassword} secureTextEntry />
+          <TextInput style={styles.input} placeholder="Contraseña" placeholderTextColor={yunke.textSecondary} value={password} onChangeText={setPassword} secureTextEntry />
         </View>
 
         <Pressable style={styles.primaryButton} onPress={handleAuth} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryButtonText}>{isLogin ? 'Entrar' : 'Registrarme'}</Text>}
+          {loading ? <ActivityIndicator color={yunke.white} /> : <Text style={styles.primaryButtonText}>{isLogin ? 'Entrar' : 'Registrarme'}</Text>}
         </Pressable>
 
         <Pressable style={styles.switchButton} onPress={() => setIsLogin(!isLogin)}>
@@ -165,7 +166,7 @@ export default function ProfileScreen() {
   // UI: PERFIL LOGUEADO
   // =================================================================
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 120 }}>
       <Text style={styles.headerTitle}>Mi Perfil</Text>
       
       {/* BANNER: SOCIO O NO SOCIO */}
@@ -181,7 +182,7 @@ export default function ProfileScreen() {
             <Text style={styles.cardDni}>DNI: {dni || 'No registrado'}</Text>
           </View>
           <View style={styles.cardFooter}>
-            <View style={[styles.statusBadge, { backgroundColor: '#34C759' }]}>
+            <View style={styles.statusBadge}>
               <Text style={styles.statusText}>SOCIO ACTIVO</Text>
             </View>
           </View>
@@ -189,11 +190,11 @@ export default function ProfileScreen() {
       ) : (
         // BANNER HACERSE SOCIO (SI NO ES SOCIO)
         <View style={styles.bannerCard}>
-          <Ionicons name="star-outline" size={32} color="#FF9500" style={{ marginBottom: 10 }} />
+          <Ionicons name="star-outline" size={32} color={yunke.gold} style={{ marginBottom: 10 }} />
           <Text style={styles.bannerTitle}>¡Aún no eres socio!</Text>
           <Text style={styles.bannerText}>Hazte socio del Club Yunke para disfrutar de beneficios, apoyar al club y obtener tu carnet digital.</Text>
           <Pressable style={styles.payButton} onPress={handlePagarCuota} disabled={loadingPago}>
-            {loadingPago ? <ActivityIndicator color="#fff" /> : <Text style={styles.payButtonText}>Pagar Cuota Anual</Text>}
+            {loadingPago ? <ActivityIndicator color={yunke.white} /> : <Text style={styles.payButtonText}>Pagar Cuota Anual</Text>}
           </Pressable>
         </View>
       )}
@@ -211,21 +212,21 @@ export default function ProfileScreen() {
           <Text style={styles.disabledValue}>{session?.user?.email}</Text>
         </View>
         <View style={styles.inputDivider} />
-        <TextInput style={styles.input} placeholder="Teléfono" placeholderTextColor="#8E8E93" value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" />
+        <TextInput style={styles.input} placeholder="Teléfono" placeholderTextColor={yunke.textSecondary} value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" />
         <View style={styles.inputDivider} />
-        <TextInput style={styles.input} placeholder="DNI" placeholderTextColor="#8E8E93" value={dni} onChangeText={setDni} keyboardType="numeric" />
+        <TextInput style={styles.input} placeholder="DNI" placeholderTextColor={yunke.textSecondary} value={dni} onChangeText={setDni} keyboardType="numeric" />
       </View>
 
       <Pressable style={styles.saveButton} onPress={handleSaveProfile} disabled={savingProfile}>
-        {savingProfile ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveButtonText}>Guardar Cambios</Text>}
+        {savingProfile ? <ActivityIndicator color={yunke.white} /> : <Text style={styles.saveButtonText}>Guardar Cambios</Text>}
       </Pressable>
 
       {/* SEGURIDAD */}
       <Text style={styles.sectionTitle}>SEGURIDAD</Text>
       <Pressable style={styles.menuRow} onPress={handleResetPassword}>
-        <Ionicons name="lock-closed-outline" size={20} color="#007AFF" />
+          <Ionicons name="lock-closed-outline" size={20} color={yunke.primary} />
         <Text style={styles.menuText}>Restablecer contraseña</Text>
-        <Ionicons name="chevron-forward" size={18} color="#C7C7CC" />
+        <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
       </Pressable>
 
       {/* CERRAR SESIÓN */}
@@ -238,53 +239,53 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   // --- Login ---
-  authContainer: { flex: 1, backgroundColor: '#F2F2F7', paddingHorizontal: 30 },
-  title: { fontSize: 32, fontWeight: 'bold', color: '#1C1C1E', textAlign: 'center', marginTop: 60 },
-  subtitle: { fontSize: 16, color: '#8E8E93', textAlign: 'center', marginBottom: 40, marginTop: 4 },
-  inputGroup: { backgroundColor: '#FFFFFF', borderRadius: 12, paddingHorizontal: 15, marginBottom: 20 },
-  input: { height: 50, fontSize: 16, color: '#1C1C1E' },
-  inputDivider: { height: 1, backgroundColor: '#E5E5EA' },
-  primaryButton: { backgroundColor: '#1C1C1E', height: 50, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginBottom: 15 },
-  primaryButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  authContainer: { flex: 1, backgroundColor: yunke.surface, paddingHorizontal: 30 },
+  title: { fontSize: 32, fontFamily: 'Montserrat_900Black', color: yunke.primary, textAlign: 'center', marginTop: 60 },
+  subtitle: { fontSize: 16, color: yunke.textSecondary, textAlign: 'center', marginBottom: 40, marginTop: 4 },
+  inputGroup: { backgroundColor: yunke.card, borderRadius: 12, paddingHorizontal: 15, marginBottom: 20 },
+  input: { height: 50, fontSize: 16, color: yunke.text },
+  inputDivider: { height: 1, backgroundColor: yunke.border },
+  primaryButton: { backgroundColor: yunke.primary, height: 50, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginBottom: 15 },
+  primaryButtonText: { color: yunke.white, fontSize: 16, fontWeight: '600' },
   switchButton: { alignItems: 'center', marginTop: 10, marginBottom: 40 },
-  switchText: { color: '#007AFF', fontSize: 15 },
+  switchText: { color: yunke.primary, fontSize: 15 },
 
   // --- Perfil ---
-  container: { flex: 1, backgroundColor: '#F2F2F7', paddingHorizontal: 24, paddingTop: 60 },
-  headerTitle: { fontSize: 34, fontWeight: 'bold', color: '#1C1C1E', marginBottom: 20, letterSpacing: -1 },
+  container: { flex: 1, backgroundColor: yunke.surface, paddingHorizontal: 24, paddingTop: 60 },
+  headerTitle: { fontSize: 34, fontFamily: 'Montserrat_900Black', color: yunke.text, marginBottom: 20, letterSpacing: -1 },
   
   // Carnet Socio
-  card: { backgroundColor: '#1C1C1E', borderRadius: 20, padding: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 10, aspectRatio: 1.6, justifyContent: 'space-between', marginBottom: 30 },
+  card: { backgroundColor: yunke.dark, borderRadius: 20, padding: 24, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 10, aspectRatio: 1.6, justifyContent: 'space-between', marginBottom: 30 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardClubName: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold', letterSpacing: 1 },
-  cardMemberLabel: { color: '#8E8E93', fontSize: 12, fontWeight: '600' },
-  cardBody: { borderBottomWidth: 1, borderBottomColor: '#3C3C43', paddingBottom: 15 },
-  cardName: { color: '#FFFFFF', fontSize: 24, fontWeight: 'bold', textTransform: 'uppercase' },
-  cardDni: { color: '#8E8E93', fontSize: 14, marginTop: 5 },
+  cardClubName: { color: yunke.gold, fontSize: 20, fontFamily: 'Montserrat_900Black', letterSpacing: 1 },
+  cardMemberLabel: { color: yunke.textSecondary, fontSize: 12, fontWeight: '600' },
+  cardBody: { borderBottomWidth: 1, borderBottomColor: yunke.darkSoft, paddingBottom: 15 },
+  cardName: { color: yunke.white, fontSize: 24, fontFamily: 'Montserrat_700Bold', textTransform: 'uppercase' },
+  cardDni: { color: yunke.textSecondary, fontSize: 14, marginTop: 5 },
   cardFooter: { flexDirection: 'row', justifyContent: 'flex-end' },
-  statusBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, backgroundColor: '#34C759' },
-  statusText: { color: '#FFFFFF', fontSize: 12, fontWeight: 'bold' },
+  statusBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, backgroundColor: yunke.gold },
+  statusText: { color: yunke.white, fontSize: 12, fontWeight: 'bold' },
 
   // Banner No Socio
-  bannerCard: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 24, alignItems: 'center', marginBottom: 30, borderWidth: 1, borderColor: '#FF9500', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-  bannerTitle: { fontSize: 20, fontWeight: 'bold', color: '#1C1C1E', marginBottom: 8 },
-  bannerText: { fontSize: 14, color: '#8E8E93', textAlign: 'center', marginBottom: 20, lineHeight: 20 },
-  payButton: { backgroundColor: '#FF3B30', height: 50, borderRadius: 12, justifyContent: 'center', alignItems: 'center', width: '100%' },
-  payButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  bannerCard: { backgroundColor: yunke.card, borderRadius: 20, padding: 24, alignItems: 'center', marginBottom: 30, borderWidth: 1, borderColor: yunke.gold, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  bannerTitle: { fontSize: 20, fontFamily: 'Montserrat_700Bold', color: yunke.text, marginBottom: 8 },
+  bannerText: { fontSize: 14, color: yunke.textSecondary, textAlign: 'center', marginBottom: 20, lineHeight: 20 },
+  payButton: { backgroundColor: yunke.red, height: 50, borderRadius: 12, justifyContent: 'center', alignItems: 'center', width: '100%' },
+  payButtonText: { color: yunke.white, fontSize: 16, fontWeight: 'bold' },
 
   // Edición de datos
-  sectionTitle: { fontSize: 13, fontWeight: '600', color: '#8E8E93', textTransform: 'uppercase', marginBottom: 10, marginLeft: 4 },
+  sectionTitle: { fontSize: 13, fontWeight: '600', color: yunke.textSecondary, textTransform: 'uppercase', marginBottom: 10, marginLeft: 4 },
   disabledRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 50 },
-  disabledLabel: { fontSize: 16, color: '#8E8E93' },
-  disabledValue: { fontSize: 16, color: '#1C1C1E', fontWeight: '500' },
-  saveButton: { backgroundColor: '#007AFF', height: 50, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginTop: 15, marginBottom: 30 },
-  saveButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  disabledLabel: { fontSize: 16, color: yunke.textSecondary },
+  disabledValue: { fontSize: 16, color: yunke.text, fontWeight: '500' },
+  saveButton: { backgroundColor: yunke.primary, height: 50, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginTop: 15, marginBottom: 30 },
+  saveButtonText: { color: yunke.white, fontSize: 16, fontWeight: '600' },
 
   // Menú
-  menuRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 12, paddingVertical: 14, paddingHorizontal: 16, gap: 12, marginBottom: 30 },
-  menuText: { fontSize: 16, color: '#1C1C1E', flex: 1 },
+  menuRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: yunke.card, borderRadius: 12, paddingVertical: 14, paddingHorizontal: 16, gap: 12, marginBottom: 30 },
+  menuText: { fontSize: 16, color: yunke.text, flex: 1 },
 
   // Cerrar sesión
-  signOutButton: { height: 50, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 12 },
-  signOutText: { color: '#FF3B30', fontSize: 16, fontWeight: '600' },
+  signOutButton: { height: 50, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.card, borderRadius: 12 },
+  signOutText: { color: yunke.red, fontSize: 16, fontWeight: '600' },
 });

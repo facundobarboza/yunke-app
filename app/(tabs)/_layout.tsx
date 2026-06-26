@@ -1,27 +1,37 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
+import { yunke } from '@/constants/Colors';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#FF3B30', // Color de accent (puedes poner el color principal del Yunke)
-        tabBarInactiveTintColor: '#8E8E93',
+        tabBarActiveTintColor: yunke.red,
+        tabBarInactiveTintColor: yunke.textSecondary,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopWidth: 0, // Le quitamos el borde superior para que quede flotante y limpio
-          elevation: 0, // Quitamos sombra de Android
-          shadowOpacity: 0, // Quitamos sombra de iOS
-          height: Platform.OS === 'ios' ? 88 : 64, // Más alto en iOS para el safe area
-          paddingBottom: Platform.OS === 'ios' ? 30 : 8,
+          position: 'absolute',
+          backgroundColor: 'rgba(255,255,255,0.88)',
+          borderTopWidth: 0,
+          elevation: 0,
+          height: Platform.OS === 'ios' ? 76 : 64,
+          paddingBottom: Platform.OS === 'ios' ? 8 : 6,
           paddingTop: 8,
+          // Efecto flotante
+          marginHorizontal: 16,
+          marginBottom: Platform.OS === 'ios' ? 24 : 12,
+          borderRadius: 26,
+          // Sombra suave para que flote
+          shadowColor: yunke.dark,
+          shadowOffset: { width: 0, height: 4 },
+          shadowRadius: 16,
+          shadowOpacity: 0.1,
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
         },
-        headerShown: false, // Ocultamos el header por defecto, ya hicimos el nuestro en Inicio
+        headerShown: false,
       }}
     >
       <Tabs.Screen

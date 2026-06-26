@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
+import { yunke } from '@/constants/Colors';
 import { Stack, useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-// Datos de ejemplo de beneficios (en el futuro podrían venir de Supabase)
 const beneficios = [
   { id: 1, tienda: 'Amor FARRR', descuento: '20% OFF', detalle: 'En todas las hamburguesas y pizzas los días de partido.', icon: 'fast-food-outline' },
   { id: 2, tienda: 'Sport Center', descuento: '15% OFF', detalle: 'En compra de indumentaria deportiva y calzado.', icon: 'shirt-outline' },
@@ -16,12 +16,11 @@ export default function BenefitsScreen() {
 
   return (
     <>
-      {/* Configuramos el header de esta pantalla específica */}
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
         
         <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={28} color="#007AFF" />
+          <Ionicons name="chevron-back" size={28} color={yunke.primary} />
           <Text style={styles.backText}>Volver</Text>
         </Pressable>
 
@@ -30,11 +29,10 @@ export default function BenefitsScreen() {
           <Text style={styles.subtitle}>Descuentos exclusivos en comercios adheridos para los socios del club.</Text>
         </View>
 
-        {/* Lista de Tarjetas de Beneficios */}
         {beneficios.map((ben) => (
           <View key={ben.id} style={styles.benefitCard}>
             <View style={styles.iconContainer}>
-              <Ionicons name={ben.icon as any} size={28} color="#FF3B30" />
+              <Ionicons name={ben.icon as any} size={28} color={yunke.red} />
             </View>
             
             <View style={styles.benefitInfo}>
@@ -54,24 +52,23 @@ export default function BenefitsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F2F2F7' },
+  container: { flex: 1, backgroundColor: yunke.surface },
   backButton: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingTop: 60, paddingBottom: 10 },
-  backText: { fontSize: 17, color: '#007AFF', marginLeft: -4 },
+  backText: { fontSize: 17, color: yunke.primary, marginLeft: -4 },
   
   header: { paddingHorizontal: 24, marginBottom: 30 },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#1C1C1E', letterSpacing: -1 },
-  subtitle: { fontSize: 15, color: '#8E8E93', marginTop: 8, lineHeight: 22 },
+  title: { fontSize: 28, fontFamily: 'Montserrat_900Black', color: yunke.text, letterSpacing: -1 },
+  subtitle: { fontSize: 15, color: yunke.textSecondary, marginTop: 8, lineHeight: 22 },
 
-  // Tarjetas estilo Apple
   benefitCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: yunke.card,
     marginHorizontal: 24,
     marginBottom: 12,
     borderRadius: 16,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: yunke.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
@@ -81,7 +78,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 12,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: yunke.red + '12',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
@@ -91,24 +88,24 @@ const styles = StyleSheet.create({
   },
   tienda: {
     fontSize: 17,
-    fontWeight: '600',
-    color: '#1C1C1E',
+    fontFamily: 'Montserrat_700Bold',
+    color: yunke.text,
     marginBottom: 4,
   },
   detalle: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: yunke.textSecondary,
     lineHeight: 19,
   },
   discountBadge: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: yunke.red,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
     marginLeft: 10,
   },
   discountText: {
-    color: '#FFFFFF',
+    color: yunke.white,
     fontSize: 13,
     fontWeight: 'bold',
     textAlign: 'center',

@@ -1,3 +1,5 @@
+import { yunke } from '@/constants/Colors';
+import { FadeInUp } from '@/components/FadeInUp';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -24,7 +26,6 @@ export default function TeamScreen() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Cargar categorías al entrar a la pantalla
   useFocusEffect(
     useCallback(() => {
       cargarCategorias();
@@ -32,24 +33,23 @@ export default function TeamScreen() {
   );
 
   const cargarCategorias = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('categorias')
       .select('*')
       .order('orden', { ascending: true });
 
     if (data && data.length > 0) {
       setCategorias(data);
-      setSelectedCategoria(data[0].id); // Seleccionamos la primera por defecto
+      setSelectedCategoria(data[0].id);
       cargarJugadores(data[0].id);
     } else {
       setLoading(false);
     }
   };
 
-  // Cargar jugadores cuando cambiamos de categoría
   const cargarJugadores = async (categoriaId: number) => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('jugadores')
       .select('*')
       .eq('categoria_id', categoriaId)
@@ -64,12 +64,12 @@ export default function TeamScreen() {
     cargarJugadores(id);
   };
 
-  // Renderizar cada jugador
-  const renderJugador = ({ item }: { item: Jugador }) => (
-    <Pressable 
-      style={styles.playerCard} 
-      onPress={() => router.push(`/player/${item.id}`)}
-    >
+  const renderJugador = ({ item, index }: { item: Jugador; index: number }) => (
+    <FadeInUp delay={index * 60}>
+      <Pressable 
+        style={styles.playerCard} 
+        onPress={() => router.push(`/player/${item.id}`)}
+      >
       <View style={styles.playerPhotoContainer}>
         {item.foto_url ? (
           <Image source={{ uri: item.foto_url }} style={styles.playerPhoto} />
@@ -88,25 +88,25 @@ export default function TeamScreen() {
       <View style={styles.dorsalContainer}>
         <Text style={styles.dorsalText}>{item.dorsal ?? '-'}</Text>
       </View>
-    </Pressable>
+      </Pressable>
+    </FadeInUp>
   );
 
   if (loading && categorias.length === 0) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="large" color={yunke.primary} />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Encabezado */}
       <View style={styles.header}>
         <Text style={styles.screenTitle}>Equipo</Text>
       </View>
 
-      {/* Selector de Categorías (Scroll Horizontal) */}
+      {/* Selector de Categorías */}
       <View>
         <FlatList
           data={categorias}
@@ -135,7 +135,6 @@ export default function TeamScreen() {
         />
       </View>
 
-      {/* Lista de Jugadores */}
       <FlatList
         data={jugadores}
         keyExtractor={(item) => item.id}
@@ -152,11 +151,10 @@ export default function TeamScreen() {
   );
 }
 
-// ESTILOS (Estilo Apple: limpio, tarjetas blancas, tipografía clara)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: yunke.surface,
   },
   center: {
     flex: 1,
@@ -170,8 +168,8 @@ const styles = StyleSheet.create({
   },
   screenTitle: {
     fontSize: 34,
-    fontWeight: 'bold',
-    color: '#1C1C1E',
+    fontFamily: 'Montserrat_900Black',
+    color: yunke.text,
     letterSpacing: -1,
   },
   categoriesList: {
@@ -181,33 +179,33 @@ const styles = StyleSheet.create({
   categoryPill: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    backgroundColor: yunke.card,
     marginRight: 10,
     borderWidth: 1,
-    borderColor: '#E5E5EA',
+    borderColor: yunke.border,
   },
   categoryPillActive: {
-    backgroundColor: '#1C1C1E', // Negro Apple cuando está activo
-    borderColor: '#1C1C1E',
+    backgroundColor: yunke.primary,
+    borderColor: yunke.primary,
   },
   categoryText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: yunke.textSecondary,
   },
   categoryTextActive: {
-    color: '#FFFFFF',
+    color: yunke.white,
   },
   playerCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: yunke.card,
     marginHorizontal: 24,
     marginBottom: 12,
     borderRadius: 16,
     padding: 12,
-    shadowColor: '#000',
+    shadowColor: yunke.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
@@ -219,29 +217,29 @@ const styles = StyleSheet.create({
   playerPhoto: {
     width: 50,
     height: 50,
-    borderRadius: 25, // Redonda
+    borderRadius: 25,
   },
   placeholderPhoto: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: yunke.surface,
     justifyContent: 'center',
     alignItems: 'center',
   },
   placeholderText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#8E8E93',
+    color: yunke.textSecondary,
   },
   playerInfo: {
     flex: 1,
   },
   playerName: {
     fontSize: 17,
-    fontWeight: '600',
-    color: '#1C1C1E',
+    fontFamily: 'Montserrat_700Bold',
+    color: yunke.text,
   },
   playerPosition: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: yunke.textSecondary,
     marginTop: 2,
     textTransform: 'capitalize',
   },
@@ -249,19 +247,19 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: yunke.red,
     justifyContent: 'center',
     alignItems: 'center',
   },
   dorsalText: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1C1C1E',
+    fontFamily: 'SpaceMono',
+    color: yunke.white,
   },
   emptyText: {
     textAlign: 'center',
     marginTop: 40,
     fontSize: 16,
-    color: '#8E8E93',
+    color: yunke.textSecondary,
   },
 });
