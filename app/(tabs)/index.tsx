@@ -1,6 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
-import { yunke } from '@/constants/Colors';
 import { FadeInUp } from '@/components/FadeInUp';
+import { yunke } from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   // Header con gradiente
   header: {
     paddingHorizontal: 24,
-    paddingTop: 70,
+    paddingTop: 40,
     paddingBottom: 40,
   },
   clubTitle: {
@@ -291,8 +291,9 @@ const styles = StyleSheet.create({
     width: width - 48,
     height: 110,
     backgroundColor: yunke.card,
-    borderRadius: 20,
+    borderRadius: 15,
     marginHorizontal: 24,
+    marginBottom: 3,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: yunke.dark,
@@ -302,16 +303,37 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   sponsorLogo: { width: '80%', height: '80%' },
-  sponsorCover: { width: '100%', height: '100%', borderRadius: 20 },
+  sponsorCover: { width: '100%', height: '100%', borderRadius: 15 },
   sponsorNameText: { fontSize: 20, fontWeight: 'bold', color: yunke.text },
+
+  // Dots del carrusel
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 12,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: yunke.border,
+  },
+  dotActive: {
+    width: 20,
+    backgroundColor: yunke.primary,
+    borderRadius: 3,
+  },
 
   // Partidos
   matchesSection: { marginTop: 20 },
   matchCard: {
     width: 280,
     backgroundColor: yunke.card,
-    borderRadius: 20,
+    borderRadius: 15,
     padding: 20,
+    marginBottom: 10,
     paddingTop: 0,
     shadowColor: yunke.dark,
     shadowOffset: { width: 0, height: 4 },
@@ -460,25 +482,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: yunke.textSecondary,
     marginTop: 2,
-  },
-
-  // Dots del carrusel
-  dotsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 12,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: yunke.border,
-  },
-  dotActive: {
-    width: 20,
-    backgroundColor: yunke.primary,
-    borderRadius: 3,
   },
 });
