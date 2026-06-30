@@ -1,5 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
 import { yunke } from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { supabase } from '../../src/supabase';
@@ -8,6 +9,7 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
+  const router = useRouter();
 
   // Estados para el formulario de auth
   const [isLogin, setIsLogin] = useState(true);
@@ -228,6 +230,33 @@ export default function ProfileScreen() {
         <Text style={styles.menuText}>Restablecer contraseña</Text>
         <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
       </Pressable>
+
+      {/* MENÚ DE ADMINISTRACIÓN (Solo visible si is_admin es true) */}
+      {profile?.is_admin && (
+        <View>
+          <Text style={styles.sectionTitle}>ADMINISTRACIÓN</Text>
+          
+          <Pressable style={styles.menuRow} onPress={() => router.push('/admin/players')}>
+            <Ionicons name="people-outline" size={20} color="#FF3B30" />
+            <Text style={styles.menuText}>Gestionar Plantilla</Text>
+            <Ionicons name="chevron-forward" size={18} color="#C7C7CC" />
+          </Pressable>
+
+          <Pressable style={styles.menuRow} onPress={() => router.push('/admin/matches')}>
+            <Ionicons name="calendar-outline" size={20} color="#FF3B30" />
+            <Text style={styles.menuText}>Gestionar Partidos</Text>
+            <Ionicons name="chevron-forward" size={18} color="#C7C7CC" />
+          </Pressable>
+
+          <Pressable style={styles.menuRow} onPress={() => router.push('/admin/sponsors')}>
+            <Ionicons name="business-outline" size={20} color="#FF3B30" />
+            <Text style={styles.menuText}>Gestionar Sponsors</Text>
+            <Ionicons name="chevron-forward" size={18} color="#C7C7CC" />
+          </Pressable>
+          
+          <View style={{ height: 30 }} />
+        </View>
+      )}
 
       {/* CERRAR SESIÓN */}
       <Pressable style={styles.signOutButton} onPress={handleSignOut}>

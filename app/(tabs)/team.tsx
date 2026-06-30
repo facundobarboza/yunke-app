@@ -1,5 +1,5 @@
-import { yunke } from '@/constants/Colors';
 import { FadeInUp } from '@/components/FadeInUp';
+import { yunke } from '@/constants/Colors';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -53,6 +53,7 @@ export default function TeamScreen() {
       .from('jugadores')
       .select('*')
       .eq('categoria_id', categoriaId)
+      .eq('is_active', true)
       .order('dorsal', { ascending: true });
 
     setJugadores(data || []);

@@ -82,6 +82,7 @@ export default function HomeScreen() {
     const { data: sponsorsData } = await supabase
       .from('sponsors')
       .select('id, nombre, logo_url, portada_url')
+      .eq('is_active', true)
       .order('orden', { ascending: true });
 
     setProximosPartidos(partidosData || []);
