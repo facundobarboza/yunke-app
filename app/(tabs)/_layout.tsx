@@ -1,7 +1,7 @@
+import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
-import { yunke } from '@/constants/Colors';
 
 export default function TabLayout() {
   return (
@@ -44,14 +44,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="team"
         options={{
-          title: 'Equipo',
+          title: 'Planteles',
           tabBarIcon: ({ color, size }) => <Ionicons name="people-outline" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="calendar"
         options={{
-          title: 'Partidos',
+          title: 'Calendario',
           tabBarIcon: ({ color, size }) => <Ionicons name="calendar-outline" size={size} color={color} />,
         }}
       />

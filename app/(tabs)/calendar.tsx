@@ -1,8 +1,9 @@
-import { yunke } from '@/constants/Colors';
 import { FadeInUp } from '@/components/FadeInUp';
+import { yunke } from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { supabase } from '../../src/supabase';
 
 type Partido = {
@@ -14,6 +15,7 @@ type Partido = {
   resultado_local: number | null;
   resultado_visitante: number | null;
   jugado: boolean;
+  escudo_url?: string | null;
   categorias: { nombre: string }[] | null;
 };
 
@@ -102,21 +104,34 @@ export default function CalendarScreen() {
           {/* Línea separadora */}
           <View style={styles.divider} />
 
-          {/* Columna Central: Equipos y Competición */}
-          <View style={styles.matchInfo}>
-            <Text style={styles.teamText}>
-              {item.es_local ? 'Club Yunke' : item.rival}
-            </Text>
-            <Text style={styles.vsText}>vs</Text>
-            <Text style={styles.teamText}>
-              {item.es_local ? item.rival : 'Club Yunke'}
-            </Text>
-            {item.competicion && (
-              <Text style={styles.competitionText}>
-                {item.competicion} • {item.categorias?.[0]?.nombre || 'General'}
-              </Text>
+                  {/* Columna Central: Equipos y Competición */}
+        <View style={styles.matchInfo}>
+          <View style={styles.teamRowCalendar}>
+            {item.es_local ? (
+              <Image source={require('../../assets/images/icon.png')} style={styles.escudoCalendar} resizeMode="contain" />
+            ) : (
+              item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.escudoCalendar} resizeMode="contain" /> : <View style={[styles.escudoCalendar, styles.placeholderEscudoCal]}><Ionicons name="shield-outline" size={14} color="#C7C7CC" /></View>
             )}
+            <Text style={styles.teamText} numberOfLines={1}>{item.es_local ? 'Club Yunke' : item.rival}</Text>
           </View>
+          
+          <Text style={styles.vsText}>vs</Text>
+          
+          <View style={styles.teamRowCalendar}>
+            {!item.es_local ? (
+              <Image source={require('../../assets/images/icon.png')} style={styles.escudoCalendar} resizeMode="contain" />
+            ) : (
+              item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.escudoCalendar} resizeMode="contain" /> : <View style={[styles.escudoCalendar, styles.placeholderEscudoCal]}><Ionicons name="shield-outline" size={14} color="#C7C7CC" /></View>
+            )}
+            <Text style={styles.teamText} numberOfLines={1}>{!item.es_local ? 'Club Yunke' : item.rival}</Text>
+          </View>
+          
+          {item.competicion && (
+            <Text style={styles.competitionText}>
+              {item.competicion} • {item.categorias?.[0]?.nombre || 'General'}
+            </Text>
+          )}
+        </View>
 
           {/* Columna Derecha: Resultado o Localidad */}
           <View style={styles.resultContainer}>
@@ -322,5 +337,20 @@ const styles = StyleSheet.create({
     marginTop: 60,
     fontSize: 16,
     color: yunke.textSecondary,
+  },
+  teamRowCalendar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
+  },
+  escudoCalendar: {
+    width: 24,
+    height: 24
+  },
+  placeholderEscudoCal: {
+    backgroundColor: '#F2F2F7',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
 });

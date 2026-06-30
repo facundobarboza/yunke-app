@@ -16,6 +16,7 @@ type Partido = {
   es_local: boolean;
   competicion: string | null;
   categorias: { nombre: string }[] | null;
+  escudo_url: string | null;
 };
 
 type Noticia = {
@@ -68,7 +69,7 @@ export default function HomeScreen() {
     
     const { data: partidosData } = await supabase
       .from('partidos')
-      .select('id, fecha, rival, es_local, competicion, categorias(nombre)')
+      .select('id, fecha, rival, es_local, competicion, escudo_url, categorias(nombre)')
       .gte('fecha', new Date().toISOString())
       .order('fecha', { ascending: true })
       .limit(5);
@@ -130,20 +131,26 @@ export default function HomeScreen() {
         </View>
         
         <View style={styles.matchTeamsContainer}>
-          <View style={styles.teamColumn}>
-            <Text style={styles.teamNameShort} numberOfLines={1}>YUNKE</Text>
-            <Text style={styles.teamLabel}>{item.es_local ? 'LOCAL' : 'VISITANTE'}</Text>
-          </View>
-          
-          <View style={styles.vsContainer}>
-            <Text style={styles.vsText}>VS</Text>
-          </View>
-          
-          <View style={styles.teamColumn}>
-            <Text style={styles.teamNameShort} numberOfLines={1}>{item.rival.toUpperCase()}</Text>
-            <Text style={styles.teamLabel}>{item.es_local ? 'VISITANTE' : 'LOCAL'}</Text>
-          </View>
+        <View style={styles.teamColumn}>
+          {/* Escudo Yunke (Local) */}
+          <Image source={require('../../assets/images/icon.png')} style={styles.teamEscudo} resizeMode="contain" />
+          <Text style={styles.teamNameShort} numberOfLines={1}>YUNKE</Text>
         </View>
+        
+        <View style={styles.vsContainer}>
+          <Text style={styles.vsText}>VS</Text>
+        </View>
+        
+        <View style={styles.teamColumn}>
+          {/* Escudo Rival */}
+          {item.escudo_url ? (
+            <Image source={{ uri: item.escudo_url }} style={styles.teamEscudo} resizeMode="contain" />
+          ) : (
+            <View style={[styles.teamEscudo, styles.placeholderEscudo]}><Ionicons name="shield-outline" size={20} color="#C7C7CC" /></View>
+          )}
+          <Text style={styles.teamNameShort} numberOfLines={1}>{item.rival.toUpperCase()}</Text>
+        </View>
+      </View>
 
         <View style={styles.matchFooter}>
           <View style={styles.matchDateContainer}>
@@ -172,8 +179,8 @@ export default function HomeScreen() {
         end={{ x: 1, y: 1 }}
         style={styles.header}
       >
-        <Text style={styles.clubTitle}>AC YUNKE FC</Text>
-        <Text style={styles.clubSubtitle}>Club de Futsal</Text>
+        <Text style={styles.clubTitle}>YUNKE FC</Text>
+        {/*<Text style={styles.clubSubtitle}>Futbol Club</Text>*/}
       </LinearGradient>
 
       {/* CARRUSEL DE SPONSORS */}
@@ -290,7 +297,7 @@ const styles = StyleSheet.create({
   },
   sponsorCard: {
     width: width - 48,
-    height: 110,
+    height: 180,
     backgroundColor: yunke.card,
     borderRadius: 15,
     marginHorizontal: 24,
@@ -372,15 +379,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   teamNameShort: {
-    fontSize: 18,
-    fontFamily: 'Montserrat_900Black',
+    fontSize: 12,
     color: yunke.text,
-    textAlign: 'center',
-  },
-  teamLabel: {
-    fontSize: 11,
-    color: yunke.textTertiary,
-    fontWeight: '600',
+    fontWeight: '700',
     marginTop: 4,
   },
   vsContainer: {
@@ -426,6 +427,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: yunke.textSecondary,
     paddingHorizontal: 24,
+  },
+  teamEscudo: { 
+    width: 40,
+    height: 40,
+    marginBottom: 8
+  },
+  placeholderEscudo: {
+    backgroundColor: '#F2F2F7',
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
 
   // Noticias
