@@ -2,7 +2,7 @@ import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { supabase } from '../../src/supabase';
 
 export default function ProfileScreen() {
@@ -168,7 +168,13 @@ export default function ProfileScreen() {
   // UI: PERFIL LOGUEADO
   // =================================================================
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 120 }}>
+    <ScrollView 
+      style={styles.container} 
+      contentContainerStyle={{
+        // A Android le damos 100px para asegurar que supere la barra. A iOS le damos 40px para que no quede tan lejos.
+        paddingBottom: Platform.OS === 'android' ? 200 : 120
+      }}
+    >
       <Text style={styles.headerTitle}>Mi Perfil</Text>
       
       {/* BANNER: SOCIO O NO SOCIO */}

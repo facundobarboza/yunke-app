@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { yunke } from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -79,7 +79,7 @@ export default function PlayerDetailScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
+      <Stack.Screen />
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
         {/* HEADER CON FONDO OSCURO */}
       <View style={styles.header}>

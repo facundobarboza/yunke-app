@@ -63,7 +63,7 @@ export default function CreatePlayerScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1], // Forzar cuadrado
       quality: 0.8,

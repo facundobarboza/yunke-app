@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { yunke } from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -59,7 +59,7 @@ export default function SponsorDetailScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
+      <Stack.Screen />
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
         
         {/* COVER + LOGO */}

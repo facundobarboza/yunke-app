@@ -1,31 +1,29 @@
 import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import { Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets(); // Obtiene los márgenes seguros del teléfono
+
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: yunke.red,
         tabBarInactiveTintColor: yunke.textSecondary,
         tabBarStyle: {
-          position: 'absolute',
-          backgroundColor: 'rgba(255,255,255,0.88)',
+          backgroundColor: '#FFFFFF',
           borderTopWidth: 0,
           elevation: 0,
-          height: Platform.OS === 'ios' ? 76 : 64,
-          paddingBottom: Platform.OS === 'ios' ? 8 : 6,
+          shadowOpacity: 0,
+          height: 60 + insets.bottom, // Altura base + espacio nativo de Android
+          paddingBottom: insets.bottom, // Padding nativo exacto
           paddingTop: 8,
-          // Efecto flotante
-          marginHorizontal: 16,
-          marginBottom: Platform.OS === 'ios' ? 24 : 12,
-          borderRadius: 26,
+          position: 'absolute',
           // Sombra suave para que flote
           shadowColor: yunke.dark,
           shadowOffset: { width: 0, height: 4 },
           shadowRadius: 16,
-          shadowOpacity: 0.1,
         },
         tabBarLabelStyle: {
           fontSize: 11,
