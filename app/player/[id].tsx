@@ -1,5 +1,6 @@
 import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -81,10 +82,15 @@ export default function PlayerDetailScreen() {
     <>
       <Stack.Screen />
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
-        {/* HEADER CON FONDO OSCURO */}
-      <View style={styles.header}>
+        {/* HEADER CON GRADIENTE */}
+      <LinearGradient
+        colors={yunke.gradientHeader}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}
+      >
         <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={28} color={yunke.white} />
+          <Ionicons name="chevron-back" size={24} color={yunke.white} />
           <Text style={styles.backText}>Volver</Text>
         </Pressable>
 
@@ -103,7 +109,11 @@ export default function PlayerDetailScreen() {
           </View>
           
           <Text style={styles.playerName}>{jugador.nombre} {jugador.apellido || ''}</Text>
-          <Text style={styles.playerPosition}>{jugador.posicion || 'Futsal'} • {jugador.categorias?.nombre}</Text>
+          
+          <View style={styles.positionContainer}>
+            <Ionicons name="football-outline" size={14} color="rgba(255,255,255,0.7)" />
+            <Text style={styles.playerPosition}>{jugador.posicion || 'Futsal'} • {jugador.categorias?.nombre}</Text>
+          </View>
           
           {jugador.instagram && (
             <Pressable style={styles.instagramBtn} onPress={() => openInstagram(jugador.instagram!)}>
@@ -112,19 +122,28 @@ export default function PlayerDetailScreen() {
             </Pressable>
           )}
         </View>
-      </View>
+      </LinearGradient>
 
-      {/* STATS RÁPIDAS (Estilo Apple) */}
+      {/* STATS RÁPIDAS */}
       <View style={styles.statsRow}>
         <View style={styles.statCard}>
+          <View style={styles.statIconContainer}>
+            <Ionicons name="calendar-outline" size={18} color={yunke.primary} />
+          </View>
           <Text style={styles.statValue}>{calcularEdad(jugador.fecha_nacimiento)}</Text>
           <Text style={styles.statLabel}>Edad</Text>
         </View>
         <View style={styles.statCard}>
+          <View style={styles.statIconContainer}>
+            <Ionicons name="globe-outline" size={18} color={yunke.primary} />
+          </View>
           <Text style={styles.statValue}>{jugador.nacionalidad || 'N/A'}</Text>
           <Text style={styles.statLabel}>Nacionalidad</Text>
         </View>
         <View style={styles.statCard}>
+          <View style={styles.statIconContainer}>
+            <Ionicons name="football-outline" size={18} color={yunke.primary} />
+          </View>
           <Text style={styles.statValue}>{jugador.posicion || 'N/A'}</Text>
           <Text style={styles.statLabel}>Posición</Text>
         </View>
@@ -134,7 +153,9 @@ export default function PlayerDetailScreen() {
       {jugador.descripcion && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Sobre el jugador</Text>
-          <Text style={styles.bioText}>{jugador.descripcion}</Text>
+          <View style={styles.bioCard}>
+            <Text style={styles.bioText}>{jugador.descripcion}</Text>
+          </View>
         </View>
       )}
 
@@ -150,7 +171,7 @@ export default function PlayerDetailScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={{ gap: 10, paddingHorizontal: 4 }}
+            contentContainerStyle={{ gap: 12, paddingHorizontal: 4 }}
           />
         </View>
       )}
@@ -163,9 +184,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: yunke.surface },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.dark },
   
-  // Header Oscuro
+  // Header con gradiente
   header: {
-    backgroundColor: yunke.dark,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     paddingBottom: 30,
@@ -175,48 +195,105 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
     elevation: 10,
   },
-  backButton: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingTop: 60, paddingBottom: 20 },
-  backText: { fontSize: 17, color: yunke.white, marginLeft: -4 },
+  backButton: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingHorizontal: 16, 
+    paddingTop: 60, 
+    paddingBottom: 20,
+    gap: 4,
+  },
+  backText: { 
+    fontSize: 16, 
+    fontFamily: 'Montserrat_500Medium',
+    color: yunke.white 
+  },
   
   profileContainer: { alignItems: 'center' },
-  photoWrapper: { position: 'relative', marginBottom: 15 },
-  profilePhoto: { width: 130, height: 130, borderRadius: 65, borderWidth: 3, borderColor: yunke.darkSoft },
-  placeholderPhotoBg: { backgroundColor: yunke.darkSoft, justifyContent: 'center', alignItems: 'center' },
-  placeholderText: { fontSize: 50, fontWeight: 'bold', color: yunke.textSecondary },
+  photoWrapper: { position: 'relative', marginBottom: 16 },
+  profilePhoto: { 
+    width: 140, 
+    height: 140, 
+    borderRadius: 70, 
+    borderWidth: 4, 
+    borderColor: 'rgba(255,255,255,0.2)' 
+  },
+  placeholderPhotoBg: { 
+    backgroundColor: 'rgba(255,255,255,0.15)', 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  placeholderText: { 
+    fontSize: 56, 
+    fontFamily: 'Montserrat_700Bold', 
+    color: yunke.white 
+  },
   dorsalBadge: {
     position: 'absolute',
     bottom: 0,
     right: 0,
     backgroundColor: yunke.red,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: yunke.dark,
+    borderWidth: 4,
+    borderColor: yunke.primary,
+    shadowColor: yunke.dark,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  dorsalBadgeText: { color: yunke.white, fontSize: 18, fontWeight: 'bold' },
-  playerName: { fontSize: 28, fontFamily: 'Montserrat_900Black', color: yunke.white, textAlign: 'center' },
-  playerPosition: { fontSize: 15, color: yunke.textSecondary, marginTop: 4, textTransform: 'capitalize' },
+  dorsalBadgeText: { 
+    color: yunke.white, 
+    fontSize: 18, 
+    fontFamily: 'Montserrat_700Bold' 
+  },
+  playerName: { 
+    fontSize: 28, 
+    fontFamily: 'Montserrat_900Black', 
+    color: yunke.white, 
+    textAlign: 'center',
+    letterSpacing: -0.5,
+  },
+  positionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 6,
+  },
+  playerPosition: { 
+    fontSize: 15, 
+    fontFamily: 'Montserrat_400Regular',
+    color: 'rgba(255,255,255,0.7)', 
+    textTransform: 'capitalize' 
+  },
   instagramBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: yunke.darkSoft,
-    paddingHorizontal: 15,
-    paddingVertical: 8,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 20,
-    marginTop: 15,
-    gap: 6,
+    marginTop: 16,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
-  instagramText: { color: yunke.white, fontSize: 14, fontWeight: '600' },
+  instagramText: { 
+    color: yunke.white, 
+    fontSize: 14, 
+    fontFamily: 'Montserrat_500Medium' 
+  },
 
-  // Stats
+  // Stats premium
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginHorizontal: 24,
-    marginTop: -20, // Efecto superpuesto sobre el header oscuro
+    marginTop: -25,
     marginBottom: 10,
     gap: 10,
   },
@@ -224,26 +301,66 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: yunke.card,
     borderRadius: 16,
-    paddingVertical: 15,
+    paddingVertical: 16,
     alignItems: 'center',
     shadowColor: yunke.dark,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowRadius: 10,
     elevation: 5,
   },
-  statValue: { fontSize: 18, fontWeight: 'bold', color: yunke.text },
-  statLabel: { fontSize: 12, color: yunke.textSecondary, marginTop: 4, textTransform: 'uppercase' },
+  statIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: yunke.primary + '12',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  statValue: { 
+    fontSize: 18, 
+    fontFamily: 'Montserrat_700Bold', 
+    color: yunke.text 
+  },
+  statLabel: { 
+    fontSize: 11, 
+    fontFamily: 'Montserrat_500Medium',
+    color: yunke.textSecondary, 
+    marginTop: 4, 
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
 
-  // Sections
-  section: { marginTop: 30, paddingHorizontal: 24 },
-  sectionTitle: { fontSize: 20, fontFamily: 'Montserrat_700Bold', color: yunke.text, marginBottom: 15 },
-  bioText: { fontSize: 16, color: yunke.darkSoft, lineHeight: 24 },
+  // Sections premium
+  section: { marginTop: 28, paddingHorizontal: 24 },
+  sectionTitle: { 
+    fontSize: 18, 
+    fontFamily: 'Montserrat_700Bold', 
+    color: yunke.text, 
+    marginBottom: 14 
+  },
+  bioCard: {
+    backgroundColor: yunke.card,
+    borderRadius: 16,
+    padding: 18,
+    shadowColor: yunke.dark,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  bioText: { 
+    fontSize: 15, 
+    fontFamily: 'Montserrat_400Regular',
+    color: yunke.darkSoft, 
+    lineHeight: 24 
+  },
 
-  // Galería
+  // Galería premium
   galleryPhoto: {
     width: width * 0.7,
-    height: 250,
-    borderRadius: 16,
+    height: 260,
+    borderRadius: 18,
   },
 });
