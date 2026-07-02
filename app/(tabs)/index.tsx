@@ -172,15 +172,20 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 30 }}>
-      {/* HEADER CON GRADIENTE AZUL */}
+      {/* HEADER CON GRADIENTE AZUL PREMIUM */}
       <LinearGradient
-        colors={[yunke.primary, yunke.primaryDark]}
+        colors={yunke.gradientHeader}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.header}
       >
+        <Image 
+          source={require('../../assets/images/yunke-logo.png')} 
+          style={styles.headerLogo} 
+          resizeMode="contain" 
+        />
         <Text style={styles.clubTitle}>YUNKE FC</Text>
-        {/*<Text style={styles.clubSubtitle}>Futbol Club</Text>*/}
+        <Text style={styles.clubSubtitle}>FÚTBOL CLUB</Text>
       </LinearGradient>
 
       {/* CARRUSEL DE SPONSORS */}
@@ -267,23 +272,39 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: yunke.surface },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
   
-  // Header con gradiente
+  // Header con gradiente premium
   header: {
     paddingHorizontal: 24,
-    paddingTop: 40,
+    paddingTop: 60,
     paddingBottom: 40,
+    alignItems: 'center',
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: yunke.dark,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 15,
+  },
+  headerLogo: {
+    width: 80,
+    height: 80,
+    marginBottom: 16,
   },
   clubTitle: {
-    fontSize: 34,
+    fontSize: 36,
     fontFamily: 'Montserrat_900Black',
     color: yunke.white,
-    letterSpacing: -0.5,
+    letterSpacing: -1,
+    textAlign: 'center',
   },
   clubSubtitle: {
-    fontSize: 16,
-    fontFamily: 'Montserrat_400Regular',
+    fontSize: 14,
+    fontFamily: 'Montserrat_600SemiBold',
     color: 'rgba(255,255,255,0.7)',
     marginTop: 4,
+    letterSpacing: 4,
+    textTransform: 'uppercase',
   },
   
   // Sponsors

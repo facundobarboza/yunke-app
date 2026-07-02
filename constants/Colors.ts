@@ -1,5 +1,5 @@
-// Paleta oficial Club Yunke
-// Azul: #203070 | Rojo: #b40f0b
+// Paleta oficial Club Yunke — Premium Edition
+// Azul: #203070 | Rojo: #E01020 | Dorado: #F5A623
 // Uso: import { yunke } from '@/constants/Colors' para acceso directo
 //      o useThemeColor() para colores temáticos
 
@@ -10,25 +10,29 @@ export const yunke = {
   primaryDark: '#1A2858',
 
   // Brand accent — rojo pasión
-  red: '#e01020',
-  redLight: '#D41612',
-  redDark: '#b01010',
+  red: '#E01020',
+  redLight: '#FF3B30',
+  redDark: '#B01010',
 
   // Premium — dorado para socios, estrellas, highlights
   gold: '#F5A623',
   goldLight: '#FFD166',
+  goldDark: '#D4941C',
 
   // Functional
   success: '#34C759',
-  error: '#b40f0b',
+  error: '#B40F0B',
 
   // Neutrals
   dark: '#121212',
   darkSoft: '#2C2C2E',
+  darkCard: '#1C1C1E',
 
   // Surfaces
   surface: '#F5F5F8',
+  surfaceDark: '#121212',
   card: '#FFFFFF',
+  cardDark: '#1C1C1E',
   white: '#FFFFFF',
 
   // Text
@@ -38,26 +42,38 @@ export const yunke = {
 
   // Borders & dividers
   border: '#E5E5EA',
+  borderDark: '#2C2C2E',
+
+  // Gradients (for LinearGradient usage)
+  gradientHeader: ['#1A2858', '#203070'] as const,
+  gradientHeaderDark: ['#0D1530', '#1A2858'] as const,
+  gradientGold: ['#F5A623', '#FFD166'] as const,
 } as const;
+
+// Excluir arrays de gradiente del spread para evitar errores de tipo
+const { gradientHeader, gradientHeaderDark, gradientGold, ...yunkeColors } = yunke;
 
 const tintColorLight = yunke.primary;
 const tintColorDark = '#fff';
 
 export default {
   light: {
-    // Spread primero, overrides después para evitar duplicados
-    ...yunke,
+    ...yunkeColors,
     background: yunke.surface,
     tint: tintColorLight,
     tabIconDefault: yunke.textTertiary,
     tabIconSelected: yunke.red,
+    card: yunke.card,
+    border: yunke.border,
   },
   dark: {
-    ...yunke,
+    ...yunkeColors,
     text: '#fff',
-    background: yunke.dark,
+    background: yunke.surfaceDark,
     tint: tintColorDark,
     tabIconDefault: yunke.textTertiary,
-    tabIconSelected: '#fff',
+    tabIconSelected: yunke.redLight,
+    card: yunke.cardDark,
+    border: yunke.borderDark,
   },
 };
