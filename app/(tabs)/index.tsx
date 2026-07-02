@@ -101,14 +101,21 @@ export default function HomeScreen() {
     return new Date(fechaISO).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
   };
 
-  // Renderizado del Carrusel de Sponsors
+  // Renderizado del Carrusel de Sponsors Premium
   const renderSponsor = ({ item }: { item: Sponsor }) => (
     <Pressable 
       style={styles.sponsorCard} 
       onPress={() => router.push(`/sponsor/${item.id}`)}
     >
       {item.portada_url ? (
-        <Image source={{ uri: item.portada_url }} style={styles.sponsorCover} resizeMode="cover" />
+        <>
+          <Image source={{ uri: item.portada_url }} style={styles.sponsorCover} resizeMode="cover" />
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.6)']}
+            style={styles.sponsorOverlay}
+          />
+          <Text style={styles.sponsorOverlayText}>{item.nombre}</Text>
+        </>
       ) : item.logo_url ? (
         <Image source={{ uri: item.logo_url }} style={styles.sponsorLogo} resizeMode="contain" />
       ) : (
@@ -307,7 +314,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   
-  // Sponsors
+  // Sponsors Premium
   sponsorsSection: { marginTop: 24, marginBottom: 10 },
   sectionTitle: {
     fontSize: 22,
@@ -320,39 +327,67 @@ const styles = StyleSheet.create({
     width: width - 48,
     height: 180,
     backgroundColor: yunke.card,
-    borderRadius: 15,
+    borderRadius: 20,
     marginHorizontal: 24,
     marginBottom: 3,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: yunke.dark,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+    overflow: 'hidden',
   },
-  sponsorLogo: { width: '80%', height: '80%' },
-  sponsorCover: { width: '100%', height: '100%', borderRadius: 15 },
-  sponsorNameText: { fontSize: 20, fontWeight: 'bold', color: yunke.text },
+  sponsorLogo: { width: '70%', height: '70%' },
+  sponsorCover: { 
+    width: '100%', 
+    height: '100%', 
+    borderRadius: 20 
+  },
+  sponsorOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 20,
+  },
+  sponsorOverlayText: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    color: yunke.white,
+    fontSize: 18,
+    fontFamily: 'Montserrat_700Bold',
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  sponsorNameText: { 
+    fontSize: 20, 
+    fontFamily: 'Montserrat_700Bold', 
+    color: yunke.text 
+  },
 
-  // Dots del carrusel
+  // Dots del carrusel premium
   dotsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 6,
-    marginTop: 12,
+    gap: 8,
+    marginTop: 16,
   },
   dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: yunke.border,
   },
   dotActive: {
-    width: 20,
+    width: 24,
     backgroundColor: yunke.primary,
-    borderRadius: 3,
+    borderRadius: 4,
   },
 
   // Partidos
