@@ -124,12 +124,12 @@ export default function HomeScreen() {
     </Pressable>
   );
 
-  // Renderizado de las tarjetas de Partidos (Horizontales) con fade in escalonado
+  // Renderizado de las tarjetas de Partidos Premium
   const renderPartido = ({ item, index }: { item: Partido; index: number }) => (
     <FadeInUp delay={index * 100}>
       <View style={styles.matchCard}>
-        {/* Barra de acento rojo */}
-        <View style={styles.matchAccent} />
+        {/* Barra de acento según localía */}
+        <View style={[styles.matchAccent, { backgroundColor: item.es_local ? yunke.red : yunke.primary }]} />
         
         <View style={styles.matchTop}>
           <Text style={styles.matchCategory}>
@@ -138,34 +138,40 @@ export default function HomeScreen() {
         </View>
         
         <View style={styles.matchTeamsContainer}>
-        <View style={styles.teamColumn}>
-          {/* Escudo Yunke (Local) */}
-          <Image source={require('../../assets/images/yunke-logo.png')} style={styles.teamEscudo} resizeMode="contain" />
-          <Text style={styles.teamNameShort} numberOfLines={1}>YUNKE</Text>
+          <View style={styles.teamColumn}>
+            <Image 
+              source={require('../../assets/images/yunke-logo.png')} 
+              style={styles.teamEscudo} 
+              resizeMode="contain" 
+            />
+            <Text style={styles.teamNameShort} numberOfLines={1}>YUNKE</Text>
+          </View>
+          
+          <View style={styles.vsContainer}>
+            <View style={styles.vsCircle}>
+              <Text style={styles.vsText}>VS</Text>
+            </View>
+          </View>
+          
+          <View style={styles.teamColumn}>
+            {item.escudo_url ? (
+              <Image source={{ uri: item.escudo_url }} style={styles.teamEscudo} resizeMode="contain" />
+            ) : (
+              <View style={[styles.teamEscudo, styles.placeholderEscudo]}>
+                <Ionicons name="shield-outline" size={24} color={yunke.textTertiary} />
+              </View>
+            )}
+            <Text style={styles.teamNameShort} numberOfLines={1}>{item.rival.toUpperCase()}</Text>
+          </View>
         </View>
-        
-        <View style={styles.vsContainer}>
-          <Text style={styles.vsText}>VS</Text>
-        </View>
-        
-        <View style={styles.teamColumn}>
-          {/* Escudo Rival */}
-          {item.escudo_url ? (
-            <Image source={{ uri: item.escudo_url }} style={styles.teamEscudo} resizeMode="contain" />
-          ) : (
-            <View style={[styles.teamEscudo, styles.placeholderEscudo]}><Ionicons name="shield-outline" size={20} color="#C7C7CC" /></View>
-          )}
-          <Text style={styles.teamNameShort} numberOfLines={1}>{item.rival.toUpperCase()}</Text>
-        </View>
-      </View>
 
         <View style={styles.matchFooter}>
           <View style={styles.matchDateContainer}>
-            <Ionicons name="calendar-outline" size={14} color={yunke.textSecondary} />
+            <Ionicons name="calendar-outline" size={16} color={yunke.textSecondary} />
             <Text style={styles.matchDateText}>{formatearFecha(item.fecha)}</Text>
           </View>
           <View style={styles.matchTimeContainer}>
-            <Ionicons name="time-outline" size={14} color={yunke.red} />
+            <Ionicons name="time-outline" size={16} color={yunke.red} />
             <Text style={styles.matchTimeText}>{formatearHora(item.fecha)} HS</Text>
           </View>
         </View>
@@ -390,25 +396,24 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
 
-  // Partidos
+  // Partidos Premium
   matchesSection: { marginTop: 20 },
   matchCard: {
-    width: 350,
+    width: 320,
     backgroundColor: yunke.card,
-    borderRadius: 15,
+    borderRadius: 16,
     padding: 20,
     marginBottom: 10,
     paddingTop: 0,
     shadowColor: yunke.dark,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
     overflow: 'hidden',
   },
   matchAccent: {
     height: 4,
-    backgroundColor: yunke.red,
     marginHorizontal: -20,
     marginBottom: 16,
   },
@@ -420,9 +425,10 @@ const styles = StyleSheet.create({
   },
   matchCategory: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Montserrat_600SemiBold',
     color: yunke.textSecondary,
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   matchTeamsContainer: {
     flexDirection: 'row',
@@ -436,16 +442,24 @@ const styles = StyleSheet.create({
   },
   teamNameShort: {
     fontSize: 12,
+    fontFamily: 'Montserrat_700Bold',
     color: yunke.text,
-    fontWeight: '700',
-    marginTop: 4,
+    marginTop: 6,
   },
   vsContainer: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
+  },
+  vsCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: yunke.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   vsText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontFamily: 'Montserrat_900Black',
     color: yunke.textSecondary,
   },
   matchFooter: {
@@ -459,11 +473,12 @@ const styles = StyleSheet.create({
   matchDateContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
     flex: 1,
   },
   matchDateText: {
-    fontSize: 12,
+    fontSize: 13,
+    fontFamily: 'Montserrat_600SemiBold',
     color: yunke.textSecondary,
     textTransform: 'capitalize',
   },
@@ -474,7 +489,7 @@ const styles = StyleSheet.create({
   },
   matchTimeText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontFamily: 'Montserrat_700Bold',
     color: yunke.red,
   },
   emptyText: {
@@ -485,13 +500,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   teamEscudo: { 
-    width: 40,
-    height: 40,
-    marginBottom: 8
+    width: 50,
+    height: 50,
   },
   placeholderEscudo: {
-    backgroundColor: '#F2F2F7',
-    borderRadius: 20,
+    backgroundColor: yunke.surface,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center'
   },
