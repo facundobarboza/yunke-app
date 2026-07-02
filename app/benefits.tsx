@@ -1,19 +1,40 @@
-import { Ionicons } from '@expo/vector-icons';
 import { yunke } from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { supabase } from '../src/supabase';
 
-const beneficios = [
-  { id: 1, tienda: 'Amor FARRR', descuento: '20% OFF', detalle: 'En todas las hamburguesas y pizzas los días de partido.', icon: 'fast-food-outline' },
-  { id: 2, tienda: 'Sport Center', descuento: '15% OFF', detalle: 'En compra de indumentaria deportiva y calzado.', icon: 'shirt-outline' },
-  { id: 3, tienda: 'Bar El Club', descuento: '2x1 en Cervezas', detalle: 'Presentando tu carnet digital de socio.', icon: 'beer-outline' },
-  { id: 4, tienda: 'Ferretería Don Tornillo', descuento: '10% OFF', detalle: 'En todos los artículos de ferretería y pinturería.', icon: 'build-outline' },
-  { id: 5, tienda: 'Clinica Dental Yunke', descuento: 'Limpieza Gratis', detalle: 'Una limpieza dental anual sin cargo para socios.', icon: 'medkit-outline' },
-];
+type Beneficio = {
+  id: string;
+  tienda: string;
+  descuento: string;
+  detalle: string;
+  icono: string;
+};
 
 export default function BenefitsScreen() {
   const router = useRouter();
+  const [beneficios, setBeneficios] = useState<Beneficio[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    cargarBeneficios();
+  }, []);
+
+  const cargarBeneficios = async () => {
+    const { data, error } = await supabase
+      .from('beneficios')
+      .select('id, tienda, descuento, detalle, icono')
+      .eq('is_active', true)
+      .order('orden', { ascending: true });
+
+    if (!error && data) {
+      setBeneficios(data);
+    }
+    setLoading(false);
+  };
 
   return (
     <>
@@ -43,22 +64,28 @@ export default function BenefitsScreen() {
 
         {/* LISTA DE BENEFICIOS */}
         <View style={styles.benefitsList}>
-          {beneficios.map((ben) => (
-            <View key={ben.id} style={styles.benefitCard}>
-              <View style={styles.iconContainer}>
-                <Ionicons name={ben.icon as any} size={24} color={yunke.red} />
+          {loading ? (
+            <ActivityIndicator size="large" color={yunke.primary} style={{ marginTop: 40 }} />
+          ) : beneficios.length === 0 ? (
+            <Text style={styles.emptyText}>No hay beneficios disponibles.</Text>
+          ) : (
+            beneficios.map((ben) => (
+              <View key={ben.id} style={styles.benefitCard}>
+                <View style={styles.iconContainer}>
+                  <Ionicons name={ben.icono as any} size={24} color={yunke.red} />
+                </View>
+                
+                <View style={styles.benefitInfo}>
+                  <Text style={styles.tienda}>{ben.tienda}</Text>
+                  <Text style={styles.detalle}>{ben.detalle}</Text>
+                </View>
+                
+                <View style={styles.discountBadge}>
+                  <Text style={styles.discountText}>{ben.descuento}</Text>
+                </View>
               </View>
-              
-              <View style={styles.benefitInfo}>
-                <Text style={styles.tienda}>{ben.tienda}</Text>
-                <Text style={styles.detalle}>{ben.detalle}</Text>
-              </View>
-              
-              <View style={styles.discountBadge}>
-                <Text style={styles.discountText}>{ben.descuento}</Text>
-              </View>
-            </View>
-          ))}
+            ))
+          )}
         </View>
 
       </ScrollView>
@@ -128,6 +155,14 @@ const styles = StyleSheet.create({
   benefitsList: {
     paddingHorizontal: 24,
     paddingTop: 24,
+  },
+
+  emptyText: {
+    textAlign: 'center',
+    fontSize: 16,
+    fontFamily: 'Montserrat_400Regular',
+    color: yunke.textSecondary,
+    marginTop: 40,
   },
 
   // Cards premium

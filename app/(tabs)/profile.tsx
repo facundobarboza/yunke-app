@@ -330,6 +330,14 @@ export default function ProfileScreen() {
             <Text style={styles.menuText}>Gestionar Sponsors</Text>
             <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
           </Pressable>
+
+          <Pressable style={styles.menuRow} onPress={() => router.push('/admin/benefits')}>
+            <View style={[styles.menuIconContainer, styles.menuIconGold]}>
+              <Ionicons name="gift-outline" size={18} color={yunke.gold} />
+            </View>
+            <Text style={styles.menuText}>Gestionar Beneficios</Text>
+            <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+          </Pressable>
         </View>
       )}
 
@@ -632,6 +640,9 @@ const styles = StyleSheet.create({
   },
   menuIconRed: {
     backgroundColor: yunke.red + '12',
+  },
+  menuIconGold: {
+    backgroundColor: yunke.gold + '20',
   },
   menuText: { 
     fontSize: 15, 
