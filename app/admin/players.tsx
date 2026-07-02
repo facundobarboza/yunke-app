@@ -13,40 +13,59 @@ type Jugador = {
   apellido: string | null;
   is_capitan: boolean | null;
   is_active: boolean;
-  categoria: { nombre: string } | null;
+  categoria_id: number | null;
+  categoria_nombre: string | null;
 };
 
 export default function AdminPlayersScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [jugadores, setJugadores] = useState<Jugador[]>([]);
+  const [categorias, setCategorias] = useState<{ id: number; nombre: string }[]>([]);
+  const [selectedCategoria, setSelectedCategoria] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   const cargarJugadores = async () => {
     setLoading(true);
+
+    // Cargar categorías por separado
+    const { data: categoriasData } = await supabase
+      .from('categorias')
+      .select('id, nombre')
+      .order('orden', { ascending: true });
+
+    if (categoriasData) setCategorias(categoriasData);
+
+    const categoriasMap = new Map<number, string>();
+    if (categoriasData) {
+      categoriasData.forEach((cat) => categoriasMap.set(cat.id, cat.nombre));
+    }
+
     const { data, error } = await supabase
       .from('jugadores')
-      .select('id, nombre, apellido, is_capitan, is_active, categorias(nombre)')
+      .select('id, nombre, apellido, is_capitan, is_active, categoria_id')
+      .eq('is_active', true)
       .order('nombre', { ascending: true });
 
-    if (error) Alert.alert('Error', error.message);
-    else setJugadores((data as any)?.map((j: any) => ({ ...j, categoria: j.categorias?.[0] || null })) || []);
+    if (error) {
+      Alert.alert('Error', error.message);
+    } else {
+      const jugadoresConCategoria = (data || []).map((j) => ({
+        ...j,
+        categoria_nombre: j.categoria_id ? categoriasMap.get(j.categoria_id) || null : null,
+      }));
+      setJugadores(jugadoresConCategoria);
+    }
     setLoading(false);
   };
 
   useFocusEffect(useCallback(() => { cargarJugadores(); }, []));
 
-  const toggleVisibilidad = async (jugador: Jugador) => {
-    setJugadores(prev => prev.map(j => j.id === jugador.id ? { ...j, is_active: !j.is_active } : j));
-    const { error } = await supabase.from('jugadores').update({ is_active: !jugador.is_active }).eq('id', jugador.id);
-    if (error) { Alert.alert('Error', 'No se pudo actualizar.'); cargarJugadores(); }
-  };
-
   const eliminarJugador = async (jugador: Jugador) => {
-    Alert.alert('Eliminar', `¿Eliminar a "${jugador.nombre} ${jugador.apellido || ''}"?`, [
+    Alert.alert('Desactivar', `¿Desactivar a "${jugador.nombre} ${jugador.apellido || ''}"?`, [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Eliminar', style: 'destructive', onPress: async () => {
-        const { error } = await supabase.from('jugadores').delete().eq('id', jugador.id);
+      { text: 'Desactivar', style: 'destructive', onPress: async () => {
+        const { error } = await supabase.from('jugadores').update({ is_active: false }).eq('id', jugador.id);
         if (error) Alert.alert('Error', error.message);
         else cargarJugadores();
       }}
@@ -60,23 +79,22 @@ export default function AdminPlayersScreen() {
           <Ionicons name="person-outline" size={18} color={yunke.primary} />
         </View>
         <View style={styles.playerText}>
-          <Text style={[styles.playerName, !item.is_active && styles.inactive]}>{item.nombre} {item.apellido || ''}</Text>
-          <Text style={[styles.playerCategory, !item.is_active && styles.inactive]}>
-            {item.categoria?.nombre || 'Sin categoría'}
+          <Text style={styles.playerName}>{item.nombre} {item.apellido || ''}</Text>
+          <Text style={styles.playerCategory}>
+            {item.categoria_nombre || 'Sin categoría'}
           </Text>
         </View>
       </Pressable>
-      
-      <View style={styles.actions}>
-        <Pressable style={[styles.toggleBtn, item.is_active ? styles.btnActive : styles.btnInactive]} onPress={() => toggleVisibilidad(item)}>
-          <Ionicons name={item.is_active ? "eye-outline" : "eye-off-outline"} size={16} color={item.is_active ? yunke.success : yunke.textSecondary} />
-        </Pressable>
-        <Pressable style={styles.deleteBtn} onPress={() => eliminarJugador(item)}>
-          <Ionicons name="trash-outline" size={16} color={yunke.red} />
-        </Pressable>
-      </View>
+
+      <Pressable style={styles.deleteBtn} onPress={() => eliminarJugador(item)}>
+        <Ionicons name="trash-outline" size={16} color={yunke.red} />
+      </Pressable>
     </View>
   );
+
+  const jugadoresFiltrados = selectedCategoria
+    ? jugadores.filter((j) => j.categoria_id === selectedCategoria)
+    : jugadores;
 
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
 
@@ -90,14 +108,35 @@ export default function AdminPlayersScreen() {
             <Text style={styles.backText}>Volver</Text>
           </Pressable>
           <Text style={styles.headerTitle}>Gestionar Plantilla</Text>
-          <Text style={styles.headerSubtitle}>{jugadores.length} jugadores</Text>
+          <Text style={styles.headerSubtitle}>{jugadoresFiltrados.length} jugadores</Text>
         </LinearGradient>
 
+        {/* Selector de categorías */}
+        <View>
+          <FlatList
+            data={[{ id: 0, nombre: 'Todos' }, ...categorias]}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={styles.categoriesList}
+            renderItem={({ item }) => (
+              <Pressable
+                style={[styles.categoryPill, (item.id === 0 ? selectedCategoria === null : selectedCategoria === item.id) && styles.categoryPillActive]}
+                onPress={() => setSelectedCategoria(item.id === 0 ? null : item.id)}
+              >
+                <Text style={[styles.categoryText, (item.id === 0 ? selectedCategoria === null : selectedCategoria === item.id) && styles.categoryTextActive]}>
+                  {item.nombre}
+                </Text>
+              </Pressable>
+            )}
+          />
+        </View>
+
         <FlatList
-          data={jugadores}
+          data={jugadoresFiltrados}
           keyExtractor={(item) => item.id}
           renderItem={renderJugador}
-          contentContainerStyle={{ paddingBottom: 100 + insets.bottom, paddingHorizontal: 24, paddingTop: 16 }}
+          contentContainerStyle={{ paddingBottom: 100 + insets.bottom, paddingHorizontal: 24, paddingTop: 10 }}
           showsVerticalScrollIndicator={false}
         />
 
@@ -117,17 +156,17 @@ const styles = StyleSheet.create({
   backText: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.white },
   headerTitle: { fontSize: 26, fontFamily: 'Montserrat_900Black', color: yunke.white, letterSpacing: -0.5 },
   headerSubtitle: { fontSize: 14, fontFamily: 'Montserrat_400Regular', color: 'rgba(255,255,255,0.7)', marginTop: 4 },
+  categoriesList: { paddingHorizontal: 24, paddingVertical: 16, gap: 10 },
+  categoryPill: { paddingHorizontal: 18, paddingVertical: 10, borderRadius: 14, backgroundColor: yunke.card, borderWidth: 1, borderColor: yunke.border, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+  categoryPillActive: { backgroundColor: yunke.primary, borderColor: yunke.primary },
+  categoryText: { fontSize: 13, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary },
+  categoryTextActive: { color: yunke.white },
   card: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: yunke.card, padding: 14, borderRadius: 16, marginBottom: 12, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   playerInfo: { flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 },
   playerIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: yunke.primary + '12', justifyContent: 'center', alignItems: 'center' },
   playerText: { flex: 1 },
   playerName: { fontSize: 15, fontFamily: 'Montserrat_600SemiBold', color: yunke.text },
   playerCategory: { fontSize: 13, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary, marginTop: 2 },
-  inactive: { opacity: 0.4 },
-  actions: { flexDirection: 'row', gap: 8 },
-  toggleBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-  btnActive: { backgroundColor: yunke.success + '15' },
-  btnInactive: { backgroundColor: yunke.surface },
   deleteBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.red + '12' },
   fab: { position: 'absolute', bottom: 30, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: yunke.primary, justifyContent: 'center', alignItems: 'center', shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
 });

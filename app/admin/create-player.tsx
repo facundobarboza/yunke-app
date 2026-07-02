@@ -6,20 +6,21 @@ import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { supabase } from '../../src/supabase';
 
 export default function CreatePlayerScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const isEditing = !!id;
-  
+
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
-  const [dorsal, setDorsal] = useState('');
   const [posicion, setPosicion] = useState('');
+  const [isCapitan, setIsCapitan] = useState(false);
   const [categorias, setCategorias] = useState<any[]>([]);
   const [selectedCategoria, setSelectedCategoria] = useState<number | null>(null);
+  const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -36,8 +37,12 @@ export default function CreatePlayerScreen() {
   const fetchJugadorData = async (jugadorId: string) => {
     const { data } = await supabase.from('jugadores').select('*').eq('id', jugadorId).single();
     if (data) {
-      setNombre(data.nombre); setApellido(data.apellido || ''); setDorsal(data.dorsal?.toString() || '');
-      setPosicion(data.posicion || ''); setSelectedCategoria(data.categoria_id); setImageUri(data.foto_url);
+      setNombre(data.nombre);
+      setApellido(data.apellido || '');
+      setPosicion(data.posicion || '');
+      setIsCapitan(data.is_capitan || false);
+      setSelectedCategoria(data.categoria_id);
+      setImageUri(data.foto_url);
     }
   };
 
@@ -66,17 +71,48 @@ export default function CreatePlayerScreen() {
         fotoUrl = imageUri;
       }
 
+      // Lógica de capitán: solo uno por categoría
+      if (isCapitan) {
+        // Buscar el capitán actual de esta categoría
+        const { data: capitanActual } = await supabase
+          .from('jugadores')
+          .select('id')
+          .eq('categoria_id', selectedCategoria)
+          .eq('is_capitan', true)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        // Si hay un capitán distinto al jugador actual, quitarle la capitanía
+        if (capitanActual && capitanActual.id !== id) {
+          await supabase.from('jugadores').update({ is_capitan: false }).eq('id', capitanActual.id);
+        }
+      }
+
+      const payload = {
+        nombre,
+        apellido: apellido || null,
+        posicion: posicion || null,
+        is_capitan: isCapitan,
+        categoria_id: selectedCategoria,
+        foto_url: fotoUrl,
+      };
+
       if (isEditing) {
-        const { error } = await supabase.from('jugadores').update({ nombre, apellido: apellido || null, dorsal: dorsal ? parseInt(dorsal) : null, posicion: posicion || null, categoria_id: selectedCategoria, foto_url: fotoUrl }).eq('id', id);
+        const { error } = await supabase.from('jugadores').update(payload).eq('id', id);
         if (error) throw error;
         Alert.alert('Éxito', 'Jugador actualizado.');
       } else {
-        const { error } = await supabase.from('jugadores').insert({ nombre, apellido: apellido || null, dorsal: dorsal ? parseInt(dorsal) : null, posicion: posicion || null, categoria_id: selectedCategoria, foto_url: fotoUrl, is_active: true });
+        const { error } = await supabase.from('jugadores').insert({ ...payload, is_active: true });
         if (error) throw error;
         Alert.alert('Éxito', 'Jugador creado.');
       }
       router.back();
     } catch (error: any) { Alert.alert('Error', error.message); } finally { setSaving(false); }
+  };
+
+  const getCategoriaNombre = () => {
+    const cat = categorias.find(c => c.id === selectedCategoria);
+    return cat ? cat.nombre : 'Seleccionar categoría';
   };
 
   return (
@@ -103,24 +139,69 @@ export default function CreatePlayerScreen() {
             )}
           </Pressable>
 
+          {/* Campos de texto */}
           <View style={styles.inputGroup}>
-            <View style={styles.inputRow}><Ionicons name="person-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Nombre" placeholderTextColor={yunke.textSecondary} value={nombre} onChangeText={setNombre} /></View>
+            <View style={styles.inputRow}>
+              <Ionicons name="person-outline" size={18} color={yunke.textSecondary} />
+              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor={yunke.textSecondary} value={nombre} onChangeText={setNombre} />
+            </View>
             <View style={styles.inputDivider} />
-            <View style={styles.inputRow}><Ionicons name="person-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Apellido" placeholderTextColor={yunke.textSecondary} value={apellido} onChangeText={setApellido} /></View>
+            <View style={styles.inputRow}>
+              <Ionicons name="person-outline" size={18} color={yunke.textSecondary} />
+              <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor={yunke.textSecondary} value={apellido} onChangeText={setApellido} />
+            </View>
             <View style={styles.inputDivider} />
-            <View style={styles.inputRow}><Ionicons name="keypad-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Dorsal" placeholderTextColor={yunke.textSecondary} value={dorsal} onChangeText={setDorsal} keyboardType="numeric" /></View>
-            <View style={styles.inputDivider} />
-            <View style={styles.inputRow}><Ionicons name="football-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Posición" placeholderTextColor={yunke.textSecondary} value={posicion} onChangeText={setPosicion} /></View>
+            <View style={styles.inputRow}>
+              <Ionicons name="football-outline" size={18} color={yunke.textSecondary} />
+              <TextInput style={styles.input} placeholder="Posición" placeholderTextColor={yunke.textSecondary} value={posicion} onChangeText={setPosicion} />
+            </View>
           </View>
 
+          {/* Categoría - desplegable */}
           <Text style={styles.sectionTitle}>CATEGORÍA</Text>
-          <View style={styles.categoriesContainer}>
-            {categorias.map((cat) => (
-              <Pressable key={cat.id} style={[styles.categoryPill, selectedCategoria === cat.id && styles.categoryPillActive]} onPress={() => setSelectedCategoria(cat.id)}>
-                <Text style={[styles.categoryText, selectedCategoria === cat.id && styles.categoryTextActive]}>{cat.nombre}</Text>
-              </Pressable>
-            ))}
-          </View>
+          <Pressable style={styles.dropdown} onPress={() => setShowCategoriaModal(true)}>
+            <Ionicons name="grid-outline" size={18} color={yunke.primary} />
+            <Text style={[styles.dropdownText, !selectedCategoria && styles.dropdownPlaceholder]}>
+              {getCategoriaNombre()}
+            </Text>
+            <Ionicons name="chevron-down" size={18} color={yunke.textSecondary} />
+          </Pressable>
+
+          {/* Capitán - toggle */}
+          <Text style={styles.sectionTitle}>CAPITÁN</Text>
+          <Pressable style={styles.toggleRow} onPress={() => setIsCapitan(!isCapitan)}>
+            <View style={styles.toggleLeft}>
+              <Ionicons name="ribbon-outline" size={20} color={isCapitan ? yunke.gold : yunke.textSecondary} />
+              <Text style={styles.toggleLabel}>Es capitán del equipo</Text>
+            </View>
+            <View style={[styles.toggleSwitch, isCapitan && styles.toggleSwitchActive]}>
+              <View style={[styles.toggleKnob, isCapitan && styles.toggleKnobActive]} />
+            </View>
+          </Pressable>
+
+          {/* Modal de categorías */}
+          <Modal visible={showCategoriaModal} transparent animationType="slide">
+            <Pressable style={styles.modalOverlay} onPress={() => setShowCategoriaModal(false)}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Seleccionar Categoría</Text>
+                <FlatList
+                  data={categorias}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={({ item }) => (
+                    <Pressable
+                      style={[styles.modalItem, selectedCategoria === item.id && styles.modalItemActive]}
+                      onPress={() => { setSelectedCategoria(item.id); setShowCategoriaModal(false); }}
+                    >
+                      <Text style={[styles.modalItemText, selectedCategoria === item.id && styles.modalItemTextActive]}>
+                        {item.nombre}
+                      </Text>
+                      {selectedCategoria === item.id && <Ionicons name="checkmark" size={20} color={yunke.primary} />}
+                    </Pressable>
+                  )}
+                />
+              </View>
+            </Pressable>
+          </Modal>
 
           <Pressable style={styles.saveButton} onPress={handleGuardar} disabled={saving}>
             {saving ? <ActivityIndicator color={yunke.white} /> : (
@@ -148,11 +229,76 @@ const styles = StyleSheet.create({
   input: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.text, paddingVertical: 12 },
   inputDivider: { height: 1, backgroundColor: yunke.border },
   sectionTitle: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12, marginLeft: 28, marginTop: 24 },
-  categoriesContainer: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 24, gap: 10, marginBottom: 24 },
-  categoryPill: { paddingHorizontal: 20, paddingVertical: 12, borderRadius: 14, backgroundColor: yunke.card, borderWidth: 1, borderColor: yunke.border, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
-  categoryPillActive: { backgroundColor: yunke.primary, borderColor: yunke.primary },
-  categoryText: { fontSize: 14, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary },
-  categoryTextActive: { color: yunke.white },
-  saveButton: { backgroundColor: yunke.primary, marginHorizontal: 24, height: 52, borderRadius: 14, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 },
+
+  // Dropdown
+  dropdown: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: yunke.card,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginHorizontal: 24,
+    gap: 10,
+    shadowColor: yunke.dark,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  dropdownText: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.text },
+  dropdownPlaceholder: { color: yunke.textTertiary },
+
+  // Toggle
+  toggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: yunke.card,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginHorizontal: 24,
+    shadowColor: yunke.dark,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  toggleLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  toggleLabel: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.text },
+  toggleSwitch: {
+    width: 50,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: yunke.border,
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  toggleSwitchActive: { backgroundColor: yunke.primary },
+  toggleKnob: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: yunke.white,
+    shadowColor: yunke.dark,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  toggleKnobActive: { alignSelf: 'flex-end' },
+
+  // Modal
+  modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
+  modalContent: { backgroundColor: yunke.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 20, paddingBottom: 40, maxHeight: '60%' },
+  modalTitle: { fontSize: 18, fontFamily: 'Montserrat_700Bold', color: yunke.text, textAlign: 'center', marginBottom: 16, paddingHorizontal: 24 },
+  modalItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: yunke.border },
+  modalItemActive: { backgroundColor: yunke.primary + '10' },
+  modalItemText: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.text },
+  modalItemTextActive: { color: yunke.primary, fontFamily: 'Montserrat_600SemiBold' },
+
+  // Save
+  saveButton: { backgroundColor: yunke.primary, marginHorizontal: 24, height: 52, borderRadius: 14, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 32, shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 },
   saveButtonText: { color: yunke.white, fontSize: 16, fontFamily: 'Montserrat_600SemiBold' },
 });
