@@ -16,7 +16,7 @@ type Jugador = {
   id: string;
   nombre: string;
   apellido: string | null;
-  dorsal: number | null;
+  is_capitan: boolean | null;
   posicion: string | null;
   foto_url: string | null;
 };
@@ -56,7 +56,7 @@ export default function TeamScreen() {
       .select('*')
       .eq('categoria_id', categoriaId)
       .eq('is_active', true)
-      .order('dorsal', { ascending: true });
+      .order('nombre', { ascending: true });
 
     setJugadores(data || []);
     setLoading(false);
@@ -81,9 +81,11 @@ export default function TeamScreen() {
               <Text style={styles.placeholderText}>{item.nombre.charAt(0)}</Text>
             </View>
           )}
-          <View style={styles.dorsalBadge}>
-            <Text style={styles.dorsalBadgeText}>{item.dorsal ?? '-'}</Text>
-          </View>
+          {item.is_capitan !== null && (
+            <View style={styles.capitanBadge}>
+              <Text style={styles.capitanBadgeText}>C</Text>
+            </View>
+          )}
         </View>
         
         <View style={styles.playerInfo}>
@@ -269,7 +271,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat_700Bold',
     color: yunke.textSecondary,
   },
-  dorsalBadge: {
+  capitanBadge: {
     position: 'absolute',
     bottom: -2,
     right: -2,
@@ -282,9 +284,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: yunke.card,
   },
-  dorsalBadgeText: {
+  capitanBadgeText: {
     fontSize: 10,
     fontFamily: 'Montserrat_700Bold',
+    fontWeight: 'bold',
     color: yunke.white,
   },
   playerInfo: {

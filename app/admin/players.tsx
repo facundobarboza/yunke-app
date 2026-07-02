@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
 
@@ -11,9 +11,9 @@ type Jugador = {
   id: string;
   nombre: string;
   apellido: string | null;
-  dorsal: number | null;
+  is_capitan: boolean | null;
   is_active: boolean;
-  categorias: { nombre: string }[] | null;
+  categoria: { nombre: string } | null;
 };
 
 export default function AdminPlayersScreen() {
@@ -26,11 +26,11 @@ export default function AdminPlayersScreen() {
     setLoading(true);
     const { data, error } = await supabase
       .from('jugadores')
-      .select('id, nombre, apellido, dorsal, is_active, categorias(nombre)')
+      .select('id, nombre, apellido, is_capitan, is_active, categorias(nombre)')
       .order('nombre', { ascending: true });
 
     if (error) Alert.alert('Error', error.message);
-    else setJugadores(data || []);
+    else setJugadores((data as any)?.map((j: any) => ({ ...j, categoria: j.categorias?.[0] || null })) || []);
     setLoading(false);
   };
 
@@ -62,7 +62,7 @@ export default function AdminPlayersScreen() {
         <View style={styles.playerText}>
           <Text style={[styles.playerName, !item.is_active && styles.inactive]}>{item.nombre} {item.apellido || ''}</Text>
           <Text style={[styles.playerCategory, !item.is_active && styles.inactive]}>
-            {item.categorias?.[0]?.nombre || 'Sin categoría'} • Dorsal: {item.dorsal || '-'}
+            {item.categoria?.nombre || 'Sin categoría'}
           </Text>
         </View>
       </Pressable>

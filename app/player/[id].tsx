@@ -12,14 +12,14 @@ type JugadorDetalle = {
   id: string;
   nombre: string;
   apellido: string | null;
-  dorsal: number | null;
+  is_capitan: boolean | null;
   posicion: string | null;
   foto_url: string | null;
   fecha_nacimiento: string | null;
   nacionalidad: string | null;
   instagram: string | null;
   descripcion: string | null;
-  categorias: { nombre: string } | null;
+  categoria: { nombre: string } | null;
 };
 
 type Foto = {
@@ -103,16 +103,17 @@ export default function PlayerDetailScreen() {
                 <Text style={styles.placeholderText}>{jugador.nombre.charAt(0)}</Text>
               </View>
             )}
-            <View style={styles.dorsalBadge}>
-              <Text style={styles.dorsalBadgeText}>{jugador.dorsal ?? '-'}</Text>
-            </View>
+            {jugador.is_capitan !== null && (
+              <View style={styles.capitanBadge}>
+                <Text style={styles.capitanBadgeText}>C</Text>
+              </View>
+            )}
           </View>
           
           <Text style={styles.playerName}>{jugador.nombre} {jugador.apellido || ''}</Text>
           
           <View style={styles.positionContainer}>
-            <Ionicons name="football-outline" size={14} color="rgba(255,255,255,0.7)" />
-            <Text style={styles.playerPosition}>{jugador.posicion || 'Futsal'} • {jugador.categorias?.nombre}</Text>
+            <Text style={styles.playerCategory}>{jugador.categoria?.nombre}</Text>
           </View>
           
           {jugador.instagram && (
@@ -128,25 +129,25 @@ export default function PlayerDetailScreen() {
       <View style={styles.statsRow}>
         <View style={styles.statCard}>
           <View style={styles.statIconContainer}>
-            <Ionicons name="calendar-outline" size={18} color={yunke.primary} />
-          </View>
-          <Text style={styles.statValue}>{calcularEdad(jugador.fecha_nacimiento)}</Text>
-          <Text style={styles.statLabel}>Edad</Text>
-        </View>
-        <View style={styles.statCard}>
-          <View style={styles.statIconContainer}>
-            <Ionicons name="globe-outline" size={18} color={yunke.primary} />
-          </View>
-          <Text style={styles.statValue}>{jugador.nacionalidad || 'N/A'}</Text>
-          <Text style={styles.statLabel}>Nacionalidad</Text>
-        </View>
-        <View style={styles.statCard}>
-          <View style={styles.statIconContainer}>
             <Ionicons name="football-outline" size={18} color={yunke.primary} />
           </View>
           <Text style={styles.statValue}>{jugador.posicion || 'N/A'}</Text>
           <Text style={styles.statLabel}>Posición</Text>
         </View>
+        <View style={styles.statCard}>
+          <View style={styles.statIconContainer}>
+            <Ionicons name="calendar-outline" size={18} color={yunke.primary} />
+          </View>
+          <Text style={styles.statValue}>{calcularEdad(jugador.fecha_nacimiento)}</Text>
+          <Text style={styles.statLabel}>Edad</Text>
+        </View>
+        {/* <View style={styles.statCard}>
+          <View style={styles.statIconContainer}>
+            <Ionicons name="globe-outline" size={18} color={yunke.primary} />
+          </View>
+          <Text style={styles.statValue}>{jugador.nacionalidad || 'N/A'}</Text>
+          <Text style={styles.statLabel}>Nacionalidad</Text>
+        </View> */}
       </View>
 
       {/* BIO / DESCRIPCIÓN */}
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat_700Bold', 
     color: yunke.white 
   },
-  dorsalBadge: {
+  capitanBadge: {
     position: 'absolute',
     bottom: 0,
     right: 0,
@@ -246,10 +247,11 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  dorsalBadgeText: { 
+  capitanBadgeText: { 
     color: yunke.white, 
     fontSize: 18, 
-    fontFamily: 'Montserrat_700Bold' 
+    fontFamily: 'Montserrat_700Bold',
+    fontWeight: 'bold',
   },
   playerName: { 
     fontSize: 28, 
@@ -264,7 +266,7 @@ const styles = StyleSheet.create({
     gap: 6,
     marginTop: 6,
   },
-  playerPosition: { 
+  playerCategory: { 
     fontSize: 15, 
     fontFamily: 'Montserrat_400Regular',
     color: 'rgba(255,255,255,0.7)', 
@@ -278,6 +280,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 20,
     marginTop: 16,
+    marginBottom: 10,
     gap: 8,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
