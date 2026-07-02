@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
 
 const { width } = Dimensions.get('window');
@@ -35,6 +36,7 @@ type Sponsor = {
 };
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
   const [proximosPartidos, setProximosPartidos] = useState<Partido[]>([]);
   const [noticias, setNoticias] = useState<Noticia[]>([]);
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
@@ -201,7 +203,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 30 }}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}>
       {/* HEADER CON GRADIENTE AZUL PREMIUM */}
       <LinearGradient
         colors={yunke.gradientHeader}

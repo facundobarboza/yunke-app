@@ -19,10 +19,6 @@ export default function ProfileScreen() {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
 
-  // Estados para editar perfil
-  const [telefono, setTelefono] = useState('');
-  const [dni, setDni] = useState('');
-  const [savingProfile, setSavingProfile] = useState(false);
   const [loadingPago, setLoadingPago] = useState(false);
 
   useEffect(() => {
@@ -49,8 +45,6 @@ export default function ProfileScreen() {
     
     if (data) {
       setProfile(data);
-      setTelefono(data.telefono || '');
-      setDni(data.dni || '');
     }
   };
 
@@ -88,19 +82,6 @@ export default function ProfileScreen() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setEmail(''); setPassword(''); setNombre(''); setApellido('');
-  };
-
-  const handleSaveProfile = async () => {
-    setSavingProfile(true);
-    const { error } = await supabase
-      .from('profiles')
-      .update({ telefono, dni })
-      .eq('id', session.user.id);
-
-    if (error) Alert.alert('Error', 'No se pudieron guardar los cambios.');
-    else Alert.alert('Guardado', 'Tus datos se actualizaron correctamente.');
-    
-    setSavingProfile(false);
   };
 
   const handleResetPassword = async () => {
@@ -225,7 +206,7 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.cardBody}>
             <Text style={styles.cardName}>{profile?.nombre} {profile?.apellido}</Text>
-            <Text style={styles.cardDni}>DNI: {dni || 'No registrado'}</Text>
+            <Text style={styles.cardDni}>DNI: {profile?.dni || 'No registrado'}</Text>
           </View>
           <View style={styles.cardFooter}>
             <View style={styles.statusBadge}>
@@ -253,43 +234,17 @@ export default function ProfileScreen() {
         </View>
       )}
 
-      {/* DATOS PERSONALES EDITABLES */}
-      <Text style={styles.sectionTitle}>DATOS PERSONALES</Text>
-      <View style={styles.inputGroup}>
-        <View style={styles.disabledRow}>
-          <View style={styles.disabledRowLeft}>
-            <Ionicons name="person-outline" size={16} color={yunke.textSecondary} />
-            <Text style={styles.disabledLabel}>Nombre</Text>
-          </View>
-          <Text style={styles.disabledValue}>{profile?.nombre} {profile?.apellido}</Text>
+      {/* DATOS PERSONALES */}
+      <Text style={styles.sectionTitle}>CUENTA</Text>
+      <Pressable style={styles.menuRow} onPress={() => router.push('/edit-profile')}>
+        <View style={styles.menuIconContainer}>
+          <Ionicons name="person-outline" size={18} color={yunke.primary} />
         </View>
-        <View style={styles.inputDivider} />
-        <View style={styles.disabledRow}>
-          <View style={styles.disabledRowLeft}>
-            <Ionicons name="mail-outline" size={16} color={yunke.textSecondary} />
-            <Text style={styles.disabledLabel}>Email</Text>
-          </View>
-          <Text style={styles.disabledValue}>{session?.user?.email}</Text>
+        <View style={styles.menuTextContainer}>
+          <Text style={styles.menuText}>Datos Personales</Text>
+          <Text style={styles.menuSubtext}>{profile?.nombre} {profile?.apellido}</Text>
         </View>
-        <View style={styles.inputDivider} />
-        <View style={styles.inputRow}>
-          <Ionicons name="call-outline" size={16} color={yunke.textSecondary} />
-          <TextInput style={styles.inputWithIcon} placeholder="Teléfono" placeholderTextColor={yunke.textSecondary} value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" />
-        </View>
-        <View style={styles.inputDivider} />
-        <View style={styles.inputRow}>
-          <Ionicons name="card-outline" size={16} color={yunke.textSecondary} />
-          <TextInput style={styles.inputWithIcon} placeholder="DNI" placeholderTextColor={yunke.textSecondary} value={dni} onChangeText={setDni} keyboardType="numeric" />
-        </View>
-      </View>
-
-      <Pressable style={styles.saveButton} onPress={handleSaveProfile} disabled={savingProfile}>
-        {savingProfile ? <ActivityIndicator color={yunke.white} /> : (
-          <>
-            <Ionicons name="checkmark-circle-outline" size={18} color={yunke.white} />
-            <Text style={styles.saveButtonText}>Guardar Cambios</Text>
-          </>
-        )}
+        <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
       </Pressable>
 
       {/* SEGURIDAD */}
@@ -570,49 +525,6 @@ const styles = StyleSheet.create({
     marginLeft: 28,
     marginTop: 24,
   },
-  disabledRow: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    height: 50 
-  },
-  disabledRowLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  disabledLabel: { 
-    fontSize: 15, 
-    fontFamily: 'Montserrat_400Regular',
-    color: yunke.textSecondary 
-  },
-  disabledValue: { 
-    fontSize: 15, 
-    fontFamily: 'Montserrat_500Medium',
-    color: yunke.text 
-  },
-  saveButton: { 
-    backgroundColor: yunke.primary, 
-    height: 52, 
-    borderRadius: 14, 
-    flexDirection: 'row',
-    justifyContent: 'center', 
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 15, 
-    marginBottom: 10,
-    marginHorizontal: 24,
-    shadowColor: yunke.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  saveButtonText: { 
-    color: yunke.white, 
-    fontSize: 16, 
-    fontFamily: 'Montserrat_600SemiBold' 
-  },
 
   // Menú Premium
   menuRow: { 
@@ -645,11 +557,20 @@ const styles = StyleSheet.create({
   menuIconGold: {
     backgroundColor: yunke.gold + '20',
   },
-  menuText: { 
-    fontSize: 15, 
+  menuText: {
+    fontSize: 15,
     fontFamily: 'Montserrat_500Medium',
-    color: yunke.text, 
-    flex: 1 
+    color: yunke.text,
+    flex: 1
+  },
+  menuTextContainer: {
+    flex: 1,
+  },
+  menuSubtext: {
+    fontSize: 13,
+    fontFamily: 'Montserrat_400Regular',
+    color: yunke.textSecondary,
+    marginTop: 2,
   },
 
   // Cerrar sesión Premium
