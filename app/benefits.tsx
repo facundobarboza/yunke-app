@@ -43,7 +43,7 @@ export default function BenefitsScreen() {
         
         {/* HEADER CON GRADIENTE */}
         <LinearGradient
-          colors={yunke.gradientGold}
+          colors={yunke.gradientRed}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.header}

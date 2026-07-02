@@ -238,7 +238,7 @@ export default function ProfileScreen() {
         // BANNER HACERSE SOCIO (SI NO ES SOCIO)
         <View style={styles.bannerCard}>
           <LinearGradient
-            colors={yunke.gradientGold}
+            colors={yunke.gradientRed}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.bannerGradient}
@@ -388,6 +388,7 @@ const styles = StyleSheet.create({
     borderRadius: 16, 
     paddingHorizontal: 16, 
     marginBottom: 20,
+    marginHorizontal: 24,
     shadowColor: yunke.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,

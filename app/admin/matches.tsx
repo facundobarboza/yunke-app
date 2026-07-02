@@ -1,7 +1,10 @@
+import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
 
 type Partido = {
@@ -17,10 +20,9 @@ type Partido = {
 
 export default function AdminMatchesScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [partidos, setPartidos] = useState<Partido[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Estados para el Modal de Cargar Resultado
   const [modalVisible, setModalVisible] = useState(false);
   const [partidoActual, setPartidoActual] = useState<Partido | null>(null);
   const [golesLocal, setGolesLocal] = useState('');
@@ -32,8 +34,7 @@ export default function AdminMatchesScreen() {
     const { data, error } = await supabase
       .from('partidos')
       .select('id, fecha, rival, es_local, resultado_local, resultado_visitante, jugado, categorias(nombre)')
-      .order('fecha', { ascending: false }); // Los más recientes arriba
-
+      .order('fecha', { ascending: false });
     if (error) Alert.alert('Error', error.message);
     else setPartidos(data || []);
     setLoading(false);
@@ -51,44 +52,29 @@ export default function AdminMatchesScreen() {
   const guardarResultado = async () => {
     if (!partidoActual) return;
     setSavingResult(true);
-
-    const { error } = await supabase
-      .from('partidos')
-      .update({
-        resultado_local: golesLocal === '' ? null : parseInt(golesLocal),
-        resultado_visitante: golesVisitante === '' ? null : parseInt(golesVisitante),
-        jugado: true
-      })
-      .eq('id', partidoActual.id);
+    const { error } = await supabase.from('partidos').update({
+      resultado_local: golesLocal === '' ? null : parseInt(golesLocal),
+      resultado_visitante: golesVisitante === '' ? null : parseInt(golesVisitante),
+      jugado: true
+    }).eq('id', partidoActual.id);
 
     if (error) {
       Alert.alert('Error', 'No se pudo guardar el resultado.');
     } else {
-      // Actualizamos la lista localmente para que se vea el cambio al instante
-      setPartidos(prev => prev.map(p => p.id === partidoActual.id ? {
-        ...p,
-        resultado_local: golesLocal === '' ? null : parseInt(golesLocal),
-        resultado_visitante: golesVisitante === '' ? null : parseInt(golesVisitante),
-        jugado: true
-      } : p));
+      setPartidos(prev => prev.map(p => p.id === partidoActual.id ? { ...p, resultado_local: golesLocal === '' ? null : parseInt(golesLocal), resultado_visitante: golesVisitante === '' ? null : parseInt(golesVisitante), jugado: true } : p));
       setModalVisible(false);
     }
     setSavingResult(false);
   };
 
   const renderPartido = ({ item }: { item: Partido }) => {
-    // Comprobamos si la fecha del partido ya pasó
     const esPasado = new Date(item.fecha) < new Date();
-
     return (
       <View style={styles.card}>
-        <Pressable 
-          style={styles.matchInfo} 
-          onPress={() => router.push(`/admin/create-match?id=${item.id}`)}
-        >
+        <Pressable style={styles.matchInfo} onPress={() => router.push(`/admin/create-match?id=${item.id}`)}>
           <Text style={styles.teamText}>
-            {item.es_local ? 'YUNKE' : item.rival} 
-            <Text style={styles.vsText}> vs </Text> 
+            {item.es_local ? 'YUNKE' : item.rival}
+            <Text style={styles.vsText}> vs </Text>
             {item.es_local ? item.rival : 'YUNKE'}
           </Text>
           <Text style={styles.categoryText}>
@@ -104,12 +90,11 @@ export default function AdminMatchesScreen() {
             </Pressable>
           </View>
         ) : esPasado ? (
-          // Si ya pasó la fecha pero no tiene resultado, permitimos cargarlo
           <Pressable style={styles.loadResultBtn} onPress={() => abrirModalResultado(item)}>
-            <Text style={styles.loadResultText}>Cargar Resultado</Text>
+            <Ionicons name="create-outline" size={14} color={yunke.primary} />
+            <Text style={styles.loadResultText}>Cargar</Text>
           </Pressable>
         ) : (
-          // Si es en el futuro, solo mostramos este texto
           <View style={styles.scheduledContainer}>
             <Text style={styles.scheduledText}>Programado</Text>
           </View>
@@ -118,146 +103,88 @@ export default function AdminMatchesScreen() {
     );
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#FF3B30" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.container}>
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={28} color="#007AFF" />
-          <Text style={styles.backText}>Volver</Text>
+        <LinearGradient colors={yunke.gradientHeader} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
+          <Pressable style={styles.backButton} onPress={() => router.back()}>
+            <Ionicons name="chevron-back" size={24} color={yunke.white} />
+            <Text style={styles.backText}>Volver</Text>
+          </Pressable>
+          <Text style={styles.headerTitle}>Gestionar Partidos</Text>
+          <Text style={styles.headerSubtitle}>{partidos.length} partidos</Text>
+        </LinearGradient>
+
+        <FlatList data={partidos} keyExtractor={(item) => item.id} renderItem={renderPartido}
+          contentContainerStyle={{ paddingBottom: 100 + insets.bottom, paddingHorizontal: 24, paddingTop: 16 }} showsVerticalScrollIndicator={false} />
+
+        <Pressable style={[styles.fab, { bottom: 30 + insets.bottom }]} onPress={() => router.push('/admin/create-match')}>
+          <Ionicons name="add" size={28} color={yunke.white} />
         </Pressable>
 
-        <Text style={styles.headerTitle}>Gestionar Partidos</Text>
-
-        <FlatList
-          data={partidos}
-          keyExtractor={(item) => item.id}
-          renderItem={renderPartido}
-          contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 24 }}
-          showsVerticalScrollIndicator={false}
-        />
-
-        <Pressable style={styles.fab} onPress={() => router.push('/admin/create-match')}>
-          <Ionicons name="add" size={32} color="#fff" />
-        </Pressable>
-
-        {/* MODAL PARA CARGAR RESULTADO */}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}
-        >
+        <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Cargar Resultado</Text>
               <Text style={styles.modalSubtitle}>
                 {partidoActual?.es_local ? 'YUNKE' : partidoActual?.rival} vs {partidoActual?.es_local ? partidoActual?.rival : 'YUNKE'}
               </Text>
-
               <View style={styles.scoreInputsContainer}>
-                <TextInput
-                  style={styles.scoreInput}
-                  keyboardType="numeric"
-                  placeholder="0"
-                  value={golesLocal}
-                  onChangeText={setGolesLocal}
-                  maxLength={2}
-                />
+                <TextInput style={styles.scoreInput} keyboardType="numeric" placeholder="0" placeholderTextColor={yunke.textTertiary} value={golesLocal} onChangeText={setGolesLocal} maxLength={2} />
                 <Text style={styles.scoreDash}>-</Text>
-                <TextInput
-                  style={styles.scoreInput}
-                  keyboardType="numeric"
-                  placeholder="0"
-                  value={golesVisitante}
-                  onChangeText={setGolesVisitante}
-                  maxLength={2}
-                />
+                <TextInput style={styles.scoreInput} keyboardType="numeric" placeholder="0" placeholderTextColor={yunke.textTertiary} value={golesVisitante} onChangeText={setGolesVisitante} maxLength={2} />
               </View>
-
               <View style={styles.modalButtons}>
                 <Pressable style={[styles.modalBtn, styles.cancelBtn]} onPress={() => setModalVisible(false)}>
                   <Text style={styles.cancelBtnText}>Cancelar</Text>
                 </Pressable>
                 <Pressable style={[styles.modalBtn, styles.saveBtn]} onPress={guardarResultado} disabled={savingResult}>
-                  {savingResult ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Guardar</Text>}
+                  {savingResult ? <ActivityIndicator color={yunke.white} /> : <Text style={styles.saveBtnText}>Guardar</Text>}
                 </Pressable>
               </View>
             </View>
           </View>
         </Modal>
-
       </View>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F2F2F7' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F2F2F7' },
-  backButton: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingTop: 60, paddingBottom: 10 },
-  backText: { fontSize: 17, color: '#007AFF', marginLeft: -4 },
-  headerTitle: { fontSize: 28, fontWeight: 'bold', color: '#1C1C1E', paddingHorizontal: 24, letterSpacing: -1, marginBottom: 20 },
-  
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 14,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-
-  scheduledContainer: { 
-    backgroundColor: '#F2F2F7', 
-    paddingHorizontal: 12, 
-    paddingVertical: 8, 
-    borderRadius: 8 
-  },
-  scheduledText: { 
-    fontSize: 13, 
-    color: '#8E8E93', 
-    fontWeight: '600' 
-  },
-
+  container: { flex: 1, backgroundColor: yunke.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
+  header: { paddingTop: 60, paddingBottom: 20, paddingHorizontal: 24, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 },
+  backButton: { flexDirection: 'row', alignItems: 'center', paddingBottom: 16, gap: 4 },
+  backText: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.white },
+  headerTitle: { fontSize: 26, fontFamily: 'Montserrat_900Black', color: yunke.white, letterSpacing: -0.5 },
+  headerSubtitle: { fontSize: 14, fontFamily: 'Montserrat_400Regular', color: 'rgba(255,255,255,0.7)', marginTop: 4 },
+  card: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: yunke.card, padding: 14, borderRadius: 16, marginBottom: 12, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   matchInfo: { flex: 1, marginRight: 10 },
-  teamText: { fontSize: 16, fontWeight: '600', color: '#1C1C1E' },
-  vsText: { color: '#8E8E93', fontWeight: '400' },
-  categoryText: { fontSize: 13, color: '#8E8E93', marginTop: 4 },
-  
+  teamText: { fontSize: 15, fontFamily: 'Montserrat_600SemiBold', color: yunke.text },
+  vsText: { fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary },
+  categoryText: { fontSize: 12, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary, marginTop: 4 },
   resultContainer: { alignItems: 'center' },
-  scoreText: { fontSize: 20, fontWeight: 'bold', color: '#1C1C1E' },
-  editText: { fontSize: 12, color: '#007AFF', marginTop: 4, fontWeight: '600' },
-  
-  loadResultBtn: { backgroundColor: '#F2F2F7', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
-  loadResultText: { fontSize: 13, color: '#007AFF', fontWeight: '600' },
-
-  fab: {
-    position: 'absolute', bottom: 30, right: 24, width: 60, height: 60, borderRadius: 30,
-    backgroundColor: '#FF3B30', justifyContent: 'center', alignItems: 'center',
-    shadowColor: '#FF3B30', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6,
-  },
-
-  // Modal Styles
+  scoreText: { fontSize: 20, fontFamily: 'Montserrat_700Bold', color: yunke.text },
+  editText: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.primary, marginTop: 4 },
+  scheduledContainer: { backgroundColor: yunke.surface, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
+  scheduledText: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary },
+  loadResultBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: yunke.primary + '12', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, gap: 4 },
+  loadResultText: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.primary },
+  fab: { position: 'absolute', bottom: 30, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: yunke.primary, justifyContent: 'center', alignItems: 'center', shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
   modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContent: { width: '85%', backgroundColor: '#FFFFFF', borderRadius: 20, padding: 24, alignItems: 'center' },
-  modalTitle: { fontSize: 20, fontWeight: 'bold', color: '#1C1C1E', marginBottom: 4 },
-  modalSubtitle: { fontSize: 14, color: '#8E8E93', marginBottom: 24, textTransform: 'capitalize' },
+  modalContent: { width: '85%', backgroundColor: yunke.card, borderRadius: 20, padding: 24, alignItems: 'center', shadowColor: yunke.dark, shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 10 },
+  modalTitle: { fontSize: 20, fontFamily: 'Montserrat_700Bold', color: yunke.text, marginBottom: 4 },
+  modalSubtitle: { fontSize: 14, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary, marginBottom: 24, textTransform: 'capitalize' },
   scoreInputsContainer: { flexDirection: 'row', alignItems: 'center', gap: 20, marginBottom: 30 },
-  scoreInput: { width: 70, height: 70, borderWidth: 1, borderColor: '#E5E5EA', borderRadius: 16, textAlign: 'center', fontSize: 32, fontWeight: 'bold', color: '#1C1C1E' },
-  scoreDash: { fontSize: 30, fontWeight: 'bold', color: '#8E8E93' },
+  scoreInput: { width: 70, height: 70, borderWidth: 1, borderColor: yunke.border, borderRadius: 16, textAlign: 'center', fontSize: 32, fontFamily: 'Montserrat_700Bold', color: yunke.text },
+  scoreDash: { fontSize: 30, fontFamily: 'Montserrat_700Bold', color: yunke.textSecondary },
   modalButtons: { flexDirection: 'row', gap: 12, width: '100%' },
   modalBtn: { flex: 1, height: 48, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-  cancelBtn: { backgroundColor: '#F2F2F7' },
-  cancelBtnText: { color: '#8E8E93', fontSize: 16, fontWeight: '600' },
-  saveBtn: { backgroundColor: '#FF3B30' },
-  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  cancelBtn: { backgroundColor: yunke.surface },
+  cancelBtnText: { color: yunke.textSecondary, fontSize: 16, fontFamily: 'Montserrat_600SemiBold' },
+  saveBtn: { backgroundColor: yunke.primary },
+  saveBtnText: { color: yunke.white, fontSize: 16, fontFamily: 'Montserrat_600SemiBold' },
 });

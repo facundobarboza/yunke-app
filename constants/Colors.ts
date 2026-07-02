@@ -47,11 +47,11 @@ export const yunke = {
   // Gradients (for LinearGradient usage)
   gradientHeader: ['#1A2858', '#203070'] as const,
   gradientHeaderDark: ['#0D1530', '#1A2858'] as const,
-  gradientGold: ['#F5A623', '#FFD166'] as const,
+  gradientRed: ['#6d0202', '#E01020'] as const,
 } as const;
 
 // Excluir arrays de gradiente del spread para evitar errores de tipo
-const { gradientHeader, gradientHeaderDark, gradientGold, ...yunkeColors } = yunke;
+const { gradientHeader, gradientHeaderDark, gradientRed, ...yunkeColors } = yunke;
 
 const tintColorLight = yunke.primary;
 const tintColorDark = '#fff';

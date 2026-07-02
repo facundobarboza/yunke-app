@@ -3,7 +3,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
 
 type Beneficio = {
@@ -18,6 +19,7 @@ type Beneficio = {
 
 export default function AdminBenefitsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [beneficios, setBeneficios] = useState<Beneficio[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -100,10 +102,10 @@ export default function AdminBenefitsScreen() {
           data={beneficios}
           keyExtractor={(item) => item.id}
           renderItem={renderBeneficio}
-          contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 24, paddingTop: 16 }}
+          contentContainerStyle={{ paddingBottom: 100 + insets.bottom, paddingHorizontal: 24, paddingTop: 16 }}
         />
 
-        <Pressable style={styles.fab} onPress={() => router.push('/admin/create-benefit')}>
+        <Pressable style={[styles.fab, { bottom: 30 + insets.bottom }]} onPress={() => router.push('/admin/create-benefit')}>
           <Ionicons name="add" size={28} color={yunke.white} />
         </Pressable>
       </View>

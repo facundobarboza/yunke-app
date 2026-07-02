@@ -270,14 +270,14 @@ export default function HomeScreen() {
 
       {/* BANNER HACERTE SOCIO PREMIUM */}
       <LinearGradient
-        colors={yunke.gradientGold}
+        colors={yunke.gradientRed}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.socioBanner}
       >
-        <View style={styles.bannerBadge}>
+        {/* <View style={styles.bannerBadge}>
           <Text style={styles.bannerBadgeText}>EXCLUSIVO</Text>
-        </View>
+        </View> */}
         <View style={styles.bannerIconContainer}>
           <Ionicons name="star" size={28} color={yunke.white} />
         </View>
