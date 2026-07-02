@@ -151,8 +151,11 @@ export default function HomeScreen() {
         <View style={[styles.matchAccent, { backgroundColor: item.es_local ? yunke.red : yunke.primary }]} />
         
         <View style={styles.matchTop}>
-          <Text style={styles.matchCategory}>
-            {item.categoria_nombre || 'General'} {item.competicion ? ` - ${item.competicion}` : ''}
+          <Text style={styles.matchCategoryAndCompeticion}>
+            {item.categoria_nombre || 'General'}
+          </Text>
+          <Text style={styles.matchCategoryAndCompeticion}>
+            {item.competicion ? `${item.competicion}` : ''}
           </Text>
         </View>
         
@@ -316,7 +319,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: yunke.surface },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
   
-  // Header con gradiente premium
+  // Header con gradiente
   header: {
     paddingHorizontal: 24,
     paddingTop: 60,
@@ -351,7 +354,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   
-  // Sponsors Premium
+  // Sponsors
   sponsorsSection: { marginTop: 24, marginBottom: 10 },
   sectionTitle: {
     fontSize: 22,
@@ -366,7 +369,7 @@ const styles = StyleSheet.create({
     backgroundColor: yunke.card,
     borderRadius: 20,
     marginHorizontal: 24,
-    marginBottom: 3,
+    marginBottom: 12,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: yunke.dark,
@@ -407,13 +410,13 @@ const styles = StyleSheet.create({
     color: yunke.text 
   },
 
-  // Dots del carrusel premium
+  // Dots del carrusel
   dotsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
-    marginTop: 16,
+    marginTop: 5,
   },
   dot: {
     width: 8,
@@ -427,10 +430,10 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
 
-  // Partidos Premium
+  // Partidos
   matchesSection: { marginTop: 20 },
   matchCard: {
-    width: 320,
+    width: 350,
     backgroundColor: yunke.card,
     borderRadius: 16,
     padding: 20,
@@ -454,7 +457,8 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     marginBottom: 15,
   },
-  matchCategory: {
+  matchCategoryAndCompeticion: {
+    textAlign: 'center',
     fontSize: 13,
     fontFamily: 'Montserrat_600SemiBold',
     color: yunke.textSecondary,
@@ -541,7 +545,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
 
-  // Noticias Premium
+  // Noticias
   sectionHeader: { paddingHorizontal: 24, marginTop: 30, marginBottom: 15 },
   newsCard: {
     backgroundColor: yunke.card,
@@ -592,7 +596,7 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize' 
   },
 
-  // Banner Socio Premium
+  // Banner Socio
   socioBanner: {
     flexDirection: 'row',
     alignItems: 'center',
