@@ -270,8 +270,8 @@ const styles = StyleSheet.create({
   // Header con gradiente
   header: {
     paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 20,
+    paddingTop: 40,
+    paddingBottom: 40,
   },
   clubTitle: {
     fontSize: 34,
@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
   // Partidos
   matchesSection: { marginTop: 20 },
   matchCard: {
-    width: 280,
+    width: 350,
     backgroundColor: yunke.card,
     borderRadius: 15,
     padding: 20,

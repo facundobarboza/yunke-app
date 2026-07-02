@@ -1,18 +1,18 @@
 // Paleta oficial Club Yunke
-// Azul: #233776 | Rojo: #b40f0b
+// Azul: #203070 | Rojo: #b40f0b
 // Uso: import { yunke } from '@/constants/Colors' para acceso directo
 //      o useThemeColor() para colores temáticos
 
 export const yunke = {
   // Brand primario — azul institucional
-  primary: '#233776',
+  primary: '#203070',
   primaryLight: '#2E4694',
   primaryDark: '#1A2858',
 
   // Brand accent — rojo pasión
-  red: '#b40f0b',
+  red: '#e01020',
   redLight: '#D41612',
-  redDark: '#8A0B08',
+  redDark: '#b01010',
 
   // Premium — dorado para socios, estrellas, highlights
   gold: '#F5A623',
