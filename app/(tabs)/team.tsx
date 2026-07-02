@@ -1,5 +1,7 @@
 import { FadeInUp } from '@/components/FadeInUp';
 import { yunke } from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -71,24 +73,30 @@ export default function TeamScreen() {
         style={styles.playerCard} 
         onPress={() => router.push(`/player/${item.id}`)}
       >
-      <View style={styles.playerPhotoContainer}>
-        {item.foto_url ? (
-          <Image source={{ uri: item.foto_url }} style={styles.playerPhoto} />
-        ) : (
-          <View style={[styles.playerPhoto, styles.placeholderPhoto]}>
-            <Text style={styles.placeholderText}>{item.nombre.charAt(0)}</Text>
+        <View style={styles.playerPhotoContainer}>
+          {item.foto_url ? (
+            <Image source={{ uri: item.foto_url }} style={styles.playerPhoto} />
+          ) : (
+            <View style={[styles.playerPhoto, styles.placeholderPhoto]}>
+              <Text style={styles.placeholderText}>{item.nombre.charAt(0)}</Text>
+            </View>
+          )}
+          <View style={styles.dorsalBadge}>
+            <Text style={styles.dorsalBadgeText}>{item.dorsal ?? '-'}</Text>
           </View>
-        )}
-      </View>
-      
-      <View style={styles.playerInfo}>
-        <Text style={styles.playerName}>{item.nombre} {item.apellido || ''}</Text>
-        {item.posicion && <Text style={styles.playerPosition}>{item.posicion}</Text>}
-      </View>
-      
-      <View style={styles.dorsalContainer}>
-        <Text style={styles.dorsalText}>{item.dorsal ?? '-'}</Text>
-      </View>
+        </View>
+        
+        <View style={styles.playerInfo}>
+          <Text style={styles.playerName}>{item.nombre} {item.apellido || ''}</Text>
+          {item.posicion && (
+            <View style={styles.positionContainer}>
+              <Ionicons name="football-outline" size={12} color={yunke.textSecondary} />
+              <Text style={styles.playerPosition}>{item.posicion}</Text>
+            </View>
+          )}
+        </View>
+        
+        <Ionicons name="chevron-forward" size={20} color={yunke.textTertiary} />
       </Pressable>
     </FadeInUp>
   );
@@ -103,9 +111,16 @@ export default function TeamScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.screenTitle}>Equipo</Text>
-      </View>
+      {/* HEADER CON GRADIENTE */}
+      <LinearGradient
+        colors={yunke.gradientHeader}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}
+      >
+        <Text style={styles.screenTitle}>Plantel</Text>
+        <Text style={styles.headerSubtitle}>Conocé a nuestros jugadores</Text>
+      </LinearGradient>
 
       {/* Selector de Categorías */}
       <View>
@@ -140,7 +155,7 @@ export default function TeamScreen() {
         data={jugadores}
         keyExtractor={(item) => item.id}
         renderItem={renderJugador}
-        contentContainerStyle={{ paddingBottom: 30 }}
+        contentContainerStyle={{ paddingBottom: 100, paddingTop: 10 }}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           !loading ? (
@@ -161,38 +176,61 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: yunke.surface,
   },
   header: {
     paddingHorizontal: 24,
     paddingTop: 60,
-    paddingBottom: 10,
+    paddingBottom: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: yunke.dark,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 15,
   },
   screenTitle: {
     fontSize: 34,
     fontFamily: 'Montserrat_900Black',
-    color: yunke.text,
+    color: yunke.white,
     letterSpacing: -1,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    fontFamily: 'Montserrat_400Regular',
+    color: 'rgba(255,255,255,0.7)',
+    marginTop: 4,
   },
   categoriesList: {
     paddingHorizontal: 24,
-    paddingVertical: 15,
+    paddingVertical: 16,
   },
   categoryPill: {
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 14,
     backgroundColor: yunke.card,
     marginRight: 10,
     borderWidth: 1,
     borderColor: yunke.border,
+    shadowColor: yunke.dark,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
   categoryPillActive: {
     backgroundColor: yunke.primary,
     borderColor: yunke.primary,
+    shadowColor: yunke.primary,
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   categoryText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Montserrat_600SemiBold',
     color: yunke.textSecondary,
   },
   categoryTextActive: {
@@ -205,20 +243,21 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     marginBottom: 12,
     borderRadius: 16,
-    padding: 12,
+    padding: 14,
     shadowColor: yunke.dark,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
     shadowRadius: 8,
-    elevation: 2,
+    elevation: 3,
   },
   playerPhotoContainer: {
-    marginRight: 15,
+    marginRight: 14,
+    position: 'relative',
   },
   playerPhoto: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
   },
   placeholderPhoto: {
     backgroundColor: yunke.surface,
@@ -226,9 +265,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   placeholderText: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontFamily: 'Montserrat_700Bold',
     color: yunke.textSecondary,
+  },
+  dorsalBadge: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    backgroundColor: yunke.red,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: yunke.card,
+  },
+  dorsalBadgeText: {
+    fontSize: 10,
+    fontFamily: 'Montserrat_700Bold',
+    color: yunke.white,
   },
   playerInfo: {
     flex: 1,
@@ -238,29 +295,23 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat_700Bold',
     color: yunke.text,
   },
-  playerPosition: {
-    fontSize: 14,
-    color: yunke.textSecondary,
-    marginTop: 2,
-    textTransform: 'capitalize',
-  },
-  dorsalContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: yunke.red,
-    justifyContent: 'center',
+  positionContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
   },
-  dorsalText: {
-    fontSize: 18,
-    fontFamily: 'SpaceMono',
-    color: yunke.white,
+  playerPosition: {
+    fontSize: 13,
+    fontFamily: 'Montserrat_400Regular',
+    color: yunke.textSecondary,
+    textTransform: 'capitalize',
   },
   emptyText: {
     textAlign: 'center',
     marginTop: 40,
     fontSize: 16,
+    fontFamily: 'Montserrat_400Regular',
     color: yunke.textSecondary,
   },
 });
