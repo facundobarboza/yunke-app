@@ -1,5 +1,10 @@
 # Home Screen Premium Redesign - Club Yunke
 
+> [!NOTE]
+> This document may not reflect the current implementation.
+> See the final report for up-to-date state:
+> [Final Report](../reports/home-redesign.md)
+
 ## [S1] Problem
 
 The current Home screen has a clean but basic design that doesn't match the premium feel of top football club apps (Real Madrid, Manchester City, Barcelona). The aesthetic needs elevation to feel modern and premium while maintaining usability in both light and dark modes.

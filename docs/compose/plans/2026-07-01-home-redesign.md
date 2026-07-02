@@ -1,5 +1,10 @@
 # Home Screen Premium Redesign Implementation Plan
 
+> [!NOTE]
+> This document may not reflect the current implementation.
+> See the final report for up-to-date state:
+> [Final Report](../reports/home-redesign.md)
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use compose:subagent (recommended) or compose:execute to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Transform the Home screen into a premium football club app with hybrid dark hero + light content design, supporting both light and dark modes.
