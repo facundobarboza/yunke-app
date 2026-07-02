@@ -108,7 +108,7 @@ export default function CalendarScreen() {
         <View style={styles.matchInfo}>
           <View style={styles.teamRowCalendar}>
             {item.es_local ? (
-              <Image source={require('../../assets/images/icon.png')} style={styles.escudoCalendar} resizeMode="contain" />
+              <Image source={require('../../assets/images/yunke-logo.png')} style={styles.escudoCalendar} resizeMode="contain" />
             ) : (
               item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.escudoCalendar} resizeMode="contain" /> : <View style={[styles.escudoCalendar, styles.placeholderEscudoCal]}><Ionicons name="shield-outline" size={14} color="#C7C7CC" /></View>
             )}
@@ -119,7 +119,7 @@ export default function CalendarScreen() {
           
           <View style={styles.teamRowCalendar}>
             {!item.es_local ? (
-              <Image source={require('../../assets/images/icon.png')} style={styles.escudoCalendar} resizeMode="contain" />
+              <Image source={require('../../assets/images/yunke-logo.png')} style={styles.escudoCalendar} resizeMode="contain" />
             ) : (
               item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.escudoCalendar} resizeMode="contain" /> : <View style={[styles.escudoCalendar, styles.placeholderEscudoCal]}><Ionicons name="shield-outline" size={14} color="#C7C7CC" /></View>
             )}

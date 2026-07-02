@@ -133,7 +133,7 @@ export default function HomeScreen() {
         <View style={styles.matchTeamsContainer}>
         <View style={styles.teamColumn}>
           {/* Escudo Yunke (Local) */}
-          <Image source={require('../../assets/images/icon.png')} style={styles.teamEscudo} resizeMode="contain" />
+          <Image source={require('../../assets/images/yunke-logo.png')} style={styles.teamEscudo} resizeMode="contain" />
           <Text style={styles.teamNameShort} numberOfLines={1}>YUNKE</Text>
         </View>
         
@@ -270,8 +270,8 @@ const styles = StyleSheet.create({
   // Header con gradiente
   header: {
     paddingHorizontal: 24,
-    paddingTop: 40,
-    paddingBottom: 40,
+    paddingTop: 60,
+    paddingBottom: 20,
   },
   clubTitle: {
     fontSize: 34,
