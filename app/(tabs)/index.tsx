@@ -251,17 +251,25 @@ export default function HomeScreen() {
         )}
       </View>
 
-      {/* BANNER HACERTE SOCIO */}
-      <View style={styles.socioBanner}>
-        <View style={styles.bannerIcon}>
-          <Ionicons name="star" size={24} color={yunke.gold} />
+      {/* BANNER HACERTE SOCIO PREMIUM */}
+      <LinearGradient
+        colors={yunke.gradientGold}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.socioBanner}
+      >
+        <View style={styles.bannerBadge}>
+          <Text style={styles.bannerBadgeText}>EXCLUSIVO</Text>
+        </View>
+        <View style={styles.bannerIconContainer}>
+          <Ionicons name="star" size={28} color={yunke.white} />
         </View>
         <Pressable style={styles.bannerContent} onPress={() => router.push('/benefits')}>
           <Text style={styles.bannerTitle}>Beneficios Exclusivos</Text>
           <Text style={styles.bannerSubtitle}>Descubrí todo lo que ganás por ser socio del club</Text>
         </Pressable>
-        <Ionicons name="chevron-forward" size={22} color={yunke.textTertiary} />
-      </View>
+        <Ionicons name="chevron-forward" size={24} color={yunke.white} />
+      </LinearGradient>
 
       {/* SECCIÓN DE NOTICIAS */}
       <View style={styles.sectionHeader}>
@@ -528,27 +536,43 @@ const styles = StyleSheet.create({
   newsContent: { fontSize: 15, color: yunke.darkSoft, lineHeight: 22, opacity: 0.8 },
   newsDate: { fontSize: 13, color: yunke.textSecondary, marginTop: 12, textTransform: 'capitalize' },
 
-  // Banner Socio
+  // Banner Socio Premium
   socioBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: yunke.card,
     marginHorizontal: 24,
     borderRadius: 16,
     padding: 16,
     marginTop: 20,
     marginBottom: 20,
-    shadowColor: yunke.dark,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowColor: yunke.gold,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+    position: 'relative',
+    overflow: 'hidden',
   },
-  bannerIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: yunke.goldLight + '30', // Dorado con 30% opacidad
+  bannerBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  bannerBadgeText: {
+    color: yunke.white,
+    fontSize: 10,
+    fontFamily: 'Montserrat_700Bold',
+    letterSpacing: 1,
+  },
+  bannerIconContainer: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
@@ -557,13 +581,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bannerTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: yunke.text,
+    fontSize: 18,
+    fontFamily: 'Montserrat_700Bold',
+    color: yunke.white,
   },
   bannerSubtitle: {
     fontSize: 14,
-    color: yunke.textSecondary,
+    color: 'rgba(255,255,255,0.85)',
     marginTop: 2,
   },
 });
