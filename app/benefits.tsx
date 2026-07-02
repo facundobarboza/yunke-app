@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../src/supabase';
 
 type Beneficio = {
@@ -16,6 +17,7 @@ type Beneficio = {
 
 export default function BenefitsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [beneficios, setBeneficios] = useState<Beneficio[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -46,7 +48,7 @@ export default function BenefitsScreen() {
           colors={yunke.gradientRed}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={styles.header}
+          style={[styles.header, { paddingTop: insets.top }]}
         >
           <Pressable style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={24} color={yunke.white} />

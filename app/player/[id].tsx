@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
 
 const { width } = Dimensions.get('window');
@@ -28,6 +29,7 @@ type Foto = {
 };
 
 export default function PlayerDetailScreen() {
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [jugador, setJugador] = useState<JugadorDetalle | null>(null);
@@ -89,7 +91,7 @@ export default function PlayerDetailScreen() {
         end={{ x: 1, y: 1 }}
         style={styles.header}
       >
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
+        <Pressable style={[styles.backButton, { paddingTop: insets.top }]} onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={24} color={yunke.white} />
           <Text style={styles.backText}>Volver</Text>
         </Pressable>
@@ -200,7 +202,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: 'center', 
     paddingHorizontal: 16, 
-    paddingTop: 60, 
     paddingBottom: 20,
     gap: 4,
   },

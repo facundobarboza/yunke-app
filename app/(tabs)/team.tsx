@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
 
 type Categoria = {
@@ -22,6 +23,7 @@ type Jugador = {
 };
 
 export default function TeamScreen() {
+  const insets = useSafeAreaInsets();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [selectedCategoria, setSelectedCategoria] = useState<number | null>(null);
   const [jugadores, setJugadores] = useState<Jugador[]>([]);
@@ -118,7 +120,7 @@ export default function TeamScreen() {
         colors={yunke.gradientHeader}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.header}
+        style={[styles.header, { paddingTop: insets.top }]}
       >
         <Text style={styles.screenTitle}>Plantel</Text>
         <Text style={styles.headerSubtitle}>Conocé a nuestros jugadores</Text>
@@ -157,7 +159,7 @@ export default function TeamScreen() {
         data={jugadores}
         keyExtractor={(item) => item.id}
         renderItem={renderJugador}
-        contentContainerStyle={{ paddingBottom: 100, paddingTop: 10 }}
+        contentContainerStyle={{ paddingBottom: 100 + insets.bottom, paddingTop: 10 }}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           !loading ? (

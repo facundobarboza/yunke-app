@@ -4,9 +4,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -123,7 +125,7 @@ export default function ProfileScreen() {
           colors={yunke.gradientHeader}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={styles.authHeader}
+          style={[styles.authHeader, { paddingTop: insets.top }]}
         >
           <Image 
             source={require('../../assets/images/yunke-logo.png')} 
@@ -183,7 +185,7 @@ export default function ProfileScreen() {
         colors={yunke.gradientHeader}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.header}
+        style={[styles.header, { paddingTop: insets.top }]}
       >
         <View style={styles.headerContent}>
           <View style={styles.avatarContainer}>

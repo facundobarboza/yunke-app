@@ -68,7 +68,7 @@ export default function EditProfileScreen() {
             colors={yunke.gradientHeader}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={styles.header}
+            style={[styles.header, { paddingTop: insets.top }]}
           >
             <Pressable style={styles.backButton} onPress={() => router.back()}>
               <Ionicons name="chevron-back" size={24} color={yunke.white} />

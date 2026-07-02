@@ -212,7 +212,7 @@ export default function HomeScreen() {
         colors={yunke.gradientHeader}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.header}
+        style={[styles.header, { paddingTop: insets.top }]}
       >
         <Image 
           source={require('../../assets/images/yunke-logo.png')} 

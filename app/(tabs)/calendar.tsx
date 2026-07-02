@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
 
 type Partido = {
@@ -22,6 +23,7 @@ type Partido = {
 };
 
 export default function CalendarScreen() {
+  const insets = useSafeAreaInsets();
   const [proximos, setProximos] = useState<Partido[]>([]);
   const [resultados, setResultados] = useState<Partido[]>([]);
   const [loading, setLoading] = useState(true);
@@ -179,7 +181,7 @@ export default function CalendarScreen() {
         colors={yunke.gradientHeader}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.header}
+        style={[styles.header, { paddingTop: insets.top }]}
       >
         <Text style={styles.screenTitle}>Calendario</Text>
         <Text style={styles.headerSubtitle}>Próximos partidos y resultados</Text>
@@ -211,7 +213,7 @@ export default function CalendarScreen() {
         data={filtro === 'proximos' ? proximos : resultados}
         keyExtractor={(item) => item.id}
         renderItem={renderPartido}
-        contentContainerStyle={{ paddingBottom: 100, paddingTop: 10 }}
+        contentContainerStyle={{ paddingBottom: 100 + insets.bottom, paddingTop: 10 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl 
