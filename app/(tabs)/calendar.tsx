@@ -16,7 +16,8 @@ type Partido = {
   resultado_visitante: number | null;
   jugado: boolean;
   escudo_url?: string | null;
-  categorias: { nombre: string }[] | null;
+  categoria_id: number | null;
+  categoria_nombre: string | null;
 };
 
 export default function CalendarScreen() {
@@ -29,20 +30,37 @@ export default function CalendarScreen() {
   const cargarPartidos = async () => {
     const ahora = new Date().toISOString();
 
+    // Cargar categorías por separado
+    const { data: categoriasData } = await supabase
+      .from('categorias')
+      .select('id, nombre');
+
+    const categoriasMap = new Map<number, string>();
+    if (categoriasData) {
+      categoriasData.forEach((cat) => categoriasMap.set(cat.id, cat.nombre));
+    }
+
     const { data: dataProximos } = await supabase
       .from('partidos')
-      .select('*, categorias(nombre)')
+      .select('*')
       .gte('fecha', ahora)
       .order('fecha', { ascending: true });
 
     const { data: dataResultados } = await supabase
       .from('partidos')
-      .select('*, categorias(nombre)')
+      .select('*')
       .lt('fecha', ahora)
       .order('fecha', { ascending: false });
 
-    setProximos(dataProximos || []);
-    setResultados(dataResultados || []);
+    // Mapear categoría_id a nombre
+    const mapCategoria = (partidos: any[]) =>
+      partidos.map((p) => ({
+        ...p,
+        categoria_nombre: p.categoria_id ? categoriasMap.get(p.categoria_id) || null : null,
+      }));
+
+    setProximos(mapCategoria(dataProximos || []));
+    setResultados(mapCategoria(dataResultados || []));
     setLoading(false);
     setRefreshing(false);
   };
@@ -128,7 +146,7 @@ export default function CalendarScreen() {
           
           {item.competicion && (
             <Text style={styles.competitionText}>
-              {item.competicion} • {item.categorias?.[0]?.nombre || 'General'}
+              {item.competicion} • {item.categoria_nombre || 'General'}
             </Text>
           )}
         </View>

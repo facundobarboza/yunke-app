@@ -15,8 +15,9 @@ type Partido = {
   rival: string;
   es_local: boolean;
   competicion: string | null;
-  categorias: { nombre: string }[] | null;
+  categoria_id: number | null;
   escudo_url: string | null;
+  categoria_nombre: string | null;
 };
 
 type Noticia = {
@@ -66,13 +67,29 @@ export default function HomeScreen() {
 
   const cargarDatos = async () => {
     setLoading(true);
+
+    // Cargar categorías por separado
+    const { data: categoriasData } = await supabase
+      .from('categorias')
+      .select('id, nombre');
+
+    const categoriasMap = new Map<number, string>();
+    if (categoriasData) {
+      categoriasData.forEach((cat) => categoriasMap.set(cat.id, cat.nombre));
+    }
     
     const { data: partidosData } = await supabase
       .from('partidos')
-      .select('id, fecha, rival, es_local, competicion, escudo_url, categorias(nombre)')
+      .select('id, fecha, rival, es_local, competicion, escudo_url, categoria_id')
       .gte('fecha', new Date().toISOString())
       .order('fecha', { ascending: true })
       .limit(5);
+
+    // Mapear categoría_id a nombre
+    const partidosConCategoria = (partidosData || []).map((p) => ({
+      ...p,
+      categoria_nombre: p.categoria_id ? categoriasMap.get(p.categoria_id) || null : null,
+    }));
 
     const { data: noticiasData } = await supabase
       .from('noticias')
@@ -86,7 +103,7 @@ export default function HomeScreen() {
       .eq('is_active', true)
       .order('orden', { ascending: true });
 
-    setProximosPartidos(partidosData || []);
+    setProximosPartidos(partidosConCategoria);
     setNoticias(noticiasData || []);
     setSponsors(sponsorsData || []);
     setLoading(false);
@@ -133,7 +150,7 @@ export default function HomeScreen() {
         
         <View style={styles.matchTop}>
           <Text style={styles.matchCategory}>
-            {item.categorias?.[0]?.nombre || 'General'} {item.competicion ? ` - ${item.competicion}` : ''}
+            {item.categoria_nombre || 'General'} {item.competicion ? ` - ${item.competicion}` : ''}
           </Text>
         </View>
         
