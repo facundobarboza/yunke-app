@@ -1,6 +1,7 @@
 import { FadeInUp } from '@/components/FadeInUp';
 import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
@@ -122,34 +123,34 @@ export default function CalendarScreen() {
           {/* Línea separadora */}
           <View style={styles.divider} />
 
-                  {/* Columna Central: Equipos y Competición */}
-        <View style={styles.matchInfo}>
-          <View style={styles.teamRowCalendar}>
-            {item.es_local ? (
-              <Image source={require('../../assets/images/yunke-logo.png')} style={styles.escudoCalendar} resizeMode="contain" />
-            ) : (
-              item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.escudoCalendar} resizeMode="contain" /> : <View style={[styles.escudoCalendar, styles.placeholderEscudoCal]}><Ionicons name="shield-outline" size={14} color="#C7C7CC" /></View>
+          {/* Columna Central: Equipos y Competición */}
+          <View style={styles.matchInfo}>
+            <View style={styles.teamRowCalendar}>
+              {item.es_local ? (
+                <Image source={require('../../assets/images/yunke-logo.png')} style={styles.escudoCalendar} resizeMode="contain" />
+              ) : (
+                item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.escudoCalendar} resizeMode="contain" /> : <View style={[styles.escudoCalendar, styles.placeholderEscudoCal]}><Ionicons name="shield-outline" size={14} color={yunke.textTertiary} /></View>
+              )}
+              <Text style={styles.teamText} numberOfLines={1}>{item.es_local ? 'Club Yunke' : item.rival}</Text>
+            </View>
+            
+            <Text style={styles.vsText}>vs</Text>
+            
+            <View style={styles.teamRowCalendar}>
+              {!item.es_local ? (
+                <Image source={require('../../assets/images/yunke-logo.png')} style={styles.escudoCalendar} resizeMode="contain" />
+              ) : (
+                item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.escudoCalendar} resizeMode="contain" /> : <View style={[styles.escudoCalendar, styles.placeholderEscudoCal]}><Ionicons name="shield-outline" size={14} color={yunke.textTertiary} /></View>
+              )}
+              <Text style={styles.teamText} numberOfLines={1}>{!item.es_local ? 'Club Yunke' : item.rival}</Text>
+            </View>
+            
+            {item.competicion && (
+              <Text style={styles.competitionText}>
+                {item.competicion} • {item.categoria_nombre || 'General'}
+              </Text>
             )}
-            <Text style={styles.teamText} numberOfLines={1}>{item.es_local ? 'Club Yunke' : item.rival}</Text>
           </View>
-          
-          <Text style={styles.vsText}>vs</Text>
-          
-          <View style={styles.teamRowCalendar}>
-            {!item.es_local ? (
-              <Image source={require('../../assets/images/yunke-logo.png')} style={styles.escudoCalendar} resizeMode="contain" />
-            ) : (
-              item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.escudoCalendar} resizeMode="contain" /> : <View style={[styles.escudoCalendar, styles.placeholderEscudoCal]}><Ionicons name="shield-outline" size={14} color="#C7C7CC" /></View>
-            )}
-            <Text style={styles.teamText} numberOfLines={1}>{!item.es_local ? 'Club Yunke' : item.rival}</Text>
-          </View>
-          
-          {item.competicion && (
-            <Text style={styles.competitionText}>
-              {item.competicion} • {item.categoria_nombre || 'General'}
-            </Text>
-          )}
-        </View>
 
           {/* Columna Derecha: Resultado o Localidad */}
           <View style={styles.resultContainer}>
@@ -159,7 +160,10 @@ export default function CalendarScreen() {
               </Text>
             ) : (
               <View style={[styles.locationBadge, item.es_local ? styles.locationHome : styles.locationAway]}>
-                <Text style={styles.locationText}>{item.es_local ? 'CASA' : 'FUERA'}</Text>
+                <Ionicons name={item.es_local ? 'home' : 'airplane'} size={12} color={item.es_local ? yunke.primary : yunke.textSecondary} />
+                <Text style={[styles.locationText, !item.es_local && styles.locationTextAway]}>
+                  {item.es_local ? 'CASA' : 'FUERA'}
+                </Text>
               </View>
             )}
           </View>
@@ -170,9 +174,16 @@ export default function CalendarScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.screenTitle}>Partidos</Text>
-      </View>
+      {/* HEADER CON GRADIENTE */}
+      <LinearGradient
+        colors={yunke.gradientHeader}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}
+      >
+        <Text style={styles.screenTitle}>Calendario</Text>
+        <Text style={styles.headerSubtitle}>Próximos partidos y resultados</Text>
+      </LinearGradient>
 
       {/* Selector de filtro */}
       <View style={styles.filterContainer}>
@@ -180,6 +191,7 @@ export default function CalendarScreen() {
           style={[styles.filterPill, filtro === 'proximos' && styles.filterPillActive]} 
           onPress={() => setFiltro('proximos')}
         >
+          <Ionicons name="calendar-outline" size={16} color={filtro === 'proximos' ? yunke.white : yunke.textSecondary} />
           <Text style={[styles.filterText, filtro === 'proximos' && styles.filterTextActive]}>
             Próximos
           </Text>
@@ -188,6 +200,7 @@ export default function CalendarScreen() {
           style={[styles.filterPill, filtro === 'resultados' && styles.filterPillActive]} 
           onPress={() => setFiltro('resultados')}
         >
+          <Ionicons name="trophy-outline" size={16} color={filtro === 'resultados' ? yunke.white : yunke.textSecondary} />
           <Text style={[styles.filterText, filtro === 'resultados' && styles.filterTextActive]}>
             Resultados
           </Text>
@@ -198,7 +211,7 @@ export default function CalendarScreen() {
         data={filtro === 'proximos' ? proximos : resultados}
         keyExtractor={(item) => item.id}
         renderItem={renderPartido}
-        contentContainerStyle={{ paddingBottom: 30 }}
+        contentContainerStyle={{ paddingBottom: 100, paddingTop: 10 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl 
@@ -221,39 +234,73 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: yunke.surface },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
   
-  header: { paddingHorizontal: 24, paddingTop: 60, paddingBottom: 10 },
-  screenTitle: { fontSize: 34, fontFamily: 'Montserrat_900Black', color: yunke.text, letterSpacing: -1 },
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: yunke.dark,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 15,
+  },
+  screenTitle: {
+    fontSize: 34,
+    fontFamily: 'Montserrat_900Black',
+    color: yunke.white,
+    letterSpacing: -1,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    fontFamily: 'Montserrat_400Regular',
+    color: 'rgba(255,255,255,0.7)',
+    marginTop: 4,
+  },
   
-  // Filtro
+  // Filtro premium
   filterContainer: {
     flexDirection: 'row',
     paddingHorizontal: 24,
-    paddingBottom: 15,
+    paddingVertical: 16,
     gap: 10,
   },
   filterPill: {
     flex: 1,
-    paddingVertical: 10,
+    flexDirection: 'row',
+    paddingVertical: 12,
     borderRadius: 14,
     backgroundColor: yunke.card,
     borderWidth: 1,
     borderColor: yunke.border,
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    shadowColor: yunke.dark,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
   filterPillActive: {
     backgroundColor: yunke.primary,
     borderColor: yunke.primary,
+    shadowColor: yunke.primary,
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   filterText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Montserrat_600SemiBold',
     color: yunke.textSecondary,
   },
   filterTextActive: {
     color: yunke.white,
   },
 
-  // Cards
+  // Cards premium
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -264,10 +311,10 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 16,
     shadowColor: yunke.dark,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
     shadowRadius: 8,
-    elevation: 2,
+    elevation: 3,
     overflow: 'hidden',
   },
   resultIndicator: {
@@ -276,33 +323,34 @@ const styles = StyleSheet.create({
     left: 0,
     borderBottomRightRadius: 12,
     paddingHorizontal: 10,
-    paddingVertical: 3,
+    paddingVertical: 4,
   },
   resultIndicatorText: {
     color: yunke.white,
     fontSize: 11,
-    fontWeight: 'bold',
+    fontFamily: 'Montserrat_700Bold',
   },
   dateContainer: {
-    width: 65,
+    width: 68,
     alignItems: 'center',
     justifyContent: 'center',
   },
   dateText: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 14,
+    fontFamily: 'Montserrat_700Bold',
     color: yunke.text,
     textTransform: 'capitalize',
     textAlign: 'center',
   },
   timeText: {
-    fontSize: 13,
+    fontSize: 12,
+    fontFamily: 'Montserrat_400Regular',
     color: yunke.textSecondary,
     marginTop: 2,
   },
   divider: {
     width: 1,
-    height: 40,
+    height: 44,
     backgroundColor: yunke.border,
     marginHorizontal: 12,
   },
@@ -310,50 +358,61 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   teamText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
+    fontFamily: 'Montserrat_600SemiBold',
     color: yunke.text,
   },
   vsText: {
-    fontSize: 12,
+    fontSize: 11,
+    fontFamily: 'Montserrat_400Regular',
     color: yunke.textSecondary,
     marginVertical: 2,
     fontStyle: 'italic',
   },
   competitionText: {
-    fontSize: 12,
+    fontSize: 11,
+    fontFamily: 'Montserrat_400Regular',
     color: yunke.textSecondary,
     marginTop: 6,
   },
   resultContainer: {
-    width: 70,
+    width: 72,
     alignItems: 'center',
     justifyContent: 'center',
   },
   scoreText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: 'Montserrat_700Bold',
   },
   locationBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 8,
+    gap: 4,
   },
   locationHome: {
     backgroundColor: yunke.primary + '15',
   },
   locationAway: {
     backgroundColor: yunke.surface,
+    borderWidth: 1,
+    borderColor: yunke.border,
   },
   locationText: {
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: 11,
+    fontFamily: 'Montserrat_700Bold',
     color: yunke.primary,
+  },
+  locationTextAway: {
+    color: yunke.textSecondary,
   },
   emptyText: {
     textAlign: 'center',
     marginTop: 60,
     fontSize: 16,
+    fontFamily: 'Montserrat_400Regular',
     color: yunke.textSecondary,
   },
   teamRowCalendar: {
@@ -366,7 +425,7 @@ const styles = StyleSheet.create({
     height: 24
   },
   placeholderEscudoCal: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: yunke.surface,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center'
