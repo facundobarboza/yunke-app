@@ -271,18 +271,22 @@ export default function HomeScreen() {
         <Ionicons name="chevron-forward" size={24} color={yunke.white} />
       </LinearGradient>
 
-      {/* SECCIÓN DE NOTICIAS */}
+      {/* SECCIÓN DE NOTICIAS PREMIUM */}
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Noticias</Text>
       </View>
 
       {noticias.map((noticia) => (
         <View key={noticia.id} style={styles.newsCard}>
+          <View style={styles.newsAccentLine} />
           <Text style={styles.newsTitle}>{noticia.titulo}</Text>
           <Text style={styles.newsContent} numberOfLines={3}>{noticia.contenido}</Text>
-          <Text style={styles.newsDate}>
-            {new Date(noticia.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
-          </Text>
+          <View style={styles.newsFooter}>
+            <Ionicons name="calendar-outline" size={14} color={yunke.textSecondary} />
+            <Text style={styles.newsDate}>
+              {new Date(noticia.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
+            </Text>
+          </View>
         </View>
       ))}
     </ScrollView>
@@ -518,7 +522,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
 
-  // Noticias
+  // Noticias Premium
   sectionHeader: { paddingHorizontal: 24, marginTop: 30, marginBottom: 15 },
   newsCard: {
     backgroundColor: yunke.card,
@@ -527,14 +531,47 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     shadowColor: yunke.dark,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
+    overflow: 'hidden',
   },
-  newsTitle: { fontSize: 18, fontWeight: '600', color: yunke.text, marginBottom: 8 },
-  newsContent: { fontSize: 15, color: yunke.darkSoft, lineHeight: 22, opacity: 0.8 },
-  newsDate: { fontSize: 13, color: yunke.textSecondary, marginTop: 12, textTransform: 'capitalize' },
+  newsAccentLine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: yunke.primary,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  newsTitle: { 
+    fontSize: 18, 
+    fontFamily: 'Montserrat_700Bold', 
+    color: yunke.text, 
+    marginBottom: 8,
+    marginTop: 4,
+  },
+  newsContent: { 
+    fontSize: 15, 
+    color: yunke.darkSoft, 
+    lineHeight: 22, 
+    opacity: 0.85 
+  },
+  newsFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 12,
+  },
+  newsDate: { 
+    fontSize: 13, 
+    fontFamily: 'Montserrat_600SemiBold',
+    color: yunke.textSecondary, 
+    textTransform: 'capitalize' 
+  },
 
   // Banner Socio Premium
   socioBanner: {
