@@ -140,6 +140,7 @@ export default function CreatePlayerScreen() {
           </Pressable>
 
           {/* Campos de texto */}
+          <Text style={styles.sectionTitle}>DATOS PERSONALES</Text>
           <View style={styles.inputGroup}>
             <View style={styles.inputRow}>
               <Ionicons name="person-outline" size={18} color={yunke.textSecondary} />
@@ -160,7 +161,7 @@ export default function CreatePlayerScreen() {
           {/* Categoría - desplegable */}
           <Text style={styles.sectionTitle}>CATEGORÍA</Text>
           <Pressable style={styles.dropdown} onPress={() => setShowCategoriaModal(true)}>
-            <Ionicons name="grid-outline" size={18} color={yunke.primary} />
+            <Ionicons name="grid-outline" size={18} color={yunke.textSecondary} />
             <Text style={[styles.dropdownText, !selectedCategoria && styles.dropdownPlaceholder]}>
               {getCategoriaNombre()}
             </Text>
