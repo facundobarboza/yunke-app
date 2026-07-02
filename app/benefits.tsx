@@ -70,20 +70,20 @@ export default function BenefitsScreen() {
             <Text style={styles.emptyText}>No hay beneficios disponibles.</Text>
           ) : (
             beneficios.map((ben) => (
-              <View key={ben.id} style={styles.benefitCard}>
+              <Pressable key={ben.id} style={styles.benefitCard} onPress={() => router.push(`/benefit/${ben.id}`)}>
                 <View style={styles.iconContainer}>
                   <Ionicons name={ben.icono as any} size={24} color={yunke.red} />
                 </View>
-                
+
                 <View style={styles.benefitInfo}>
                   <Text style={styles.tienda}>{ben.tienda}</Text>
                   <Text style={styles.detalle}>{ben.detalle}</Text>
                 </View>
-                
+
                 <View style={styles.discountBadge}>
                   <Text style={styles.discountText}>{ben.descuento}</Text>
                 </View>
-              </View>
+              </Pressable>
             ))
           )}
         </View>
