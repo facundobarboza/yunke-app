@@ -273,7 +273,7 @@ export default function HomeScreen() {
         )}
       </View>
 
-      {/* BANNER HACERTE SOCIO PREMIUM */}
+      {/* BANNER HACERTE SOCIO */}
       <LinearGradient
         colors={yunke.gradientRed}
         start={{ x: 0, y: 0 }}
@@ -294,23 +294,22 @@ export default function HomeScreen() {
       </LinearGradient>
 
       {/* SECCIÓN DE NOTICIAS PREMIUM */}
-      <View style={styles.sectionHeader}>
+      <View style={styles.newsSection}>
         <Text style={styles.sectionTitle}>Noticias</Text>
-      </View>
-
-      {noticias.map((noticia) => (
-        <View key={noticia.id} style={styles.newsCard}>
-          <View style={styles.newsAccentLine} />
-          <Text style={styles.newsTitle}>{noticia.titulo}</Text>
-          <Text style={styles.newsContent} numberOfLines={3}>{noticia.contenido}</Text>
-          <View style={styles.newsFooter}>
-            <Ionicons name="calendar-outline" size={14} color={yunke.textSecondary} />
-            <Text style={styles.newsDate}>
-              {new Date(noticia.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
-            </Text>
+        {noticias.map((noticia) => (
+          <View key={noticia.id} style={styles.newsCard}>
+            <View style={styles.newsAccentLine} />
+            <Text style={styles.newsTitle}>{noticia.titulo}</Text>
+            <Text style={styles.newsContent} numberOfLines={3}>{noticia.contenido}</Text>
+            <View style={styles.newsFooter}>
+              <Ionicons name="calendar-outline" size={14} color={yunke.textSecondary} />
+              <Text style={styles.newsDate}>
+                {new Date(noticia.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
+              </Text>
+            </View>
           </View>
-        </View>
-      ))}
+        ))}
+      </View>
     </ScrollView>
   );
 }
@@ -431,7 +430,7 @@ const styles = StyleSheet.create({
   },
 
   // Partidos
-  matchesSection: { marginTop: 20 },
+  matchesSection: { marginTop: 24, marginBottom: 10 },
   matchCard: {
     width: 350,
     backgroundColor: yunke.card,
@@ -546,7 +545,7 @@ const styles = StyleSheet.create({
   },
 
   // Noticias
-  sectionHeader: { paddingHorizontal: 24, marginTop: 30, marginBottom: 15 },
+  newsSection: { marginTop: 20, marginBottom: 10 },
   newsCard: {
     backgroundColor: yunke.card,
     marginHorizontal: 24,
@@ -604,7 +603,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginTop: 20,
-    marginBottom: 20,
+    marginBottom: 10,
     shadowColor: yunke.gold,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
