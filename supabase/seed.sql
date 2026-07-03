@@ -242,6 +242,16 @@ INSERT INTO noticias (titulo, contenido, created_at) VALUES
     '2026-04-27 10:00:00-03'
   );
 
+-- 6. BENEFICIOS
+TRUNCATE TABLE beneficios CASCADE;
+
+INSERT INTO beneficios (tienda, descuento, detalle, icono, orden) VALUES
+  ('Amor FARRR', '20% OFF', 'En todas las hamburguesas y pizzas los días de partido.', 'fast-food-outline', 1),
+  ('Sport Center', '15% OFF', 'En compra de indumentaria deportiva y calzado.', 'shirt-outline', 2),
+  ('Bar El Club', '2x1 en Cervezas', 'Presentando tu carnet digital de socio.', 'beer-outline', 3),
+  ('Ferretería Don Tornillo', '10% OFF', 'En todos los artículos de ferretería y pinturería.', 'build-outline', 4),
+  ('Clínica Dental Yunke', 'Limpieza Gratis', 'Una limpieza dental anual sin cargo para socios.', 'medkit-outline', 5);
+
 -- =============================================================================
 -- VERIFICACIÓN
 -- =============================================================================
@@ -258,4 +268,6 @@ INSERT INTO noticias (titulo, contenido, created_at) VALUES
 --   SELECT 'partidos', count(*) FROM partidos
 --   UNION ALL
 --   SELECT 'noticias', count(*) FROM noticias
+--   UNION ALL
+--   SELECT 'beneficios', count(*) FROM beneficios
 --   ORDER BY tabla;

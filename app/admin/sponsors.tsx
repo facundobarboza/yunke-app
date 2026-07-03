@@ -71,7 +71,8 @@ export default function AdminSponsorsScreen() {
         </LinearGradient>
 
         <FlatList data={sponsors} keyExtractor={(item) => item.id} renderItem={renderSponsor}
-          contentContainerStyle={{ paddingBottom: 100 + insets.bottom, paddingHorizontal: 24, paddingTop: 16 }} showsVerticalScrollIndicator={false} />
+          contentContainerStyle={{ paddingBottom: 100 + insets.bottom, paddingHorizontal: 24, paddingTop: 16 }} showsVerticalScrollIndicator={false}
+          ListEmptyComponent={<Text style={styles.emptyText}>No hay sponsors registrados.</Text>} />
 
         <Pressable style={[styles.fab, { bottom: 30 + insets.bottom }]} onPress={() => router.push('/admin/create-sponsor')}>
           <Ionicons name="add" size={28} color={yunke.white} />
@@ -99,5 +100,6 @@ const styles = StyleSheet.create({
   toggleBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
   btnActive: { backgroundColor: yunke.success + '15' },
   btnInactive: { backgroundColor: yunke.surface },
+  emptyText: { textAlign: 'center', marginTop: 40, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary },
   fab: { position: 'absolute', bottom: 30, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: yunke.primary, justifyContent: 'center', alignItems: 'center', shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
 });

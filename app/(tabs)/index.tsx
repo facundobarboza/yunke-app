@@ -296,19 +296,23 @@ export default function HomeScreen() {
       {/* SECCIÓN DE NOTICIAS PREMIUM */}
       <View style={styles.newsSection}>
         <Text style={styles.sectionTitle}>Noticias</Text>
-        {noticias.map((noticia) => (
-          <View key={noticia.id} style={styles.newsCard}>
-            <View style={styles.newsAccentLine} />
-            <Text style={styles.newsTitle}>{noticia.titulo}</Text>
-            <Text style={styles.newsContent} numberOfLines={3}>{noticia.contenido}</Text>
-            <View style={styles.newsFooter}>
-              <Ionicons name="calendar-outline" size={14} color={yunke.textSecondary} />
-              <Text style={styles.newsDate}>
-                {new Date(noticia.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
-              </Text>
+        {noticias.length === 0 ? (
+          <Text style={styles.emptyText}>No hay noticias disponibles.</Text>
+        ) : (
+          noticias.map((noticia) => (
+            <View key={noticia.id} style={styles.newsCard}>
+              <View style={styles.newsAccentLine} />
+              <Text style={styles.newsTitle}>{noticia.titulo}</Text>
+              <Text style={styles.newsContent} numberOfLines={3}>{noticia.contenido}</Text>
+              <View style={styles.newsFooter}>
+                <Ionicons name="calendar-outline" size={14} color={yunke.textSecondary} />
+                <Text style={styles.newsDate}>
+                  {new Date(noticia.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
+                </Text>
+              </View>
             </View>
-          </View>
-        ))}
+          ))
+        )}
       </View>
     </ScrollView>
   );

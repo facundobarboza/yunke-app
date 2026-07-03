@@ -103,6 +103,7 @@ export default function AdminBenefitsScreen() {
           keyExtractor={(item) => item.id}
           renderItem={renderBeneficio}
           contentContainerStyle={{ paddingBottom: 100 + insets.bottom, paddingHorizontal: 24, paddingTop: 16 }}
+          ListEmptyComponent={<Text style={styles.emptyText}>No hay beneficios registrados.</Text>}
         />
 
         <Pressable style={[styles.fab, { bottom: 30 + insets.bottom }]} onPress={() => router.push('/admin/create-benefit')}>
@@ -212,6 +213,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: yunke.red + '12',
   },
+  emptyText: { textAlign: 'center', marginTop: 40, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary },
   fab: { 
     position: 'absolute', 
     bottom: 30, 

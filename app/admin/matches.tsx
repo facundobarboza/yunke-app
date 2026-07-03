@@ -119,7 +119,8 @@ export default function AdminMatchesScreen() {
         </LinearGradient>
 
         <FlatList data={partidos} keyExtractor={(item) => item.id} renderItem={renderPartido}
-          contentContainerStyle={{ paddingBottom: 100 + insets.bottom, paddingHorizontal: 24, paddingTop: 16 }} showsVerticalScrollIndicator={false} />
+          contentContainerStyle={{ paddingBottom: 100 + insets.bottom, paddingHorizontal: 24, paddingTop: 16 }} showsVerticalScrollIndicator={false}
+          ListEmptyComponent={<Text style={styles.emptyText}>No hay partidos registrados.</Text>} />
 
         <Pressable style={[styles.fab, { bottom: 30 + insets.bottom }]} onPress={() => router.push('/admin/create-match')}>
           <Ionicons name="add" size={28} color={yunke.white} />
@@ -173,6 +174,7 @@ const styles = StyleSheet.create({
   scheduledText: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary },
   loadResultBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: yunke.primary + '12', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, gap: 4 },
   loadResultText: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.primary },
+  emptyText: { textAlign: 'center', marginTop: 40, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary },
   fab: { position: 'absolute', bottom: 30, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: yunke.primary, justifyContent: 'center', alignItems: 'center', shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
   modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
   modalContent: { width: '85%', backgroundColor: yunke.card, borderRadius: 20, padding: 24, alignItems: 'center', shadowColor: yunke.dark, shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 10 },
