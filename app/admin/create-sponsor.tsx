@@ -7,10 +7,20 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
+
+type GalleryImage = {
+  id: string;
+  url: string;
+  caption: string | null;
+  isNew?: boolean;
+  localUri?: string;
+};
 
 export default function CreateSponsorScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams();
   const isEditing = !!id;
 
@@ -23,6 +33,7 @@ export default function CreateSponsorScreen() {
   const [horarios, setHorarios] = useState('');
   const [logoUri, setLogoUri] = useState<string | null>(null);
   const [portadaUri, setPortadaUri] = useState<string | null>(null);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => { if (isEditing) fetchSponsor(id as string); }, [id]);
@@ -30,6 +41,9 @@ export default function CreateSponsorScreen() {
   const fetchSponsor = async (sponsorId: string) => {
     const { data } = await supabase.from('sponsors').select('*').eq('id', sponsorId).single();
     if (data) { setNombre(data.nombre); setDescripcion(data.descripcion || ''); setWebUrl(data.web_url || ''); setInstagram(data.instagram || ''); setTelefono(data.telefono || ''); setDireccion(data.direccion || ''); setHorarios(data.horarios || ''); setLogoUri(data.logo_url); setPortadaUri(data.portada_url); }
+
+    const { data: images } = await supabase.from('sponsor_images').select('id, url, caption').eq('sponsor_id', sponsorId).order('orden', { ascending: true });
+    if (images) setGalleryImages(images);
   };
 
   const pickImage = async (type: 'logo' | 'portada') => {
@@ -37,6 +51,26 @@ export default function CreateSponsorScreen() {
     if (status !== 'granted') { Alert.alert('Permiso denegado'); return; }
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: type === 'logo' ? [1, 1] : [16, 9], quality: 0.8 });
     if (!result.canceled) { if (type === 'logo') setLogoUri(result.assets[0].uri); else setPortadaUri(result.assets[0].uri); }
+  };
+
+  const pickGalleryImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') { Alert.alert('Permiso denegado'); return; }
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [4, 3], quality: 0.8 });
+    if (!result.canceled) {
+      const newImage: GalleryImage = {
+        id: `new-${Date.now()}`,
+        url: result.assets[0].uri,
+        caption: null,
+        isNew: true,
+        localUri: result.assets[0].uri,
+      };
+      setGalleryImages(prev => [...prev, newImage]);
+    }
+  };
+
+  const removeGalleryImage = (imageId: string) => {
+    setGalleryImages(prev => prev.filter(img => img.id !== imageId));
   };
 
   const uploadImage = async (uri: string, bucket: string) => {
@@ -56,13 +90,48 @@ export default function CreateSponsorScreen() {
       const finalLogoUrl = logoUri ? await uploadImage(logoUri, 'sponsors') : null;
       const finalPortadaUrl = portadaUri ? await uploadImage(portadaUri, 'sponsors') : null;
       const payload = { nombre, descripcion, web_url: webUrl, instagram, telefono, direccion, horarios, logo_url: finalLogoUrl, portada_url: finalPortadaUrl };
+
+      let sponsorId = id;
+
       if (isEditing) {
         const { error } = await supabase.from('sponsors').update(payload).eq('id', id);
-        if (error) throw error; Alert.alert('Éxito', 'Sponsor actualizado.');
+        if (error) throw error;
       } else {
-        const { error } = await supabase.from('sponsors').insert({ ...payload, is_active: true });
-        if (error) throw error; Alert.alert('Éxito', 'Sponsor creado.');
+        const { data, error } = await supabase.from('sponsors').insert({ ...payload, is_active: true }).select('id').single();
+        if (error) throw error;
+        sponsorId = data.id;
       }
+
+      // Handle gallery images
+      if (isEditing) {
+        // Get current images from DB to find deleted ones
+        const { data: currentImages } = await supabase.from('sponsor_images').select('id').eq('sponsor_id', sponsorId);
+        const currentIds = currentImages?.map(img => img.id) || [];
+        const keptIds = galleryImages.filter(img => !img.isNew).map(img => img.id);
+        const deletedIds = currentIds.filter(id => !keptIds.includes(id));
+
+        // Delete removed images
+        if (deletedIds.length > 0) {
+          await supabase.from('sponsor_images').delete().in('id', deletedIds);
+        }
+      }
+
+      // Upload and insert new images
+      const newImages = galleryImages.filter(img => img.isNew);
+      for (let i = 0; i < newImages.length; i++) {
+        const img = newImages[i];
+        if (img.localUri) {
+          const uploadedUrl = await uploadImage(img.localUri, 'sponsors');
+          await supabase.from('sponsor_images').insert({
+            sponsor_id: sponsorId,
+            url: uploadedUrl,
+            caption: img.caption,
+            orden: i,
+          });
+        }
+      }
+
+      Alert.alert('Éxito', isEditing ? 'Sponsor actualizado.' : 'Sponsor creado.');
       router.back();
     } catch (error: any) { Alert.alert('Error', error.message); } finally { setSaving(false); }
   };
@@ -71,7 +140,7 @@ export default function CreateSponsorScreen() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+        <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 + insets.bottom }}>
           <LinearGradient colors={yunke.gradientHeader} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
             <Pressable style={styles.backButton} onPress={() => router.back()}>
               <Ionicons name="chevron-back" size={24} color={yunke.white} />
@@ -111,6 +180,23 @@ export default function CreateSponsorScreen() {
             <View style={styles.inputRow}><Ionicons name="time-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Horarios" placeholderTextColor={yunke.textSecondary} value={horarios} onChangeText={setHorarios} /></View>
           </View>
 
+          {/* GALERÍA DE IMÁGENES */}
+          <Text style={styles.sectionTitle}>GALERÍA</Text>
+          <View style={styles.galleryContainer}>
+            {galleryImages.map((img) => (
+              <View key={img.id} style={styles.galleryItem}>
+                <Image source={{ uri: img.localUri || img.url }} style={styles.galleryThumbnail} resizeMode="cover" />
+                <Pressable style={styles.galleryRemoveBtn} onPress={() => removeGalleryImage(img.id)}>
+                  <Ionicons name="close-circle" size={22} color={yunke.red} />
+                </Pressable>
+              </View>
+            ))}
+            <Pressable style={styles.galleryAddBtn} onPress={pickGalleryImage}>
+              <Ionicons name="add" size={28} color={yunke.textSecondary} />
+              <Text style={styles.galleryAddText}>Agregar</Text>
+            </Pressable>
+          </View>
+
           <Pressable style={styles.saveButton} onPress={handleGuardar} disabled={saving}>
             {saving ? <ActivityIndicator color={yunke.white} /> : (
               <><Ionicons name="checkmark-circle-outline" size={18} color={yunke.white} /><Text style={styles.saveButtonText}>{isEditing ? 'Guardar Cambios' : 'Crear Sponsor'}</Text></>
@@ -139,6 +225,12 @@ const styles = StyleSheet.create({
   input: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.text, paddingVertical: 12 },
   inputDivider: { height: 1, backgroundColor: yunke.border },
   sectionTitle: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12, marginLeft: 28 },
+  galleryContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginHorizontal: 24, marginBottom: 24 },
+  galleryItem: { position: 'relative' },
+  galleryThumbnail: { width: 80, height: 80, borderRadius: 12 },
+  galleryRemoveBtn: { position: 'absolute', top: -6, right: -6, backgroundColor: yunke.card, borderRadius: 11 },
+  galleryAddBtn: { width: 80, height: 80, borderRadius: 12, borderWidth: 2, borderColor: yunke.border, borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center' },
+  galleryAddText: { fontSize: 10, fontFamily: 'Montserrat_500Medium', color: yunke.textSecondary, marginTop: 2 },
   saveButton: { backgroundColor: yunke.primary, marginHorizontal: 24, height: 52, borderRadius: 14, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 8, shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 },
   saveButtonText: { color: yunke.white, fontSize: 16, fontFamily: 'Montserrat_600SemiBold' },
 });

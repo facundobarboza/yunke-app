@@ -1,3 +1,4 @@
+import { ImageGallery } from '@/components/ImageGallery';
 import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,14 +23,22 @@ type Sponsor = {
   facebook: string | null;
 };
 
+type GalleryImage = {
+  id: string;
+  url: string;
+  caption: string | null;
+};
+
 export default function SponsorDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [sponsor, setSponsor] = useState<Sponsor | null>(null);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchSponsor();
+    fetchGallery();
   }, [id]);
 
   const fetchSponsor = async () => {
@@ -41,6 +50,16 @@ export default function SponsorDetailScreen() {
 
     if (data) setSponsor(data);
     setLoading(false);
+  };
+
+  const fetchGallery = async () => {
+    const { data } = await supabase
+      .from('sponsor_images')
+      .select('id, url, caption')
+      .eq('sponsor_id', id)
+      .order('orden', { ascending: true });
+
+    if (data) setGalleryImages(data);
   };
 
   const openLink = (url: string) => {
@@ -85,7 +104,7 @@ export default function SponsorDetailScreen() {
           {/* Logo overlapping */}
           <View style={styles.logoOuterContainer}>
             {sponsor.logo_url ? (
-              <Image source={{ uri: sponsor.logo_url }} style={styles.logo} resizeMode="contain" />
+              <Image source={{ uri: sponsor.logo_url }} style={styles.logo} resizeMode="cover" />
             ) : (
               <View style={[styles.logo, styles.logoPlaceholder]}>
                 <Text style={styles.logoPlaceholderText}>{sponsor.nombre.charAt(0)}</Text>
@@ -106,6 +125,9 @@ export default function SponsorDetailScreen() {
             <Text style={styles.descriptionText}>{sponsor.descripcion}</Text>
           </View>
         )}
+
+        {/* GALERÍA DE IMÁGENES */}
+        <ImageGallery images={galleryImages} />
 
         {/* INFORMACIÓN DE CONTACTO */}
         <View style={styles.infoGroup}>
