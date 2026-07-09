@@ -175,42 +175,42 @@ INSERT INTO sponsors (nombre, descripcion, nivel, horarios, direccion, telefono,
 -- 4. PARTIDOS
 TRUNCATE TABLE partidos CASCADE;
 
-INSERT INTO partidos (fecha, rival, es_local, competicion, categoria_id, resultado_local, resultado_visitante, jugado) VALUES
+INSERT INTO partidos (fecha, rival, es_local, competicion, categoria_id, resultado_local, resultado_visitante, jugado, ubicacion) VALUES
   -- Partidos ya jugados (Primera Masculina)
-  ('2026-02-15 20:00:00-03', 'Sportivo Belgrano', true, 'Liga Cordobesa de Futsal', 1, 4, 2, true),
-  ('2026-02-22 19:30:00-03', 'Atlético Carlos Paz', false, 'Liga Cordobesa de Futsal', 1, 1, 3, true),
-  ('2026-03-01 21:00:00-03', 'Banfield Futsal', true, 'Liga Cordobesa de Futsal', 1, 2, 2, true),
-  ('2026-03-15 19:00:00-03', 'Instituto ACC', true, 'Liga Cordobesa de Futsal', 1, 5, 0, true),
-  ('2026-04-05 19:00:00-03', 'Belgrano Futsal', true, 'Copa Córdoba', 1, 6, 2, true),
-  ('2026-04-19 21:00:00-03', 'Las Palmas', true, 'Liga Cordobesa de Futsal', 1, 3, 1, true),
+  ('2026-02-15 20:00:00-03', 'Sportivo Belgrano', true, 'Liga Cordobesa de Futsal', 1, 4, 2, true, 'Polideportivo Yunke'),
+  ('2026-02-22 19:30:00-03', 'Atlético Carlos Paz', false, 'Liga Cordobesa de Futsal', 1, 1, 3, true, 'Estadio Carlos Paz'),
+  ('2026-03-01 21:00:00-03', 'Banfield Futsal', true, 'Liga Cordobesa de Futsal', 1, 2, 2, true, 'Polideportivo Yunke'),
+  ('2026-03-15 19:00:00-03', 'Instituto ACC', true, 'Liga Cordobesa de Futsal', 1, 5, 0, true, 'Polideportivo Yunke'),
+  ('2026-04-05 19:00:00-03', 'Belgrano Futsal', true, 'Copa Córdoba', 1, 6, 2, true, 'Polideportivo Yunke'),
+  ('2026-04-19 21:00:00-03', 'Las Palmas', true, 'Liga Cordobesa de Futsal', 1, 3, 1, true, 'Polideportivo Yunke'),
 
   -- Partidos ya jugados (Primera Femenina)
-  ('2026-02-16 20:00:00-03', 'Las Águilas', true, 'Liga Cordobesa Femenina', 2, 3, 1, true),
-  ('2026-03-02 19:30:00-03', 'Universitario', false, 'Liga Cordobesa Femenina', 2, 0, 0, true),
-  ('2026-03-22 20:30:00-03', 'Talleres Femenino', false, 'Liga Cordobesa Femenina', 2, 2, 4, true),
-  ('2026-04-12 20:00:00-03', 'General Paz Juniors', false, 'Liga Cordobesa Femenina', 2, 1, 1, true),
-  ('2026-04-26 19:30:00-03', 'Racing Femenino', false, 'Liga Cordobesa Femenina', 2, 4, 3, true),
+  ('2026-02-16 20:00:00-03', 'Las Águilas', true, 'Liga Cordobesa Femenina', 2, 3, 1, true, 'Polideportivo Yunke'),
+  ('2026-03-02 19:30:00-03', 'Universitario', false, 'Liga Cordobesa Femenina', 2, 0, 0, true, 'Estadio Universitario'),
+  ('2026-03-22 20:30:00-03', 'Talleres Femenino', false, 'Liga Cordobesa Femenina', 2, 2, 4, true, 'Estadio Talleres'),
+  ('2026-04-12 20:00:00-03', 'General Paz Juniors', false, 'Liga Cordobesa Femenina', 2, 1, 1, true, 'Estadio General Paz'),
+  ('2026-04-26 19:30:00-03', 'Racing Femenino', false, 'Liga Cordobesa Femenina', 2, 4, 3, true, 'Estadio Racing'),
 
   -- Partidos ya jugados (Sub 17 Masculina)
-  ('2026-03-08 20:00:00-03', 'Racing de Nueva Italia', false, 'Torneo Juvenil', 3, 3, 1, true),
-  ('2026-04-02 18:00:00-03', 'Instituto Sub 17', true, 'Torneo Juvenil', 3, 2, 0, true),
+  ('2026-03-08 20:00:00-03', 'Racing de Nueva Italia', false, 'Torneo Juvenil', 3, 3, 1, true, 'Estadio Racing Nueva Italia'),
+  ('2026-04-02 18:00:00-03', 'Instituto Sub 17', true, 'Torneo Juvenil', 3, 2, 0, true, 'Polideportivo Yunke'),
 
   -- Partidos próximos (Primera Masculina)
-  ('2026-07-04 20:00:00-03', 'Atlético Carlos Paz', true, 'Liga Cordobesa de Futsal', 1, null, null, false),
-  ('2026-07-11 19:30:00-03', 'Sportivo Belgrano', false, 'Liga Cordobesa de Futsal', 1, null, null, false),
-  ('2026-08-01 20:00:00-03', 'Racing de Nueva Italia', true, 'Copa Córdoba', 1, null, null, false),
-  ('2026-08-08 19:00:00-03', 'Instituto ACC', false, 'Liga Cordobesa de Futsal', 1, null, null, false),
+  ('2026-07-04 20:00:00-03', 'Atlético Carlos Paz', true, 'Liga Cordobesa de Futsal', 1, null, null, false, 'Polideportivo Yunke'),
+  ('2026-07-11 19:30:00-03', 'Sportivo Belgrano', false, 'Liga Cordobesa de Futsal', 1, null, null, false, 'Estadio Sportivo Belgrano'),
+  ('2026-08-01 20:00:00-03', 'Racing de Nueva Italia', true, 'Copa Córdoba', 1, null, null, false, 'Polideportivo Yunke'),
+  ('2026-08-08 19:00:00-03', 'Instituto ACC', false, 'Liga Cordobesa de Futsal', 1, null, null, false, 'Estadio Instituto ACC'),
 
   -- Partidos próximos (Primera Femenina)
-  ('2026-07-05 20:00:00-03', 'Las Águilas', false, 'Liga Cordobesa Femenina', 2, null, null, false),
-  ('2026-07-18 21:00:00-03', 'General Paz Juniors', true, 'Liga Cordobesa Femenina', 2, null, null, false),
-  ('2026-08-15 20:30:00-03', 'Talleres Femenino', true, 'Liga Cordobesa Femenina', 2, null, null, false),
+  ('2026-07-05 20:00:00-03', 'Las Águilas', false, 'Liga Cordobesa Femenina', 2, null, null, false, 'Estadio Las Águilas'),
+  ('2026-07-18 21:00:00-03', 'General Paz Juniors', true, 'Liga Cordobesa Femenina', 2, null, null, false, 'Polideportivo Yunke'),
+  ('2026-08-15 20:30:00-03', 'Talleres Femenino', true, 'Liga Cordobesa Femenina', 2, null, null, false, 'Polideportivo Yunke'),
 
   -- Partidos próximos (Sub 17 Masculina)
-  ('2026-07-12 18:00:00-03', 'Belgrano Sub 17', true, 'Torneo Juvenil', 3, null, null, false),
+  ('2026-07-12 18:00:00-03', 'Belgrano Sub 17', true, 'Torneo Juvenil', 3, null, null, false, 'Polideportivo Yunke'),
 
   -- Partidos próximos (Sub 17 Femenina)
-  ('2026-07-13 18:00:00-03', 'Las Palmas Sub 17', true, 'Torneo Juvenil Femenino', 4, null, null, false);
+  ('2026-07-13 18:00:00-03', 'Las Palmas Sub 17', true, 'Torneo Juvenil Femenino', 4, null, null, false, 'Polideportivo Yunke');
 
 -- 5. NOTICIAS
 TRUNCATE TABLE noticias CASCADE;

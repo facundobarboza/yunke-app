@@ -18,6 +18,7 @@ type Partido = {
   resultado_visitante: number | null;
   jugado: boolean;
   escudo_url?: string | null;
+  ubicacion?: string | null;
   categoria_id: number | null;
   categoria_nombre: string | null;
 };
@@ -93,7 +94,7 @@ export default function CalendarScreen() {
 
     if (golesYunke > golesRival) return { color: yunke.success, label: 'V' };
     if (golesYunke < golesRival) return { color: yunke.red, label: 'D' };
-    return { color: yunke.gold, label: 'E' };
+    return { color: yunke.text, label: 'E' };
   };
 
   if (loading) {
@@ -108,67 +109,72 @@ export default function CalendarScreen() {
       <FadeInUp delay={index * 80}>
         <View style={styles.card}>
           {/* Indicador de resultado (solo en resultados) */}
-          {esResultado && (
-            <View style={[styles.resultIndicator, { backgroundColor: resultado.color }]}>
-              <Text style={styles.resultIndicatorText}>{resultado.label}</Text>
+
+          {/* Categoría centrada arriba */}
+          <Text style={styles.categoryTop}>
+            {item.categoria_nombre || 'General'}
+          </Text>
+
+          <View style={styles.cardBody}>
+            {/* Columna Izquierda: Fecha */}
+            <View style={styles.dateContainer}>
+              <Text style={styles.dateText}>
+                {formatearFecha(item.fecha)}
+              </Text>
+              <Text style={styles.timeText}>{formatearHora(item.fecha)}</Text>
+            </View>
+
+            {/* Línea separadora */}
+            <View style={styles.divider} />
+
+            {/* Columna Central: Equipos */}
+            <View style={styles.matchInfo}>
+              <View style={styles.teamRowCalendar}>
+                {item.es_local ? (
+                  <Image source={require('../../assets/images/yunke-logo.png')} style={styles.escudoCalendar} resizeMode="contain" />
+                ) : (
+                  item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.escudoCalendar} resizeMode="contain" /> : <View style={[styles.escudoCalendar, styles.placeholderEscudoCal]}><Ionicons name="shield-outline" size={14} color={yunke.textTertiary} /></View>
+                )}
+                <Text style={styles.teamText} numberOfLines={1}>{item.es_local ? 'Club Yunke' : item.rival}</Text>
+              </View>
+
+              <Text style={styles.vsText}>vs</Text>
+
+              <View style={styles.teamRowCalendar}>
+                {!item.es_local ? (
+                  <Image source={require('../../assets/images/yunke-logo.png')} style={styles.escudoCalendar} resizeMode="contain" />
+                ) : (
+                  item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.escudoCalendar} resizeMode="contain" /> : <View style={[styles.escudoCalendar, styles.placeholderEscudoCal]}><Ionicons name="shield-outline" size={14} color={yunke.textTertiary} /></View>
+                )}
+                <Text style={styles.teamText} numberOfLines={1}>{!item.es_local ? 'Club Yunke' : item.rival}</Text>
+              </View>
+
+            </View>
+
+            {/* Columna Derecha: Resultado */}
+            <View style={styles.resultContainer}>
+              {esResultado && (
+                <Text style={[styles.scoreText, { color: resultado.color }]}>
+                  {item.resultado_local} - {item.resultado_visitante}
+                </Text>
+              )}
+            </View>
+          </View>
+
+          {/* Competición y ubicación */}
+          {(item.competicion || item.ubicacion) && (
+            <View style={styles.cardFooter}>
+              {item.competicion && (
+                <Text style={styles.cardFooterText}>{item.competicion}</Text>
+              )}
+              {item.competicion && item.ubicacion && (
+                <Text style={styles.cardFooterDot}>•</Text>
+              )}
+              {item.ubicacion && (
+                <Text style={styles.cardFooterText}>{item.ubicacion}</Text>
+              )}
             </View>
           )}
-
-          {/* Columna Izquierda: Fecha */}
-          <View style={styles.dateContainer}>
-            <Text style={[styles.dateText, esResultado && { color: resultado.color }]}>
-              {formatearFecha(item.fecha)}
-            </Text>
-            <Text style={styles.timeText}>{formatearHora(item.fecha)}</Text>
-          </View>
-
-          {/* Línea separadora */}
-          <View style={styles.divider} />
-
-          {/* Columna Central: Equipos y Competición */}
-          <View style={styles.matchInfo}>
-            <View style={styles.teamRowCalendar}>
-              {item.es_local ? (
-                <Image source={require('../../assets/images/yunke-logo.png')} style={styles.escudoCalendar} resizeMode="contain" />
-              ) : (
-                item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.escudoCalendar} resizeMode="contain" /> : <View style={[styles.escudoCalendar, styles.placeholderEscudoCal]}><Ionicons name="shield-outline" size={14} color={yunke.textTertiary} /></View>
-              )}
-              <Text style={styles.teamText} numberOfLines={1}>{item.es_local ? 'Club Yunke' : item.rival}</Text>
-            </View>
-            
-            <Text style={styles.vsText}>vs</Text>
-            
-            <View style={styles.teamRowCalendar}>
-              {!item.es_local ? (
-                <Image source={require('../../assets/images/yunke-logo.png')} style={styles.escudoCalendar} resizeMode="contain" />
-              ) : (
-                item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.escudoCalendar} resizeMode="contain" /> : <View style={[styles.escudoCalendar, styles.placeholderEscudoCal]}><Ionicons name="shield-outline" size={14} color={yunke.textTertiary} /></View>
-              )}
-              <Text style={styles.teamText} numberOfLines={1}>{!item.es_local ? 'Club Yunke' : item.rival}</Text>
-            </View>
-            
-            {item.competicion && (
-              <Text style={styles.competitionText}>
-                {item.competicion} • {item.categoria_nombre || 'General'}
-              </Text>
-            )}
-          </View>
-
-          {/* Columna Derecha: Resultado o Localidad */}
-          <View style={styles.resultContainer}>
-            {esResultado ? (
-              <Text style={[styles.scoreText, { color: resultado.color }]}>
-                {item.resultado_local} - {item.resultado_visitante}
-              </Text>
-            ) : (
-              <View style={[styles.locationBadge, item.es_local ? styles.locationHome : styles.locationAway]}>
-                <Ionicons name={item.es_local ? 'home' : 'airplane'} size={12} color={item.es_local ? yunke.primary : yunke.textSecondary} />
-                <Text style={[styles.locationText, !item.es_local && styles.locationTextAway]}>
-                  {item.es_local ? 'CASA' : 'FUERA'}
-                </Text>
-              </View>
-            )}
-          </View>
         </View>
       </FadeInUp>
     );
@@ -304,13 +310,11 @@ const styles = StyleSheet.create({
 
   // Cards premium
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: yunke.card,
     marginHorizontal: 24,
     marginBottom: 12,
     borderRadius: 16,
-    paddingVertical: 16,
+    paddingVertical: 12,
     paddingHorizontal: 16,
     shadowColor: yunke.dark,
     shadowOffset: { width: 0, height: 3 },
@@ -318,6 +322,22 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
     overflow: 'hidden',
+  },
+  categoryTop: {
+    fontSize: 10,
+    fontFamily: 'Montserrat_600SemiBold',
+    color: yunke.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    textAlign: 'center',
+    paddingBottom: 10,
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: yunke.border,
+  },
+  cardBody: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   resultIndicator: {
     position: 'absolute',
@@ -371,11 +391,24 @@ const styles = StyleSheet.create({
     marginVertical: 2,
     fontStyle: 'italic',
   },
-  competitionText: {
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: yunke.border,
+  },
+  cardFooterText: {
     fontSize: 11,
     fontFamily: 'Montserrat_400Regular',
     color: yunke.textSecondary,
-    marginTop: 6,
+  },
+  cardFooterDot: {
+    fontSize: 11,
+    color: yunke.textTertiary,
   },
   resultContainer: {
     width: 72,

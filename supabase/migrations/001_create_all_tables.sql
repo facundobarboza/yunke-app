@@ -140,6 +140,7 @@ CREATE TABLE IF NOT EXISTS partidos (
   resultado_visitante INTEGER,
   jugado BOOLEAN DEFAULT false,
   escudo_url TEXT,
+  ubicacion TEXT,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()

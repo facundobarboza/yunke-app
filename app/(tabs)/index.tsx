@@ -16,6 +16,7 @@ type Partido = {
   rival: string;
   es_local: boolean;
   competicion: string | null;
+  ubicacion: string | null;
   categoria_id: number | null;
   escudo_url: string | null;
   categoria_nombre: string | null;
@@ -82,7 +83,7 @@ export default function HomeScreen() {
     
     const { data: partidosData } = await supabase
       .from('partidos')
-      .select('id, fecha, rival, es_local, competicion, escudo_url, categoria_id')
+      .select('id, fecha, rival, es_local, competicion, escudo_url, categoria_id, ubicacion')
       .gte('fecha', new Date().toISOString())
       .order('fecha', { ascending: true })
       .limit(5);
@@ -143,18 +144,16 @@ export default function HomeScreen() {
     </Pressable>
   );
 
-  // Renderizado de las tarjetas de Partidos Premium
+  // Renderizado de las tarjetas de Partidos
   const renderPartido = ({ item, index }: { item: Partido; index: number }) => (
     <FadeInUp delay={index * 100}>
       <View style={styles.matchCard}>
-        {/* Barra de acento según localía */}
-        <View style={[styles.matchAccent, { backgroundColor: item.es_local ? yunke.red : yunke.primary }]} />
         
         <View style={styles.matchTop}>
-          <Text style={styles.matchCategoryAndCompeticion}>
+          <Text style={styles.matchCategory}>
             {item.categoria_nombre || 'General'}
           </Text>
-          <Text style={styles.matchCategoryAndCompeticion}>
+          <Text style={styles.matchCompeticion}>
             {item.competicion ? `${item.competicion}` : ''}
           </Text>
         </View>
@@ -189,13 +188,16 @@ export default function HomeScreen() {
 
         <View style={styles.matchFooter}>
           <View style={styles.matchDateContainer}>
-            <Ionicons name="calendar-outline" size={16} color={yunke.textSecondary} />
-            <Text style={styles.matchDateText}>{formatearFecha(item.fecha)}</Text>
+            <Ionicons name="calendar-outline" size={10} color={yunke.textSecondary} />
+            <Text style={styles.matchDateText}>{formatearFecha(item.fecha)},</Text>
+            <Text style={styles.matchTimeText}>{formatearHora(item.fecha)} HS.</Text>
           </View>
+          {item.ubicacion ? (
           <View style={styles.matchTimeContainer}>
-            <Ionicons name="time-outline" size={16} color={yunke.red} />
-            <Text style={styles.matchTimeText}>{formatearHora(item.fecha)} HS</Text>
+            <Ionicons name="location-outline" size={10} color={yunke.textSecondary} />
+            <Text style={styles.matchUbicationText}>{item.ubicacion}</Text>
           </View>
+          ) : null}
         </View>
       </View>
     </FadeInUp>
@@ -449,30 +451,32 @@ const styles = StyleSheet.create({
     elevation: 5,
     overflow: 'hidden',
   },
-  matchAccent: {
-    height: 4,
-    marginHorizontal: -20,
-    marginBottom: 16,
-  },
   matchTop: {
     borderBottomWidth: 1,
     borderBottomColor: yunke.border,
     paddingBottom: 12,
-    marginBottom: 15,
+    marginTop: 10,
+    marginBottom: 10,
   },
-  matchCategoryAndCompeticion: {
+  matchCategory: {
     textAlign: 'center',
-    fontSize: 13,
+    fontSize: 10,
     fontFamily: 'Montserrat_600SemiBold',
     color: yunke.textSecondary,
     textTransform: 'uppercase',
+  },
+  matchCompeticion: {
+    textAlign: 'center',
+    fontSize: 10,
+    fontFamily: 'Montserrat_600SemiBold',
+    color: yunke.textSecondary,
     letterSpacing: 0.5,
   },
   matchTeamsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   teamColumn: {
     flex: 1,
@@ -485,18 +489,18 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   vsContainer: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 5,
   },
   vsCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 20,
+    height: 20,
+    borderRadius: 25,
     backgroundColor: yunke.surface,
     justifyContent: 'center',
     alignItems: 'center',
   },
   vsText: {
-    fontSize: 14,
+    fontSize: 8,
     fontFamily: 'Montserrat_900Black',
     color: yunke.textSecondary,
   },
@@ -515,7 +519,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   matchDateText: {
-    fontSize: 13,
+    fontSize: 10,
     fontFamily: 'Montserrat_600SemiBold',
     color: yunke.textSecondary,
     textTransform: 'capitalize',
@@ -526,14 +530,19 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   matchTimeText: {
-    fontSize: 14,
-    fontFamily: 'Montserrat_700Bold',
-    color: yunke.red,
+    fontSize: 10,
+    fontFamily: 'Montserrat_600SemiBold',
+    color: yunke.textSecondary,
+  },
+  matchUbicationText: {
+    fontSize: 10,
+    fontFamily: 'Montserrat_600SemiBold',
+    color: yunke.textSecondary,
   },
   emptyText: {
     textAlign: 'center',
     marginTop: 20,
-    fontSize: 16,
+    fontSize: 10,
     color: yunke.textSecondary,
     paddingHorizontal: 24,
   },
