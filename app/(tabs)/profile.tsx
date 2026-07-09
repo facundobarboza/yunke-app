@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useFeatureFlag } from '../../src/hooks/useFeatureFlag';
 import { supabase } from '../../src/supabase';
 
 export default function ProfileScreen() {
@@ -13,6 +14,7 @@ export default function ProfileScreen() {
   const [session, setSession] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const router = useRouter();
+  const { isEnabled: showMembershipBanner } = useFeatureFlag('show_membership_banner');
 
   // Estados para el formulario de auth
   const [isLogin, setIsLogin] = useState(true);
@@ -200,7 +202,7 @@ export default function ProfileScreen() {
       
       {/* BANNER: SOCIO O NO SOCIO */}
       {profile?.is_socio ? (
-        // CARNET DIGITAL (SI ES SOCIO)
+        // CARNET DIGITAL (SI ES SOCIO) - Siempre visible si es socio
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardClubName}>CLUB YUNKE</Text>
@@ -217,8 +219,8 @@ export default function ProfileScreen() {
             </View>
           </View>
         </View>
-      ) : (
-        // BANNER HACERSE SOCIO (SI NO ES SOCIO)
+      ) : showMembershipBanner ? (
+        // BANNER HACERSE SOCIO (SI NO ES SOCIO Y FLAG ESTÁ HABILITADO)
         <View style={styles.bannerCard}>
           <LinearGradient
             colors={yunke.gradientRed}
@@ -234,7 +236,7 @@ export default function ProfileScreen() {
             </Pressable>
           </LinearGradient>
         </View>
-      )}
+      ) : null}
 
       {/* DATOS PERSONALES */}
       <Text style={styles.sectionTitle}>CUENTA</Text>

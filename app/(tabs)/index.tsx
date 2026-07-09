@@ -6,6 +6,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useFeatureFlag } from '../../src/hooks/useFeatureFlag';
 import { supabase } from '../../src/supabase';
 
 const { width } = Dimensions.get('window');
@@ -43,6 +44,7 @@ export default function HomeScreen() {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { isEnabled: showMembershipBanner } = useFeatureFlag('show_membership_banner');
 
   const flatListRef = useRef<FlatList>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -275,25 +277,27 @@ export default function HomeScreen() {
         )}
       </View>
 
-      {/* BANNER HACERTE SOCIO */}
-      <LinearGradient
-        colors={yunke.gradientRed}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.socioBanner}
-      >
-        {/* <View style={styles.bannerBadge}>
-          <Text style={styles.bannerBadgeText}>EXCLUSIVO</Text>
-        </View> */}
-        <View style={styles.bannerIconContainer}>
-          <Ionicons name="star" size={28} color={yunke.white} />
-        </View>
-        <Pressable style={styles.bannerContent} onPress={() => router.push('/benefits')}>
-          <Text style={styles.bannerTitle}>Beneficios Exclusivos</Text>
-          <Text style={styles.bannerSubtitle}>Descubrí todo lo que ganás por ser socio del club</Text>
-        </Pressable>
-        <Ionicons name="chevron-forward" size={24} color={yunke.white} />
-      </LinearGradient>
+      {/* BANNER HACERTE SOCIO - Solo visible si el flag está habilitado */}
+      {showMembershipBanner && (
+        <LinearGradient
+          colors={yunke.gradientRed}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.socioBanner}
+        >
+          {/* <View style={styles.bannerBadge}>
+            <Text style={styles.bannerBadgeText}>EXCLUSIVO</Text>
+          </View> */}
+          <View style={styles.bannerIconContainer}>
+            <Ionicons name="star" size={28} color={yunke.white} />
+          </View>
+          <Pressable style={styles.bannerContent} onPress={() => router.push('/benefits')}>
+            <Text style={styles.bannerTitle}>Beneficios Exclusivos</Text>
+            <Text style={styles.bannerSubtitle}>Descubrí todo lo que ganás por ser socio del club</Text>
+          </Pressable>
+          <Ionicons name="chevron-forward" size={24} color={yunke.white} />
+        </LinearGradient>
+      )}
 
       {/* SECCIÓN DE NOTICIAS PREMIUM */}
       <View style={styles.newsSection}>
