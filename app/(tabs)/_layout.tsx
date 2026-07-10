@@ -47,10 +47,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="team"
         options={{
-          title: 'Planteles',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people" size={26} color={color} />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen

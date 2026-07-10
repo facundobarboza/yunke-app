@@ -2,7 +2,7 @@ import { FadeInUp } from '@/components/FadeInUp';
 import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,6 +24,7 @@ type Jugador = {
 
 export default function TeamScreen() {
   const insets = useSafeAreaInsets();
+  const { categoria } = useLocalSearchParams<{ categoria?: string }>();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [selectedCategoria, setSelectedCategoria] = useState<number | null>(null);
   const [jugadores, setJugadores] = useState<Jugador[]>([]);
@@ -33,7 +34,7 @@ export default function TeamScreen() {
   useFocusEffect(
     useCallback(() => {
       cargarCategorias();
-    }, [])
+    }, [categoria])
   );
 
   const cargarCategorias = async () => {
@@ -44,8 +45,10 @@ export default function TeamScreen() {
 
     if (data && data.length > 0) {
       setCategorias(data);
-      setSelectedCategoria(data[0].id);
-      cargarJugadores(data[0].id);
+      const initialId = categoria ? Number(categoria) : data[0].id;
+      const validId = data.some((c) => c.id === initialId) ? initialId : data[0].id;
+      setSelectedCategoria(validId);
+      cargarJugadores(validId);
     } else {
       setLoading(false);
     }

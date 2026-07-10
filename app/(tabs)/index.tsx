@@ -30,9 +30,25 @@ type Sponsor = {
   portada_url: string | null;
 };
 
+type Categoria = {
+  id: number;
+  nombre: string;
+  jugadores_count?: number;
+};
+
+const CATEGORY_GRADIENTS: readonly (readonly [string, string])[] = [
+  ['#1A2858', '#2E4694'] as const, // azul
+  ['#6d0202', '#E01020'] as const, // rojo
+  ['#D4941C', '#F5A623'] as const, // dorado
+  ['#0F4C3A', '#1B8A5A'] as const, // verde
+  ['#4A1A6B', '#7B2D8E'] as const, // púrpura
+  ['#1A3A4A', '#2D7D9A'] as const, // teal
+];
+
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [proximosPartidos, setProximosPartidos] = useState<Partido[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -74,7 +90,26 @@ export default function HomeScreen() {
     if (categoriasData) {
       categoriasData.forEach((cat) => categoriasMap.set(cat.id, cat.nombre));
     }
-    
+
+    // Cargar categorías con conteo de jugadores para las tarjetas
+    const { data: catsConCount } = await supabase
+      .from('categorias')
+      .select('id, nombre');
+
+    if (catsConCount) {
+      const counts = await Promise.all(
+        catsConCount.map(async (cat) => {
+          const { count } = await supabase
+            .from('jugadores')
+            .select('*', { count: 'exact', head: true })
+            .eq('categoria_id', cat.id)
+            .eq('is_active', true);
+          return { ...cat, jugadores_count: count ?? 0 };
+        })
+      );
+      setCategorias(counts);
+    }
+
     const { data: partidosData } = await supabase
       .from('partidos')
       .select('id, fecha, rival, es_local, competicion, escudo_url, categoria_id, ubicacion')
@@ -282,6 +317,48 @@ export default function HomeScreen() {
           </Pressable>
           <Ionicons name="chevron-forward" size={24} color={yunke.white} />
         </LinearGradient>
+      )}
+
+      {/* SECCIÓN DE CATEGORÍAS */}
+      {categorias.length > 0 && (
+        <View style={styles.categoriesSection}>
+          <Text style={styles.sectionTitle}>Nuestros Equipos</Text>
+          <View style={styles.categoriesGrid}>
+            {categorias.map((cat, index) => {
+              const gradient = CATEGORY_GRADIENTS[index % CATEGORY_GRADIENTS.length];
+              return (
+                <FadeInUp key={cat.id} delay={index * 80}>
+                  <Pressable
+                    style={styles.categoryCard}
+                    onPress={() => router.push({ pathname: '/team', params: { categoria: cat.id } })}
+                  >
+                    <LinearGradient
+                      colors={gradient}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.categoryGradient}
+                    >
+                      {/* Icono badge arriba a la izquierda */}
+                      <View style={styles.categoryIconBadge}>
+                        <Ionicons name="football" size={16} color={yunke.white} />
+                      </View>
+
+                      {/* Escudo Yunke asomándose desde la derecha */}
+                      <Image
+                        source={require('../../assets/images/yunke-logo.png')}
+                        style={styles.categoryShield}
+                        resizeMode="contain"
+                      />
+
+                      {/* Nombre abajo a la izquierda */}
+                      <Text style={styles.categoryName}>{cat.nombre}</Text>
+                    </LinearGradient>
+                  </Pressable>
+                </FadeInUp>
+              );
+            })}
+          </View>
+        </View>
       )}
 
     </ScrollView>
@@ -578,5 +655,55 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.85)',
     marginTop: 2,
+  },
+
+  // Categorías
+  categoriesSection: { marginTop: 24, marginBottom: 10 },
+  categoriesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 20,
+    gap: 12,
+  },
+  categoryCard: {
+    width: (width - 52) / 2,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: yunke.dark,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  categoryGradient: {
+    paddingTop: 14,
+    paddingBottom: 18,
+    paddingLeft: 16,
+    paddingRight: 16,
+    minHeight: 130,
+    justifyContent: 'space-between',
+  },
+  categoryIconBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  categoryShield: {
+    position: 'absolute',
+    right: -12,
+    bottom: 28,
+    width: 90,
+    height: 90,
+    opacity: 0.2,
+    transform: [{ rotate: '12deg' }],
+  },
+  categoryName: {
+    fontSize: 16,
+    fontFamily: 'Montserrat_700Bold',
+    color: yunke.white,
+    lineHeight: 22,
   },
 });
