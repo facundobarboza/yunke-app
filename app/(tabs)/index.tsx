@@ -23,13 +23,6 @@ type Partido = {
   categoria_nombre: string | null;
 };
 
-type Noticia = {
-  id: string;
-  titulo: string;
-  contenido: string;
-  created_at: string;
-};
-
 type Sponsor = {
   id: string;
   nombre: string;
@@ -40,7 +33,6 @@ type Sponsor = {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [proximosPartidos, setProximosPartidos] = useState<Partido[]>([]);
-  const [noticias, setNoticias] = useState<Noticia[]>([]);
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -96,12 +88,6 @@ export default function HomeScreen() {
       categoria_nombre: p.categoria_id ? categoriasMap.get(p.categoria_id) || null : null,
     }));
 
-    const { data: noticiasData } = await supabase
-      .from('noticias')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(3);
-
     const { data: sponsorsData } = await supabase
       .from('sponsors')
       .select('id, nombre, logo_url, portada_url')
@@ -109,7 +95,6 @@ export default function HomeScreen() {
       .order('orden', { ascending: true });
 
     setProximosPartidos(partidosConCategoria);
-    setNoticias(noticiasData || []);
     setSponsors(sponsorsData || []);
     setLoading(false);
   };
@@ -299,27 +284,6 @@ export default function HomeScreen() {
         </LinearGradient>
       )}
 
-      {/* SECCIÓN DE NOTICIAS PREMIUM */}
-      <View style={styles.newsSection}>
-        <Text style={styles.sectionTitle}>Noticias</Text>
-        {noticias.length === 0 ? (
-          <Text style={styles.emptyText}>No hay noticias disponibles.</Text>
-        ) : (
-          noticias.map((noticia) => (
-            <View key={noticia.id} style={styles.newsCard}>
-              <View style={styles.newsAccentLine} />
-              <Text style={styles.newsTitle}>{noticia.titulo}</Text>
-              <Text style={styles.newsContent} numberOfLines={3}>{noticia.contenido}</Text>
-              <View style={styles.newsFooter}>
-                <Ionicons name="calendar-outline" size={14} color={yunke.textSecondary} />
-                <Text style={styles.newsDate}>
-                  {new Date(noticia.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
-                </Text>
-              </View>
-            </View>
-          ))
-        )}
-      </View>
     </ScrollView>
   );
 }
@@ -559,57 +523,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center'
-  },
-
-  // Noticias
-  newsSection: { marginTop: 20, marginBottom: 10 },
-  newsCard: {
-    backgroundColor: yunke.card,
-    marginHorizontal: 24,
-    marginBottom: 16,
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: yunke.dark,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 3,
-    overflow: 'hidden',
-  },
-  newsAccentLine: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 3,
-    backgroundColor: yunke.primary,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-  },
-  newsTitle: { 
-    fontSize: 18, 
-    fontFamily: 'Montserrat_700Bold', 
-    color: yunke.text, 
-    marginBottom: 8,
-    marginTop: 4,
-  },
-  newsContent: { 
-    fontSize: 15, 
-    color: yunke.darkSoft, 
-    lineHeight: 22, 
-    opacity: 0.85 
-  },
-  newsFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 12,
-  },
-  newsDate: { 
-    fontSize: 13, 
-    fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary, 
-    textTransform: 'capitalize' 
   },
 
   // Banner Socio
