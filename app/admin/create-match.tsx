@@ -8,9 +8,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
 
 export default function CreateMatchScreen() {
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const isEditing = !!id;
@@ -19,6 +21,7 @@ export default function CreateMatchScreen() {
   const [selectedCategoria, setSelectedCategoria] = useState<number | null>(null);
   const [rival, setRival] = useState('');
   const [competicion, setCompeticion] = useState('');
+  const [ubicacion, setUbicacion] = useState('');
   const [esLocal, setEsLocal] = useState(true);
   const [escudoUri, setEscudoUri] = useState<string | null>(null);
   const [rivales, setRivales] = useState<any[]>([]);
@@ -34,7 +37,7 @@ export default function CreateMatchScreen() {
 
   const fetchMatchData = async (matchId: string) => {
     const { data } = await supabase.from('partidos').select('*').eq('id', matchId).single();
-    if (data) { setRival(data.rival); setCompeticion(data.competicion || ''); setEsLocal(data.es_local); setFecha(new Date(data.fecha)); setSelectedCategoria(data.categoria_id); setEscudoUri(data.escudo_url); }
+    if (data) { setRival(data.rival); setCompeticion(data.competicion || ''); setUbicacion(data.ubicacion || ''); setEsLocal(data.es_local); setFecha(new Date(data.fecha)); setSelectedCategoria(data.categoria_id); setEscudoUri(data.escudo_url); }
   };
 
   const onDateChange = (event: any, selectedDate?: Date) => {
@@ -67,10 +70,10 @@ export default function CreateMatchScreen() {
 
     try {
       if (isEditing) {
-        const { error } = await supabase.from('partidos').update({ categoria_id: selectedCategoria, rival, competicion: competicion || null, es_local: esLocal, fecha: fechaParaGuardar.toISOString(), escudo_url: finalEscudoUrl }).eq('id', id);
+        const { error } = await supabase.from('partidos').update({ categoria_id: selectedCategoria, rival, competicion: competicion || null, ubicacion: ubicacion || null, es_local: esLocal, fecha: fechaParaGuardar.toISOString(), escudo_url: finalEscudoUrl }).eq('id', id);
         if (error) throw error; Alert.alert('Éxito', 'Partido actualizado.');
       } else {
-        const { error } = await supabase.from('partidos').insert({ categoria_id: selectedCategoria, rival, competicion: competicion || null, es_local: esLocal, fecha: fechaParaGuardar.toISOString(), jugado: false, is_active: true, escudo_url: finalEscudoUrl });
+        const { error } = await supabase.from('partidos').insert({ categoria_id: selectedCategoria, rival, competicion: competicion || null, ubicacion: ubicacion || null, es_local: esLocal, fecha: fechaParaGuardar.toISOString(), jugado: false, is_active: true, escudo_url: finalEscudoUrl });
         if (error) throw error; Alert.alert('Éxito', 'Partido creado.');
       }
       router.back();
@@ -93,7 +96,7 @@ export default function CreateMatchScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 + insets.bottom }}>
         <LinearGradient colors={yunke.gradientHeader} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={24} color={yunke.white} />
@@ -114,10 +117,13 @@ export default function CreateMatchScreen() {
           </Pressable>
         </View>
 
+        <Text style={styles.sectionTitle}>DATOS DEL PARTIDO</Text>
         <View style={styles.inputGroup}>
           <View style={styles.inputRow}><Ionicons name="people-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Rival" placeholderTextColor={yunke.textSecondary} value={rival} onChangeText={handleRivalChange} /></View>
           <View style={styles.inputDivider} />
           <View style={styles.inputRow}><Ionicons name="trophy-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Competición" placeholderTextColor={yunke.textSecondary} value={competicion} onChangeText={setCompeticion} /></View>
+          <View style={styles.inputDivider} />
+          <View style={styles.inputRow}><Ionicons name="location-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Ubicación" placeholderTextColor={yunke.textSecondary} value={ubicacion} onChangeText={setUbicacion} /></View>
         </View>
 
         <Text style={styles.sectionTitle}>ESCUDO DEL RIVAL</Text>
