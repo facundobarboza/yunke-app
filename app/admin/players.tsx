@@ -1,6 +1,8 @@
+import { Card } from '@/components/Card';
+import { EmptyState } from '@/components/EmptyState';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -73,7 +75,7 @@ export default function AdminPlayersScreen() {
   };
 
   const renderJugador = ({ item }: { item: Jugador }) => (
-    <View style={styles.card}>
+    <Card style={styles.card}>
       <Pressable style={styles.playerInfo} onPress={() => router.push(`/admin/create-player?id=${item.id}`)}>
         <View style={styles.playerIcon}>
           <Ionicons name="person-outline" size={18} color={yunke.primary} />
@@ -89,7 +91,7 @@ export default function AdminPlayersScreen() {
       <Pressable style={styles.deleteBtn} onPress={() => eliminarJugador(item)}>
         <Ionicons name="trash-outline" size={16} color={yunke.red} />
       </Pressable>
-    </View>
+    </Card>
   );
 
   const jugadoresFiltrados = selectedCategoria
@@ -102,14 +104,12 @@ export default function AdminPlayersScreen() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.container}>
-        <LinearGradient colors={yunke.gradientHeader} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
-          <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={24} color={yunke.white} />
-            <Text style={styles.backText}>Volver</Text>
-          </Pressable>
-          <Text style={styles.headerTitle}>Gestionar Plantilla</Text>
-          <Text style={styles.headerSubtitle}>{jugadoresFiltrados.length} jugadores</Text>
-        </LinearGradient>
+        <ScreenHeader
+          title="Gestionar Plantilla"
+          subtitle={`${jugadoresFiltrados.length} jugadores`}
+          showBack
+          onBack={() => router.back()}
+        />
 
         {/* Selector de categorías */}
         <View>
@@ -138,7 +138,7 @@ export default function AdminPlayersScreen() {
           renderItem={renderJugador}
           contentContainerStyle={{ paddingBottom: 100 + insets.bottom, paddingHorizontal: 24, paddingTop: 10 }}
           showsVerticalScrollIndicator={false}
-          ListEmptyComponent={<Text style={styles.emptyText}>No hay jugadores registrados.</Text>}
+          ListEmptyComponent={<EmptyState title="No hay jugadores registrados" />}
         />
 
         <Pressable style={[styles.fab, { bottom: 30 + insets.bottom }]} onPress={() => router.push('/admin/create-player')}>
@@ -152,23 +152,17 @@ export default function AdminPlayersScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: yunke.surface },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
-  header: { paddingTop: 60, paddingBottom: 20, paddingHorizontal: 24, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 },
-  backButton: { flexDirection: 'row', alignItems: 'center', paddingBottom: 16, gap: 4 },
-  backText: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.white },
-  headerTitle: { fontSize: 26, fontFamily: 'Montserrat_900Black', color: yunke.white, letterSpacing: -0.5 },
-  headerSubtitle: { fontSize: 14, fontFamily: 'Montserrat_400Regular', color: 'rgba(255,255,255,0.7)', marginTop: 4 },
   categoriesList: { paddingHorizontal: 24, paddingVertical: 16, gap: 10 },
   categoryPill: { paddingHorizontal: 18, paddingVertical: 10, borderRadius: 14, backgroundColor: yunke.card, borderWidth: 1, borderColor: yunke.border, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
   categoryPillActive: { backgroundColor: yunke.primary, borderColor: yunke.primary },
   categoryText: { fontSize: 13, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary },
   categoryTextActive: { color: yunke.white },
-  card: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: yunke.card, padding: 14, borderRadius: 16, marginBottom: 12, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
+  card: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 14, borderRadius: 16, marginBottom: 12 },
   playerInfo: { flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 },
   playerIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: yunke.primary + '12', justifyContent: 'center', alignItems: 'center' },
   playerText: { flex: 1 },
   playerName: { fontSize: 15, fontFamily: 'Montserrat_600SemiBold', color: yunke.text },
   playerCategory: { fontSize: 13, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary, marginTop: 2 },
   deleteBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.red + '12' },
-  emptyText: { textAlign: 'center', marginTop: 40, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary },
   fab: { position: 'absolute', bottom: 30, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: yunke.primary, justifyContent: 'center', alignItems: 'center', shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
 });
