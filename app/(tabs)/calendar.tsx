@@ -1,7 +1,9 @@
+import { Card } from '@/components/Card';
+import { EmptyState } from '@/components/EmptyState';
 import { FadeInUp } from '@/components/FadeInUp';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
@@ -107,7 +109,7 @@ export default function CalendarScreen() {
 
     return (
       <FadeInUp delay={index * 80}>
-        <View style={styles.card}>
+        <Card style={styles.card}>
           {/* Indicador de resultado (solo en resultados) */}
 
           {/* Categoría centrada arriba */}
@@ -175,23 +177,17 @@ export default function CalendarScreen() {
               )}
             </View>
           )}
-        </View>
+        </Card>
       </FadeInUp>
     );
   };
 
   return (
     <View style={styles.container}>
-      {/* HEADER CON GRADIENTE */}
-      <LinearGradient
-        colors={yunke.gradientHeader}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.header, { paddingTop: insets.top }]}
-      >
-        <Text style={styles.screenTitle}>Calendario</Text>
-        <Text style={styles.headerSubtitle}>Próximos partidos y resultados</Text>
-      </LinearGradient>
+      <ScreenHeader
+        title="Calendario"
+        subtitle="Próximos partidos y resultados"
+      />
 
       {/* Selector de filtro */}
       <View style={styles.filterContainer}>
@@ -229,9 +225,9 @@ export default function CalendarScreen() {
           />
         }
         ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            No hay {filtro === 'proximos' ? 'partidos programados' : 'resultados'}.
-          </Text>
+          <EmptyState
+            title={filtro === 'proximos' ? 'No hay partidos programados' : 'No hay resultados'}
+          />
         }
       />
     </View>
@@ -241,31 +237,6 @@ export default function CalendarScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: yunke.surface },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
-  
-  header: {
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 24,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    shadowColor: yunke.dark,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 15,
-  },
-  screenTitle: {
-    fontSize: 34,
-    fontFamily: 'Montserrat_900Black',
-    color: yunke.white,
-    letterSpacing: -1,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    fontFamily: 'Montserrat_400Regular',
-    color: 'rgba(255,255,255,0.7)',
-    marginTop: 4,
-  },
   
   // Filtro premium
   filterContainer: {
@@ -310,17 +281,11 @@ const styles = StyleSheet.create({
 
   // Cards premium
   card: {
-    backgroundColor: yunke.card,
     marginHorizontal: 24,
     marginBottom: 12,
     borderRadius: 16,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    shadowColor: yunke.dark,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
     overflow: 'hidden',
   },
   categoryTop: {
@@ -441,13 +406,6 @@ const styles = StyleSheet.create({
     color: yunke.primary,
   },
   locationTextAway: {
-    color: yunke.textSecondary,
-  },
-  emptyText: {
-    textAlign: 'center',
-    marginTop: 60,
-    fontSize: 16,
-    fontFamily: 'Montserrat_400Regular',
     color: yunke.textSecondary,
   },
   teamRowCalendar: {
