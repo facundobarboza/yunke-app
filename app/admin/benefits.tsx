@@ -1,6 +1,6 @@
 import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -83,20 +83,12 @@ export default function AdminBenefitsScreen() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.container}>
-        {/* Header */}
-        <LinearGradient
-          colors={yunke.gradientHeader}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.header}
-        >
-          <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={24} color={yunke.white} />
-            <Text style={styles.backText}>Volver</Text>
-          </Pressable>
-          <Text style={styles.headerTitle}>Gestionar Beneficios</Text>
-          <Text style={styles.headerSubtitle}>{beneficios.length} beneficios</Text>
-        </LinearGradient>
+        <ScreenHeader
+          title="Gestionar Beneficios"
+          subtitle={`${beneficios.length} beneficios`}
+          showBack
+          onBack={() => router.back()}
+        />
 
         <FlatList
           data={beneficios}
@@ -117,39 +109,7 @@ export default function AdminBenefitsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: yunke.surface },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
-  
-  header: {
-    paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 24,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-  },
-  backButton: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    paddingBottom: 16,
-    gap: 4,
-  },
-  backText: { 
-    fontSize: 16, 
-    fontFamily: 'Montserrat_500Medium',
-    color: yunke.white 
-  },
-  headerTitle: { 
-    fontSize: 26, 
-    fontFamily: 'Montserrat_900Black', 
-    color: yunke.white,
-    letterSpacing: -0.5,
-  },
-  headerSubtitle: { 
-    fontSize: 14, 
-    fontFamily: 'Montserrat_400Regular',
-    color: 'rgba(255,255,255,0.7)',
-    marginTop: 4,
-  },
-
-  card: { 
+  card: {
     flexDirection: 'row', 
     alignItems: 'center', 
     justifyContent: 'space-between', 

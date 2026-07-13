@@ -1,6 +1,6 @@
 import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -63,19 +63,11 @@ export default function EditProfileScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 + insets.bottom }}>
 
-          {/* Header */}
-          <LinearGradient
-            colors={yunke.gradientHeader}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={[styles.header, { paddingTop: insets.top }]}
-          >
-            <Pressable style={styles.backButton} onPress={() => router.back()}>
-              <Ionicons name="chevron-back" size={24} color={yunke.white} />
-              <Text style={styles.backText}>Volver</Text>
-            </Pressable>
-            <Text style={styles.headerTitle}>Datos Personales</Text>
-          </LinearGradient>
+          <ScreenHeader
+            title="Datos Personales"
+            showBack
+            onBack={() => router.back()}
+          />
 
           {/* Avatar */}
           <View style={styles.avatarSection}>
@@ -150,17 +142,6 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: yunke.surface },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
-
-  header: {
-    paddingTop: 60,
-    paddingBottom: 24,
-    paddingHorizontal: 24,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-  },
-  backButton: { flexDirection: 'row', alignItems: 'center', paddingBottom: 16, gap: 4 },
-  backText: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.white },
-  headerTitle: { fontSize: 26, fontFamily: 'Montserrat_900Black', color: yunke.white, letterSpacing: -0.5 },
 
   avatarSection: {
     alignItems: 'center',
