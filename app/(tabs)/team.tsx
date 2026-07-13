@@ -1,7 +1,8 @@
+import { EmptyState } from '@/components/EmptyState';
 import { FadeInUp } from '@/components/FadeInUp';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -118,16 +119,10 @@ export default function TeamScreen() {
 
   return (
     <View style={styles.container}>
-      {/* HEADER CON GRADIENTE */}
-      <LinearGradient
-        colors={yunke.gradientHeader}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.header, { paddingTop: insets.top }]}
-      >
-        <Text style={styles.screenTitle}>Plantel</Text>
-        <Text style={styles.headerSubtitle}>Conocé a nuestros jugadores</Text>
-      </LinearGradient>
+      <ScreenHeader
+        title="Plantel"
+        subtitle="Conocé a nuestros jugadores"
+      />
 
       {/* Selector de Categorías */}
       <View>
@@ -166,7 +161,7 @@ export default function TeamScreen() {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           !loading ? (
-            <Text style={styles.emptyText}>No hay jugadores en esta categoría</Text>
+            <EmptyState title="No hay jugadores en esta categoría" />
           ) : null
         }
       />
@@ -184,30 +179,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: yunke.surface,
-  },
-  header: {
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 24,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    shadowColor: yunke.dark,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 15,
-  },
-  screenTitle: {
-    fontSize: 34,
-    fontFamily: 'Montserrat_900Black',
-    color: yunke.white,
-    letterSpacing: -1,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    fontFamily: 'Montserrat_400Regular',
-    color: 'rgba(255,255,255,0.7)',
-    marginTop: 4,
   },
   categoriesList: {
     paddingHorizontal: 24,
@@ -314,12 +285,5 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat_400Regular',
     color: yunke.textSecondary,
     textTransform: 'capitalize',
-  },
-  emptyText: {
-    textAlign: 'center',
-    marginTop: 40,
-    fontSize: 16,
-    fontFamily: 'Montserrat_400Regular',
-    color: yunke.textSecondary,
   },
 });
