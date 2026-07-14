@@ -12,7 +12,10 @@ export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();
   const [session, setSession] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [nombre, setNombre] = useState('');
+  const [apellido, setApellido] = useState('');
   const [telefono, setTelefono] = useState('');
+  const [dni, setDni] = useState('');
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -33,18 +36,25 @@ export default function EditProfileScreen() {
 
     if (data) {
       setProfile(data);
+      setNombre(data.nombre || '');
+      setApellido(data.apellido || '');
       setTelefono(data.telefono || '');
+      setDni(data.dni || '');
     }
     setLoading(false);
   };
 
   const handleSave = async () => {
     if (!session?.user?.id) return;
+    if (!nombre || !apellido) {
+      Alert.alert('Error', 'Nombre y apellido son obligatorios');
+      return;
+    }
     setSaving(true);
 
     const { error } = await supabase
       .from('profiles')
-      .update({ telefono })
+      .update({ nombre, apellido, telefono, dni })
       .eq('id', session.user.id);
 
     if (error) Alert.alert('Error', 'No se pudieron guardar los cambios.');
@@ -60,7 +70,7 @@ export default function EditProfileScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 + insets.bottom }}>
 
           <ScreenHeader
@@ -81,13 +91,34 @@ export default function EditProfileScreen() {
           {/* Campos */}
           <Text style={styles.sectionTitle}>INFORMACIÓN PERSONAL</Text>
 
-          {/* Nombre - solo lectura */}
+          {/* Nombre - editable */}
           <View style={styles.fieldCard}>
             <View style={styles.fieldHeader}>
-              <Ionicons name="person-outline" size={16} color={yunke.textSecondary} />
+              <Ionicons name="person-outline" size={16} color={yunke.primary} />
               <Text style={styles.fieldLabel}>Nombre</Text>
             </View>
-            <Text style={styles.fieldValue}>{profile?.nombre} {profile?.apellido}</Text>
+            <TextInput
+              style={styles.fieldInput}
+              placeholder="Tu nombre"
+              placeholderTextColor={yunke.textTertiary}
+              value={nombre}
+              onChangeText={setNombre}
+            />
+          </View>
+
+          {/* Apellido - editable */}
+          <View style={styles.fieldCard}>
+            <View style={styles.fieldHeader}>
+              <Ionicons name="person-outline" size={16} color={yunke.primary} />
+              <Text style={styles.fieldLabel}>Apellido</Text>
+            </View>
+            <TextInput
+              style={styles.fieldInput}
+              placeholder="Tu apellido"
+              placeholderTextColor={yunke.textTertiary}
+              value={apellido}
+              onChangeText={setApellido}
+            />
           </View>
 
           {/* Email - solo lectura */}
@@ -99,13 +130,21 @@ export default function EditProfileScreen() {
             <Text style={styles.fieldValue}>{session?.user?.email}</Text>
           </View>
 
-          {/* DNI - solo lectura */}
+          {/* DNI - editable */}
           <View style={styles.fieldCard}>
             <View style={styles.fieldHeader}>
-              <Ionicons name="card-outline" size={16} color={yunke.textSecondary} />
+              <Ionicons name="card-outline" size={16} color={yunke.primary} />
               <Text style={styles.fieldLabel}>DNI</Text>
             </View>
-            <Text style={styles.fieldValue}>{profile?.dni || 'No registrado'}</Text>
+            <TextInput
+              style={styles.fieldInput}
+              placeholder="Tu DNI"
+              placeholderTextColor={yunke.textTertiary}
+              value={dni}
+              onChangeText={setDni}
+              keyboardType="numeric"
+              maxLength={8}
+            />
           </View>
 
           {/* Teléfono - editable */}
@@ -116,7 +155,7 @@ export default function EditProfileScreen() {
             </View>
             <TextInput
               style={styles.fieldInput}
-              placeholder="Agregar teléfono"
+              placeholder="Tu teléfono"
               placeholderTextColor={yunke.textTertiary}
               value={telefono}
               onChangeText={setTelefono}

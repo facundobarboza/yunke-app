@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFeatureFlag } from '../../src/hooks/useFeatureFlag';
 import { supabase } from '../../src/supabase';
@@ -22,6 +22,8 @@ export default function ProfileScreen() {
   const [password, setPassword] = useState('');
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [dni, setDni] = useState('');
 
   const [loadingPago, setLoadingPago] = useState(false);
 
@@ -64,16 +66,25 @@ export default function ProfileScreen() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       } else {
-        if (!nombre || !apellido) {
-          Alert.alert('Error', 'Nombre y apellido son obligatorios');
+        if (!nombre || !apellido || !telefono || !dni) {
+          Alert.alert('Error', 'Todos los campos son obligatorios');
           setLoading(false);
           return;
         }
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email, password,
           options: { data: { nombre, apellido } }
         });
         if (error) throw error;
+
+        // Guardar telefono y dni en profiles después del registro
+        if (data.user) {
+          await supabase.from('profiles').update({
+            telefono,
+            dni,
+          }).eq('id', data.user.id);
+        }
+
         Alert.alert('Éxito', 'Revisa tu email para confirmar tu cuenta si es necesario.');
       }
     } catch (error: any) {
@@ -85,7 +96,7 @@ export default function ProfileScreen() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    setEmail(''); setPassword(''); setNombre(''); setApellido('');
+    setEmail(''); setPassword(''); setNombre(''); setApellido(''); setTelefono(''); setDni('');
   };
 
   const handleResetPassword = async () => {
@@ -121,6 +132,10 @@ export default function ProfileScreen() {
   // =================================================================
   if (!session) {
     return (
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
       <ScrollView style={styles.authContainer} contentContainerStyle={{ flexGrow: 1 }}>
         {/* Header con gradiente */}
         <LinearGradient
@@ -147,6 +162,10 @@ export default function ProfileScreen() {
                 <View style={styles.inputDivider} />
                 <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor={yunke.textSecondary} value={apellido} onChangeText={setApellido} />
                 <View style={styles.inputDivider} />
+                <TextInput style={styles.input} placeholder="Teléfono" placeholderTextColor={yunke.textSecondary} value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" />
+                <View style={styles.inputDivider} />
+                <TextInput style={styles.input} placeholder="DNI" placeholderTextColor={yunke.textSecondary} value={dni} onChangeText={setDni} keyboardType="numeric" maxLength={8} />
+                <View style={styles.inputDivider} />
               </>
             )}
             <View style={styles.inputRow}>
@@ -169,6 +188,7 @@ export default function ProfileScreen() {
           </Pressable>
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
     );
   }
 
@@ -192,10 +212,10 @@ export default function ProfileScreen() {
         <View style={styles.headerContent}>
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{profile?.nombre?.charAt(0) || 'U'}</Text>
+              <Text style={styles.avatarText}>{(profile?.nombre || 'U').charAt(0)}</Text>
             </View>
           </View>
-          <Text style={styles.headerTitle}>{profile?.nombre} {profile?.apellido}</Text>
+          <Text style={styles.headerTitle}>{profile?.nombre || 'Sin nombre'} {profile?.apellido || ''}</Text>
           <Text style={styles.headerSubtitle}>{session?.user?.email}</Text>
         </View>
       </LinearGradient>
@@ -209,7 +229,7 @@ export default function ProfileScreen() {
             <Text style={styles.cardMemberLabel}>SOCIO Nº</Text>
           </View>
           <View style={styles.cardBody}>
-            <Text style={styles.cardName}>{profile?.nombre} {profile?.apellido}</Text>
+            <Text style={styles.cardName}>{profile?.nombre || 'Sin nombre'} {profile?.apellido || ''}</Text>
             <Text style={styles.cardDni}>DNI: {profile?.dni || 'No registrado'}</Text>
           </View>
           <View style={styles.cardFooter}>
@@ -246,7 +266,7 @@ export default function ProfileScreen() {
         </View>
         <View style={styles.menuTextContainer}>
           <Text style={styles.menuText}>Datos Personales</Text>
-          <Text style={styles.menuSubtext}>{profile?.nombre} {profile?.apellido}</Text>
+          <Text style={styles.menuSubtext}>{profile?.nombre || 'Sin nombre'} {profile?.apellido || ''}</Text>
         </View>
         <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
       </Pressable>

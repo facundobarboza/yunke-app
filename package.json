@@ -38,6 +38,8 @@
   },
   "scripts": {
     "start": "expo start",
+    "start:dev": "cp .env.dev .env && expo start --clear",
+    "start:prod": "cp .env.prod .env && expo start --clear",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web"
