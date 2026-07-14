@@ -388,6 +388,35 @@ CREATE TRIGGER trigger_beneficios_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_beneficios_updated_at();
 
+-- ---------------------------------------------------------------------------
+-- FEATURE FLAGS
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS feature_flags (
+  id SERIAL PRIMARY KEY,
+  key TEXT NOT NULL UNIQUE,
+  is_enabled BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE feature_flags ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Feature flags públicos" ON feature_flags
+  FOR SELECT USING (true);
+
+CREATE POLICY "Admins manage feature flags" ON feature_flags
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.is_admin = true
+    )
+  );
+
+-- Flags iniciales
+INSERT INTO feature_flags (key, is_enabled) VALUES
+  ('show_membership_banner', false)
+ON CONFLICT (key) DO NOTHING;
+
 
 -- ===========================================================================
 -- PARTE 3: CATEGORÍAS INICIALES
@@ -458,4 +487,6 @@ UNION ALL
 SELECT 'noticias', count(*) FROM noticias
 UNION ALL
 SELECT 'beneficios', count(*) FROM beneficios
+UNION ALL
+SELECT 'feature_flags', count(*) FROM feature_flags
 ORDER BY tabla;
