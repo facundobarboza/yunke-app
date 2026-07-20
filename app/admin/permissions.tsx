@@ -9,6 +9,7 @@ import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View }
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
 import type { Permission } from '../../src/types/rbac';
+import { AdminGuard } from '../../src/components/AdminGuard';
 
 export default function AdminPermissionsScreen() {
   const router = useRouter();
@@ -84,7 +85,7 @@ export default function AdminPermissionsScreen() {
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
 
   return (
-    <>
+    <AdminGuard permission="gestionar_permisos">
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.container}>
         <ScreenHeader
@@ -110,7 +111,7 @@ export default function AdminPermissionsScreen() {
           <Ionicons name="add" size={28} color={yunke.white} />
         </Pressable>
       </View>
-    </>
+    </AdminGuard>
   );
 }
 

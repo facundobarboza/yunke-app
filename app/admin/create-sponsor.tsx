@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
+import { AdminGuard } from '../../src/components/AdminGuard';
 
 type GalleryImage = {
   id: string;
@@ -138,7 +139,7 @@ export default function CreateSponsorScreen() {
   };
 
   return (
-    <>
+    <AdminGuard permission="gestionar_sponsors">
       <Stack.Screen options={{ headerShown: false }} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 + insets.bottom }}>
@@ -205,7 +206,7 @@ export default function CreateSponsorScreen() {
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
-    </>
+    </AdminGuard>
   );
 }
 

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
+import { AdminGuard } from '../../src/components/AdminGuard';
 
 function slugify(text: string): string {
   return text
@@ -109,7 +110,7 @@ export default function CreatePermissionScreen() {
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
 
   return (
-    <>
+    <AdminGuard permission="gestionar_permisos">
       <Stack.Screen options={{ headerShown: false }} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 + insets.bottom }}>
@@ -184,7 +185,7 @@ export default function CreatePermissionScreen() {
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
-    </>
+    </AdminGuard>
   );
 }
 

@@ -6,6 +6,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
+import { AdminGuard } from '../../src/components/AdminGuard';
 
 type Partido = {
   id: string;
@@ -106,7 +107,7 @@ export default function AdminMatchesScreen() {
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
 
   return (
-    <>
+    <AdminGuard permission="gestionar_partidos">
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.container}>
         <ScreenHeader
@@ -148,7 +149,7 @@ export default function AdminMatchesScreen() {
           </View>
         </Modal>
       </View>
-    </>
+    </AdminGuard>
   );
 }
 

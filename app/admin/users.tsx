@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../src/hooks/useAuth';
 import { supabase } from '../../src/supabase';
 import type { Role, UserWithRoles } from '../../src/types/rbac';
+import { AdminGuard } from '../../src/components/AdminGuard';
 
 export default function AdminUsersScreen() {
   const router = useRouter();
@@ -157,7 +158,7 @@ export default function AdminUsersScreen() {
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
 
   return (
-    <>
+    <AdminGuard permission="gestionar_roles">
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.container}>
         <ScreenHeader
@@ -235,11 +236,12 @@ export default function AdminUsersScreen() {
                   </Pressable>
                 </>
               )}
+              </Pressable>
             </Pressable>
-          </Pressable>
-        </Modal>
+          </Modal>
+        </View>
       </View>
-    </>
+    </AdminGuard>
   );
 }
 

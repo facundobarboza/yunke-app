@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
+import { AdminGuard } from '../../src/components/AdminGuard';
 
 export default function CreateMatchScreen() {
   const insets = useSafeAreaInsets();
@@ -95,7 +96,7 @@ export default function CreateMatchScreen() {
   };
 
   return (
-    <>
+    <AdminGuard permission="gestionar_partidos">
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 + insets.bottom }}>
         <LinearGradient colors={yunke.gradientHeader} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
@@ -175,7 +176,7 @@ export default function CreateMatchScreen() {
           )}
         </Pressable>
       </ScrollView>
-    </>
+    </AdminGuard>
   );
 }
 

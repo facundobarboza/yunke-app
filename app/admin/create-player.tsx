@@ -8,6 +8,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { supabase } from '../../src/supabase';
+import { AdminGuard } from '../../src/components/AdminGuard';
 
 export default function CreatePlayerScreen() {
   const router = useRouter();
@@ -116,7 +117,7 @@ export default function CreatePlayerScreen() {
   };
 
   return (
-    <>
+    <AdminGuard permission="gestionar_jugadores">
       <Stack.Screen options={{ headerShown: false }} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
@@ -211,7 +212,7 @@ export default function CreatePlayerScreen() {
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
-    </>
+    </AdminGuard>
   );
 }
 

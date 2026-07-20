@@ -6,6 +6,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
+import { AdminGuard } from '../../src/components/AdminGuard';
 
 type Beneficio = {
   id: string;
@@ -80,7 +81,7 @@ export default function AdminBenefitsScreen() {
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
 
   return (
-    <>
+    <AdminGuard permission="gestionar_beneficios">
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.container}>
         <ScreenHeader
@@ -102,7 +103,7 @@ export default function AdminBenefitsScreen() {
           <Ionicons name="add" size={28} color={yunke.white} />
         </Pressable>
       </View>
-    </>
+    </AdminGuard>
   );
 }
 

@@ -5,6 +5,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { supabase } from '../../src/supabase';
+import { AdminGuard } from '../../src/components/AdminGuard';
 
 const ICONOS = [
   'pricetag-outline',
@@ -78,7 +79,7 @@ export default function CreateBenefitScreen() {
   };
 
   return (
-    <>
+    <AdminGuard permission="gestionar_beneficios">
       <Stack.Screen options={{ headerShown: false }} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
@@ -160,7 +161,7 @@ export default function CreateBenefitScreen() {
 
         </ScrollView>
       </KeyboardAvoidingView>
-    </>
+    </AdminGuard>
   );
 }
 

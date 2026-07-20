@@ -8,6 +8,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
+import { AdminGuard } from '../../src/components/AdminGuard';
 
 type Jugador = {
   id: string;
@@ -101,7 +102,7 @@ export default function AdminPlayersScreen() {
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
 
   return (
-    <>
+    <AdminGuard permission="gestionar_jugadores">
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.container}>
         <ScreenHeader
@@ -145,7 +146,7 @@ export default function AdminPlayersScreen() {
           <Ionicons name="add" size={28} color={yunke.white} />
         </Pressable>
       </View>
-    </>
+    </AdminGuard>
   );
 }
 

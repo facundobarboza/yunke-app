@@ -19,6 +19,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
 import type { Permission } from '../../src/types/rbac';
+import { AdminGuard } from '../../src/components/AdminGuard';
 
 export default function CreateRoleScreen() {
   const router = useRouter();
@@ -152,7 +153,7 @@ export default function CreateRoleScreen() {
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
 
   return (
-    <>
+    <AdminGuard permission="gestionar_roles">
       <Stack.Screen options={{ headerShown: false }} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 + insets.bottom }}>
@@ -237,7 +238,7 @@ export default function CreateRoleScreen() {
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
-    </>
+    </AdminGuard>
   );
 }
 

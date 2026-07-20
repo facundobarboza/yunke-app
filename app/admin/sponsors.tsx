@@ -8,6 +8,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../src/supabase';
+import { AdminGuard } from '../../src/components/AdminGuard';
 
 type Sponsor = {
   id: string;
@@ -60,7 +61,7 @@ export default function AdminSponsorsScreen() {
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
 
   return (
-    <>
+    <AdminGuard permission="gestionar_sponsors">
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.container}>
         <ScreenHeader
@@ -78,7 +79,7 @@ export default function AdminSponsorsScreen() {
           <Ionicons name="add" size={28} color={yunke.white} />
         </Pressable>
       </View>
-    </>
+    </AdminGuard>
   );
 }
 
