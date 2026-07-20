@@ -2,17 +2,18 @@ import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { useAuth } from '../../src/hooks/useAuth';
 import { useFeatureFlag } from '../../src/hooks/useFeatureFlag';
 import { supabase } from '../../src/supabase';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const [loading, setLoading] = useState(false);
-  const [session, setSession] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const { user, profile, loading, isAuthenticated, isAdmin } = useAuth();
+  const [formLoading, setFormLoading] = useState(false);
   const router = useRouter();
   const { isEnabled: showMembershipBanner } = useFeatureFlag('show_membership_banner');
 
@@ -27,39 +28,12 @@ export default function ProfileScreen() {
 
   const [loadingPago, setLoadingPago] = useState(false);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) fetchProfile(session.user.id);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) fetchProfile(session.user.id);
-      else setProfile(null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    
-    if (data) {
-      setProfile(data);
-    }
-  };
-
   const handleAuth = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Por favor ingresa email y contraseña');
       return;
     }
-    setLoading(true);
+    setFormLoading(true);
 
     try {
       if (isLogin) {
@@ -68,7 +42,7 @@ export default function ProfileScreen() {
       } else {
         if (!nombre || !apellido || !telefono || !dni) {
           Alert.alert('Error', 'Todos los campos son obligatorios');
-          setLoading(false);
+          setFormLoading(false);
           return;
         }
         const { data, error } = await supabase.auth.signUp({
@@ -90,7 +64,7 @@ export default function ProfileScreen() {
     } catch (error: any) {
       Alert.alert('Error de autenticación', error.message);
     } finally {
-      setLoading(false);
+      setFormLoading(false);
     }
   };
 
@@ -100,19 +74,19 @@ export default function ProfileScreen() {
   };
 
   const handleResetPassword = async () => {
-    if (!session?.user?.email) return;
-    const { error } = await supabase.auth.resetPasswordForEmail(session.user.email);
+    if (!user?.email) return;
+    const { error } = await supabase.auth.resetPasswordForEmail(user.email);
     if (error) Alert.alert('Error', error.message);
     else Alert.alert('Email enviado', 'Revisa tu correo para restablecer la contraseña.');
   };
 
   const handlePagarCuota = async () => {
-    if (!session?.user?.email) return;
+    if (!user?.email) return;
     setLoadingPago(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-payment', {
         body: { 
-          email: session.user.email, 
+          email: user.email, 
           nombre: profile?.nombre || '', 
           apellido: profile?.apellido || '' 
         },
@@ -128,9 +102,20 @@ export default function ProfileScreen() {
   };
 
   // =================================================================
+  // LOADING — initial auth check
+  // =================================================================
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface }}>
+        <ActivityIndicator size="large" color={yunke.primary} />
+      </View>
+    );
+  }
+
+  // =================================================================
   // UI: LOGIN / REGISTRO
   // =================================================================
-  if (!session) {
+  if (!isAuthenticated) {
     return (
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -179,8 +164,8 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          <Pressable style={styles.primaryButton} onPress={handleAuth} disabled={loading}>
-            {loading ? <ActivityIndicator color={yunke.white} /> : <Text style={styles.primaryButtonText}>{isLogin ? 'Entrar' : 'Registrarme'}</Text>}
+          <Pressable style={styles.primaryButton} onPress={handleAuth} disabled={formLoading}>
+            {formLoading ? <ActivityIndicator color={yunke.white} /> : <Text style={styles.primaryButtonText}>{isLogin ? 'Entrar' : 'Registrarme'}</Text>}
           </Pressable>
 
           <Pressable style={styles.switchButton} onPress={() => setIsLogin(!isLogin)}>
@@ -216,7 +201,7 @@ export default function ProfileScreen() {
             </View>
           </View>
           <Text style={styles.headerTitle}>{profile?.nombre || 'Sin nombre'} {profile?.apellido || ''}</Text>
-          <Text style={styles.headerSubtitle}>{session?.user?.email}</Text>
+          <Text style={styles.headerSubtitle}>{user?.email}</Text>
         </View>
       </LinearGradient>
       
@@ -281,8 +266,8 @@ export default function ProfileScreen() {
         <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
       </Pressable>
 
-      {/* MENÚ DE ADMINISTRACIÓN (Solo visible si is_admin es true) */}
-      {profile?.is_admin && (
+      {/* MENÚ DE ADMINISTRACIÓN (Solo visible si tiene permiso ver_admin) */}
+      {isAdmin && (
         <View>
           <Text style={styles.sectionTitle}>ADMINISTRACIÓN</Text>
           
