@@ -8,11 +8,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../src/hooks/useAuth';
 import { useFeatureFlag } from '../../src/hooks/useFeatureFlag';
+import { usePermission } from '../../src/hooks/usePermission';
 import { supabase } from '../../src/supabase';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { user, profile, loading, isAuthenticated, isAdmin } = useAuth();
+  const canManageRoles = usePermission('gestionar_roles');
+  const canManagePermissions = usePermission('gestionar_permisos');
   const [formLoading, setFormLoading] = useState(false);
   const router = useRouter();
   const { isEnabled: showMembershipBanner } = useFeatureFlag('show_membership_banner');
@@ -302,6 +305,36 @@ export default function ProfileScreen() {
             <Text style={styles.menuText}>Gestionar Beneficios</Text>
             <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
           </Pressable>
+
+          {canManageRoles && (
+            <Pressable style={styles.menuRow} onPress={() => router.push('/admin/roles')}>
+              <View style={[styles.menuIconContainer, { backgroundColor: yunke.primary + '20' }]}>
+                <Ionicons name="shield-checkmark-outline" size={18} color={yunke.primary} />
+              </View>
+              <Text style={styles.menuText}>Gestionar Roles</Text>
+              <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+            </Pressable>
+          )}
+
+          {canManagePermissions && (
+            <Pressable style={styles.menuRow} onPress={() => router.push('/admin/permissions')}>
+              <View style={[styles.menuIconContainer, { backgroundColor: yunke.primary + '20' }]}>
+                <Ionicons name="key-outline" size={18} color={yunke.primary} />
+              </View>
+              <Text style={styles.menuText}>Gestionar Permisos</Text>
+              <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+            </Pressable>
+          )}
+
+          {canManageRoles && (
+            <Pressable style={styles.menuRow} onPress={() => router.push('/admin/users')}>
+              <View style={[styles.menuIconContainer, { backgroundColor: yunke.primary + '20' }]}>
+                <Ionicons name="people-circle-outline" size={18} color={yunke.primary} />
+              </View>
+              <Text style={styles.menuText}>Gestionar Usuarios</Text>
+              <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+            </Pressable>
+          )}
         </View>
       )}
 
