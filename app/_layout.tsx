@@ -13,7 +13,6 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import 'react-native-reanimated';
 
-import { DevBanner } from '@/components/DevBanner';
 import { useColorScheme } from '@/components/useColorScheme';
 
 const queryClient = new QueryClient();
@@ -66,7 +65,6 @@ function RootLayoutNav() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <View style={{ flex: 1 }}>
-          <DevBanner />
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
