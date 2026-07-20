@@ -199,9 +199,13 @@ export default function ProfileScreen() {
       >
         <View style={styles.headerContent}>
           <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{(profile?.nombre || 'U').charAt(0)}</Text>
-            </View>
+            {profile?.avatar_url ? (
+              <Image source={{ uri: profile.avatar_url }} style={styles.avatarImage} />
+            ) : (
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{(profile?.nombre || 'U').charAt(0)}</Text>
+              </View>
+            )}
           </View>
           <Text style={styles.headerTitle}>{profile?.nombre || 'Sin nombre'} {profile?.apellido || ''}</Text>
           <Text style={styles.headerSubtitle}>{user?.email}</Text>
@@ -452,6 +456,13 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     marginBottom: 12,
+  },
+  avatarImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: 'rgba(255,255,255,0.3)',
   },
   avatar: {
     width: 80,

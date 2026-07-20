@@ -22,6 +22,7 @@ export interface Profile {
   telefono: string | null;
   dni: string | null;
   is_socio: boolean;
+  avatar_url: string | null;
   created_at: string;
   updated_at: string;
 }
