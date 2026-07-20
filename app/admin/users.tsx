@@ -239,7 +239,6 @@ export default function AdminUsersScreen() {
               </Pressable>
             </Pressable>
           </Modal>
-        </View>
       </View>
     </AdminGuard>
   );

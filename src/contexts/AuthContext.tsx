@@ -21,7 +21,6 @@ export interface Profile {
   apellido: string | null;
   telefono: string | null;
   dni: string | null;
-  is_admin: boolean;
   is_socio: boolean;
   created_at: string;
   updated_at: string;
