@@ -1,5 +1,30 @@
 {
   "enabledPlugins": {
     "expo@claude-plugins-official": true
+  },
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ],
+      "env": {
+        "CONTEXT7_API_KEY": "ctx7sk-4a07e235-7ec1-4b22-8e66-58b3acb191e2"
+      }
+    },
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "supabase-mcp@latest",
+        "supabase-mcp-claude"
+      ],
+      "env": {
+        "SUPABASE_URL": "https://waefxlbwztmjmlsxajuk.supabase.co",
+        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZWZ4bGJ3enRtam1sc3hhanVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzgyNzIsImV4cCI6MjA5OTU1NDI3Mn0.mj84MoBHURBYJapTyHsS1KAp4Rr_SDnjsiHwWsvAxMQ",
+        "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZWZ4bGJ3enRtam1sc3hhanVrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4Mzk3ODI3MiwiZXhwIjoyMDk5NTU0MjcyfQ.CKDnLvZDsgDoj9bIALbB4KNMOnY-l_UFsELsfk5qU-c"
+      }
+    }
   }
 }
