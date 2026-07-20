@@ -60,7 +60,8 @@ export default function CreateMatchScreen() {
         const fileName = `${Date.now()}.jpg`;
         const base64 = await FileSystem.readAsStringAsync(escudoUri, { encoding: FileSystem.EncodingType.Base64 });
         const arrayBuffer = decode(base64);
-        await supabase.storage.from('escudos').upload(fileName, arrayBuffer, { contentType: 'image/jpeg' });
+        const { error: uploadError } = await supabase.storage.from('escudos').upload(fileName, arrayBuffer, { contentType: 'image/jpeg' });
+        if (uploadError) throw uploadError;
         const { data } = supabase.storage.from('escudos').getPublicUrl(fileName);
         finalEscudoUrl = data.publicUrl;
         const rivalExistente = rivales.find(r => r.nombre.toLowerCase() === rival.toLowerCase());

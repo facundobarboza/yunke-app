@@ -78,7 +78,8 @@ export default function CreateSponsorScreen() {
     const fileName = `${Date.now()}.jpg`;
     const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
     const arrayBuffer = decode(base64);
-    await supabase.storage.from(bucket).upload(fileName, arrayBuffer, { contentType: 'image/jpeg' });
+    const { error } = await supabase.storage.from(bucket).upload(fileName, arrayBuffer, { contentType: 'image/jpeg' });
+    if (error) throw error;
     const { data } = supabase.storage.from(bucket).getPublicUrl(fileName);
     return data.publicUrl;
   };
