@@ -105,7 +105,7 @@ export default function PlayerDetailScreen() {
                 <Text style={styles.placeholderText}>{jugador.nombre.charAt(0)}</Text>
               </View>
             )}
-            {jugador.is_capitan !== null && (
+            {jugador.is_capitan === true && (
               <View style={styles.capitanBadge}>
                 <Text style={styles.capitanBadgeText}>C</Text>
               </View>

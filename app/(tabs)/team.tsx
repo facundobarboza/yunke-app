@@ -87,7 +87,7 @@ export default function TeamScreen() {
               <Text style={styles.placeholderText}>{item.nombre.charAt(0)}</Text>
             </View>
           )}
-          {item.is_capitan !== null && (
+          {item.is_capitan === true && (
             <View style={styles.capitanBadge}>
               <Text style={styles.capitanBadgeText}>C</Text>
             </View>
