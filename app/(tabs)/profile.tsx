@@ -16,6 +16,7 @@ export default function ProfileScreen() {
   const { user, profile, loading, isAuthenticated, isAdmin } = useAuth();
   const canManageRoles = usePermission('gestionar_roles');
   const canManagePermissions = usePermission('gestionar_permisos');
+  const canTakeAttendance = usePermission('tomar_asistencia');
   const [formLoading, setFormLoading] = useState(false);
   const router = useRouter();
   const { isEnabled: showMembershipBanner } = useFeatureFlag('show_membership_banner');
@@ -309,6 +310,16 @@ export default function ProfileScreen() {
             <Text style={styles.menuText}>Gestionar Beneficios</Text>
             <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
           </Pressable>
+
+          {canTakeAttendance && (
+            <Pressable style={styles.menuRow} onPress={() => router.push('/attendance')}>
+              <View style={[styles.menuIconContainer, styles.menuIconRed]}>
+                <Ionicons name="clipboard-outline" size={18} color={yunke.red} />
+              </View>
+              <Text style={styles.menuText}>Tomar Asistencia</Text>
+              <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+            </Pressable>
+          )}
 
           {canManageRoles && (
             <Pressable style={styles.menuRow} onPress={() => router.push('/admin/roles')}>
