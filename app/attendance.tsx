@@ -8,6 +8,7 @@ import {
   Alert,
   FlatList,
   Image,
+  Modal,
   Platform,
   Pressable,
   StyleSheet,
@@ -312,7 +313,29 @@ function AttendanceContent() {
         <Ionicons name="chevron-down" size={18} color={yunke.textTertiary} />
       </Pressable>
 
-      {showDatePicker && (
+      {showDatePicker && Platform.OS === 'ios' && (
+        <Modal
+          visible={showDatePicker}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowDatePicker(false)}
+        >
+          <Pressable style={styles.modalOverlay} onPress={() => setShowDatePicker(false)}>
+            <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display="inline"
+                onChange={handleDateChange}
+              />
+              <Pressable style={styles.modalCloseButton} onPress={() => setShowDatePicker(false)}>
+                <Text style={styles.modalCloseText}>Listo</Text>
+              </Pressable>
+            </Pressable>
+          </Pressable>
+        </Modal>
+      )}
+      {showDatePicker && Platform.OS === 'android' && (
         <DateTimePicker
           value={selectedDate}
           mode="date"
@@ -543,6 +566,38 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: yunke.white,
     fontSize: 16,
+    fontFamily: 'Montserrat_600SemiBold',
+  },
+
+  // -- Modal (iOS date picker) --
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: yunke.card,
+    borderRadius: 20,
+    padding: 20,
+    marginHorizontal: 24,
+    shadowColor: yunke.dark,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  modalCloseButton: {
+    marginTop: 16,
+    backgroundColor: yunke.primary,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCloseText: {
+    color: yunke.white,
+    fontSize: 15,
     fontFamily: 'Montserrat_600SemiBold',
   },
 });
