@@ -141,8 +141,8 @@ export default function ProfileScreen() {
         </LinearGradient>
 
         <View style={styles.authContent}>
-          <Text style={styles.title}>{isLogin ? 'Bienvenido' : 'Crear Cuenta'}</Text>
-          <Text style={styles.subtitle}>Club Yunke</Text>
+          <Text style={styles.title}>Bienvenido</Text>
+          <Text style={styles.subtitle}>{isLogin ? 'Inicie sesión' : 'Cree su cuenta'}</Text>
 
           <View style={styles.inputGroup}>
             {!isLogin && (
@@ -434,6 +434,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center', 
     marginBottom: 15,
+    marginHorizontal: 24,
     shadowColor: yunke.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
