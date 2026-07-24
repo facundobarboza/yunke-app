@@ -1,5 +1,6 @@
 import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { decode } from 'base64-arraybuffer';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as ImagePicker from 'expo-image-picker';
@@ -7,8 +8,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { supabase } from '../../src/supabase';
 import { AdminGuard } from '../../src/components/AdminGuard';
+import { supabase } from '../../src/supabase';
 
 export default function CreatePlayerScreen() {
   const router = useRouter();
@@ -18,10 +19,17 @@ export default function CreatePlayerScreen() {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [posicion, setPosicion] = useState('');
+  const [dorsal, setDorsal] = useState('');
+  const [dni, setDni] = useState('');
+  const [nacionalidad, setNacionalidad] = useState('');
+  const [fechaNacimiento, setFechaNacimiento] = useState('');
+  const [instagram, setInstagram] = useState('');
+  const [descripcion, setDescripcion] = useState('');
   const [isCapitan, setIsCapitan] = useState(false);
   const [categorias, setCategorias] = useState<any[]>([]);
   const [selectedCategoria, setSelectedCategoria] = useState<number | null>(null);
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -41,6 +49,12 @@ export default function CreatePlayerScreen() {
       setNombre(data.nombre);
       setApellido(data.apellido || '');
       setPosicion(data.posicion || '');
+      setDorsal(data.dorsal?.toString() || '');
+      setDni(data.dni || '');
+      setNacionalidad(data.nacionalidad || '');
+      setFechaNacimiento(data.fecha_nacimiento || '');
+      setInstagram(data.instagram || '');
+      setDescripcion(data.descripcion || '');
       setIsCapitan(data.is_capitan || false);
       setSelectedCategoria(data.categoria_id);
       setImageUri(data.foto_url);
@@ -93,6 +107,12 @@ export default function CreatePlayerScreen() {
         nombre,
         apellido: apellido || null,
         posicion: posicion || null,
+        dorsal: dorsal ? parseInt(dorsal, 10) : null,
+        dni: dni || null,
+        nacionalidad: nacionalidad || null,
+        fecha_nacimiento: fechaNacimiento || null,
+        instagram: instagram || null,
+        descripcion: descripcion || null,
         is_capitan: isCapitan,
         categoria_id: selectedCategoria,
         foto_url: fotoUrl,
@@ -154,8 +174,109 @@ export default function CreatePlayerScreen() {
             </View>
             <View style={styles.inputDivider} />
             <View style={styles.inputRow}>
+              <Ionicons name="card-outline" size={18} color={yunke.textSecondary} />
+              <TextInput style={styles.input} placeholder="DNI" placeholderTextColor={yunke.textSecondary} value={dni} onChangeText={setDni} keyboardType="numeric" />
+            </View>
+            <View style={styles.inputDivider} />
+            <View style={styles.inputRow}>
+              <Ionicons name="globe-outline" size={18} color={yunke.textSecondary} />
+              <TextInput style={styles.input} placeholder="Nacionalidad" placeholderTextColor={yunke.textSecondary} value={nacionalidad} onChangeText={setNacionalidad} />
+            </View>
+            <View style={styles.inputDivider} />
+            <Pressable style={styles.inputRow} onPress={() => setShowDatePicker(true)}>
+              <Ionicons name="calendar-outline" size={18} color={yunke.textSecondary} />
+              <Text style={[styles.input, !fechaNacimiento && { color: yunke.textSecondary }]}>
+                {fechaNacimiento ? fechaNacimiento.split('-').reverse().join('-') : 'Fecha de nacimiento'}
+              </Text>
+              <Ionicons name="chevron-down" size={16} color={yunke.textSecondary} />
+            </Pressable>
+          </View>
+
+          {showDatePicker && Platform.OS === 'ios' && (
+            <Modal visible={showDatePicker} transparent animationType="slide">
+              <Pressable style={styles.dateModalOverlay} onPress={() => setShowDatePicker(false)}>
+                <View style={styles.dateModalContent}>
+                  <View style={styles.dateModalHeader}>
+                    <Pressable onPress={() => setShowDatePicker(false)}>
+                      <Text style={styles.dateModalCancel}>Cancelar</Text>
+                    </Pressable>
+                    <Text style={styles.dateModalTitle}>Fecha de nacimiento</Text>
+                    <Pressable onPress={() => setShowDatePicker(false)}>
+                      <Text style={styles.dateModalDone}>Listo</Text>
+                    </Pressable>
+                  </View>
+                  <DateTimePicker
+                    value={fechaNacimiento ? new Date(fechaNacimiento + 'T00:00:00') : new Date(2000, 0, 1)}
+                    mode="date"
+                    display="spinner"
+                    maximumDate={new Date()}
+                    minimumDate={new Date(1950, 0, 1)}
+                    onChange={(_, date) => {
+                      if (date) {
+                        const iso = date.toISOString().split('T')[0];
+                        setFechaNacimiento(iso);
+                      }
+                    }}
+                  />
+                </View>
+              </Pressable>
+            </Modal>
+          )}
+
+          {showDatePicker && Platform.OS === 'android' && (
+            <DateTimePicker
+              value={fechaNacimiento ? new Date(fechaNacimiento + 'T00:00:00') : new Date(2000, 0, 1)}
+              mode="date"
+              display="default"
+              maximumDate={new Date()}
+              minimumDate={new Date(1950, 0, 1)}
+              onChange={(_, date) => {
+                setShowDatePicker(false);
+                if (date) {
+                  const iso = date.toISOString().split('T')[0];
+                  setFechaNacimiento(iso);
+                }
+              }}
+            />
+          )}
+
+          {/* Datos deportivos */}
+          <Text style={styles.sectionTitle}>DATOS DEPORTIVOS</Text>
+          <View style={styles.inputGroup}>
+            <View style={styles.inputRow}>
               <Ionicons name="football-outline" size={18} color={yunke.textSecondary} />
               <TextInput style={styles.input} placeholder="Posición" placeholderTextColor={yunke.textSecondary} value={posicion} onChangeText={setPosicion} />
+            </View>
+            <View style={styles.inputDivider} />
+            <View style={styles.inputRow}>
+              <Ionicons name="keypad-outline" size={18} color={yunke.textSecondary} />
+              <TextInput style={styles.input} placeholder="Dorsal" placeholderTextColor={yunke.textSecondary} value={dorsal} onChangeText={setDorsal} keyboardType="numeric" />
+            </View>
+          </View>
+
+          {/* Instagram */}
+          <Text style={styles.sectionTitle}>REDES SOCIALES</Text>
+          <View style={styles.inputGroup}>
+            <View style={styles.inputRow}>
+              <Ionicons name="logo-instagram" size={18} color={yunke.textSecondary} />
+              <TextInput style={styles.input} placeholder="Instagram (usuario)" placeholderTextColor={yunke.textSecondary} value={instagram} onChangeText={setInstagram} autoCapitalize="none" />
+            </View>
+          </View>
+
+          {/* Descripción */}
+          <Text style={styles.sectionTitle}>DESCRIPCIÓN</Text>
+          <View style={styles.inputGroup}>
+            <View style={[styles.inputRow, { alignItems: 'flex-start', minHeight: 80, paddingTop: 12 }]}>
+              <Ionicons name="document-text-outline" size={18} color={yunke.textSecondary} style={{ marginTop: 12 }} />
+              <TextInput
+                style={[styles.input, { minHeight: 60, textAlignVertical: 'top' }]}
+                placeholder="Breve descripción del jugador..."
+                placeholderTextColor={yunke.textSecondary}
+                value={descripcion}
+                onChangeText={setDescripcion}
+                multiline
+                numberOfLines={3}
+              />
             </View>
           </View>
 
@@ -299,6 +420,14 @@ const styles = StyleSheet.create({
   modalItemActive: { backgroundColor: yunke.primary + '10' },
   modalItemText: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.text },
   modalItemTextActive: { color: yunke.primary, fontFamily: 'Montserrat_600SemiBold' },
+
+  // Date picker modal
+  dateModalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
+  dateModalContent: { backgroundColor: yunke.card, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 },
+  dateModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: yunke.border },
+  dateModalTitle: { fontSize: 16, fontFamily: 'Montserrat_600SemiBold', color: yunke.text },
+  dateModalCancel: { fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary },
+  dateModalDone: { fontSize: 16, fontFamily: 'Montserrat_600SemiBold', color: yunke.primary },
 
   // Save
   saveButton: { backgroundColor: yunke.primary, marginHorizontal: 24, height: 52, borderRadius: 14, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 32, shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 },

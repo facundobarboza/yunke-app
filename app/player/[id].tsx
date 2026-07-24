@@ -13,6 +13,8 @@ type JugadorDetalle = {
   id: string;
   nombre: string;
   apellido: string | null;
+  dorsal: number | null;
+  dni: string | null;
   is_capitan: boolean | null;
   posicion: string | null;
   foto_url: string | null;
@@ -143,14 +145,27 @@ export default function PlayerDetailScreen() {
           <Text style={styles.statValue}>{calcularEdad(jugador.fecha_nacimiento)}</Text>
           <Text style={styles.statLabel}>Edad</Text>
         </View>
-        {/* <View style={styles.statCard}>
+        <View style={styles.statCard}>
           <View style={styles.statIconContainer}>
-            <Ionicons name="globe-outline" size={18} color={yunke.primary} />
+            <Ionicons name="keypad-outline" size={18} color={yunke.primary} />
           </View>
-          <Text style={styles.statValue}>{jugador.nacionalidad || 'N/A'}</Text>
-          <Text style={styles.statLabel}>Nacionalidad</Text>
-        </View> */}
+          <Text style={styles.statValue}>{jugador.dorsal || 'N/A'}</Text>
+          <Text style={styles.statLabel}>Dorsal</Text>
+        </View>
       </View>
+
+      {/* INFO ADICIONAL */}
+      {jugador.nacionalidad && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Información</Text>
+          <View style={styles.bioCard}>
+            <View style={styles.infoRow}>
+              <Ionicons name="globe-outline" size={16} color={yunke.textSecondary} />
+              <Text style={styles.infoText}>Nacionalidad: {jugador.nacionalidad}</Text>
+            </View>
+          </View>
+        </View>
+      )}
 
       {/* BIO / DESCRIPCIÓN */}
       {jugador.descripcion && (
@@ -359,6 +374,17 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat_400Regular',
     color: yunke.darkSoft, 
     lineHeight: 24 
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 6,
+  },
+  infoText: {
+    fontSize: 14,
+    fontFamily: 'Montserrat_500Medium',
+    color: yunke.darkSoft,
   },
 
   // Galería premium

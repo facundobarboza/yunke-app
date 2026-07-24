@@ -14,6 +14,11 @@ type Jugador = {
   id: string;
   nombre: string;
   apellido: string | null;
+  dorsal: number | null;
+  dni: string | null;
+  nacionalidad: string | null;
+  instagram: string | null;
+  descripcion: string | null;
   is_capitan: boolean | null;
   is_active: boolean;
   categoria_id: number | null;
@@ -46,7 +51,7 @@ export default function AdminPlayersScreen() {
 
     const { data, error } = await supabase
       .from('jugadores')
-      .select('id, nombre, apellido, is_capitan, is_active, categoria_id')
+      .select('id, nombre, apellido, dorsal, dni, nacionalidad, instagram, descripcion, is_capitan, is_active, categoria_id')
       .order('nombre', { ascending: true });
 
     if (error) {
@@ -83,8 +88,15 @@ export default function AdminPlayersScreen() {
   const renderJugador = ({ item }: { item: Jugador }) => (
     <Card style={[styles.card, !item.is_active && styles.cardInactive]}>
       <Pressable style={styles.playerInfo} onPress={() => router.push(`/admin/create-player?id=${item.id}`)}>
-        <View style={[styles.playerIcon, !item.is_active && styles.playerIconInactive]}>
-          <Ionicons name="person-outline" size={18} color={item.is_active ? yunke.primary : yunke.textTertiary} />
+        <View style={styles.playerIconContainer}>
+          <View style={[styles.playerIcon, !item.is_active && styles.playerIconInactive]}>
+            <Ionicons name="person-outline" size={18} color={item.is_active ? yunke.primary : yunke.textTertiary} />
+          </View>
+          {item.is_capitan && (
+            <View style={styles.capitanBadge}>
+              <Text style={styles.capitanBadgeText}>C</Text>
+            </View>
+          )}
         </View>
         <View style={styles.playerText}>
           <Text style={[styles.playerName, !item.is_active && styles.inactive]}>{item.nombre} {item.apellido || ''}</Text>
@@ -171,8 +183,11 @@ const styles = StyleSheet.create({
   card: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 14, borderRadius: 16, marginBottom: 12 },
   cardInactive: { opacity: 0.6 },
   playerInfo: { flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 },
+  playerIconContainer: { position: 'relative' },
   playerIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: yunke.primary + '12', justifyContent: 'center', alignItems: 'center' },
   playerIconInactive: { backgroundColor: yunke.textTertiary + '12' },
+  capitanBadge: { position: 'absolute', bottom: -4, right: -4, backgroundColor: yunke.red, width: 20, height: 20, borderRadius: 10, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: yunke.surface },
+  capitanBadgeText: { fontSize: 10, fontFamily: 'Montserrat_700Bold', color: yunke.white },
   playerText: { flex: 1 },
   playerName: { fontSize: 15, fontFamily: 'Montserrat_600SemiBold', color: yunke.text },
   inactive: { opacity: 0.4 },
