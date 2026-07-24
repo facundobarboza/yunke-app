@@ -39,6 +39,17 @@ export default function AdminSponsorsScreen() {
     if (error) { Alert.alert('Error', 'No se pudo actualizar.'); cargarSponsors(); }
   };
 
+  const eliminarSponsor = async (sponsor: Sponsor) => {
+    Alert.alert('Eliminar', `¿Eliminar a "${sponsor.nombre}"?`, [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Eliminar', style: 'destructive', onPress: async () => {
+        const { error } = await supabase.from('sponsors').update({ is_active: false }).eq('id', sponsor.id);
+        if (error) Alert.alert('Error', error.message);
+        else cargarSponsors();
+      }}
+    ]);
+  };
+
   const renderSponsor = ({ item }: { item: Sponsor }) => (
     <Card style={styles.card}>
       <Pressable style={styles.sponsorInfo} onPress={() => router.push(`/admin/create-sponsor?id=${item.id}`)}>
@@ -53,6 +64,9 @@ export default function AdminSponsorsScreen() {
       <View style={styles.actions}>
         <Pressable style={[styles.toggleBtn, item.is_active ? styles.btnActive : styles.btnInactive]} onPress={() => toggleVisibilidad(item)}>
           <Ionicons name={item.is_active ? "eye-outline" : "eye-off-outline"} size={16} color={item.is_active ? yunke.success : yunke.textSecondary} />
+        </Pressable>
+        <Pressable style={styles.deleteBtn} onPress={() => eliminarSponsor(item)}>
+          <Ionicons name="trash-outline" size={16} color={yunke.red} />
         </Pressable>
       </View>
     </Card>
@@ -96,5 +110,6 @@ const styles = StyleSheet.create({
   toggleBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
   btnActive: { backgroundColor: yunke.success + '15' },
   btnInactive: { backgroundColor: yunke.surface },
+  deleteBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.red + '12' },
   fab: { position: 'absolute', bottom: 30, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: yunke.primary, justifyContent: 'center', alignItems: 'center', shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
 });

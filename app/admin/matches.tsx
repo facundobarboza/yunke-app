@@ -16,7 +16,7 @@ type Partido = {
   resultado_local: number | null;
   resultado_visitante: number | null;
   jugado: boolean;
-  categorias: { nombre: string }[] | null;
+  categorias: { nombre: string } | null;
 };
 
 export default function AdminMatchesScreen() {
@@ -34,7 +34,7 @@ export default function AdminMatchesScreen() {
     setLoading(true);
     const { data, error } = await supabase
       .from('partidos')
-      .select('id, fecha, rival, es_local, resultado_local, resultado_visitante, jugado, categorias(nombre)')
+      .select('id, fecha, rival, es_local, resultado_local, resultado_visitante, jugado, categorias:categoria_id(nombre)')
       .order('fecha', { ascending: false });
     if (error) Alert.alert('Error', error.message);
     else setPartidos(data || []);
@@ -79,7 +79,7 @@ export default function AdminMatchesScreen() {
             {item.es_local ? item.rival : 'YUNKE'}
           </Text>
           <Text style={styles.categoryText}>
-            {item.categorias?.[0]?.nombre || 'General'} • {new Date(item.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+            {item.categorias?.nombre || 'General'} • {new Date(item.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
           </Text>
         </Pressable>
 

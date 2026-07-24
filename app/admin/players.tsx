@@ -47,7 +47,6 @@ export default function AdminPlayersScreen() {
     const { data, error } = await supabase
       .from('jugadores')
       .select('id, nombre, apellido, is_capitan, is_active, categoria_id')
-      .eq('is_active', true)
       .order('nombre', { ascending: true });
 
     if (error) {
@@ -64,6 +63,12 @@ export default function AdminPlayersScreen() {
 
   useFocusEffect(useCallback(() => { cargarJugadores(); }, []));
 
+  const toggleVisibilidad = async (jugador: Jugador) => {
+    setJugadores(prev => prev.map(j => j.id === jugador.id ? { ...j, is_active: !j.is_active } : j));
+    const { error } = await supabase.from('jugadores').update({ is_active: !jugador.is_active }).eq('id', jugador.id);
+    if (error) { Alert.alert('Error', 'No se pudo actualizar.'); cargarJugadores(); }
+  };
+
   const eliminarJugador = async (jugador: Jugador) => {
     Alert.alert('Desactivar', `¿Desactivar a "${jugador.nombre} ${jugador.apellido || ''}"?`, [
       { text: 'Cancelar', style: 'cancel' },
@@ -76,22 +81,27 @@ export default function AdminPlayersScreen() {
   };
 
   const renderJugador = ({ item }: { item: Jugador }) => (
-    <Card style={styles.card}>
+    <Card style={[styles.card, !item.is_active && styles.cardInactive]}>
       <Pressable style={styles.playerInfo} onPress={() => router.push(`/admin/create-player?id=${item.id}`)}>
-        <View style={styles.playerIcon}>
-          <Ionicons name="person-outline" size={18} color={yunke.primary} />
+        <View style={[styles.playerIcon, !item.is_active && styles.playerIconInactive]}>
+          <Ionicons name="person-outline" size={18} color={item.is_active ? yunke.primary : yunke.textTertiary} />
         </View>
         <View style={styles.playerText}>
-          <Text style={styles.playerName}>{item.nombre} {item.apellido || ''}</Text>
+          <Text style={[styles.playerName, !item.is_active && styles.inactive]}>{item.nombre} {item.apellido || ''}</Text>
           <Text style={styles.playerCategory}>
             {item.categoria_nombre || 'Sin categoría'}
           </Text>
         </View>
       </Pressable>
 
-      <Pressable style={styles.deleteBtn} onPress={() => eliminarJugador(item)}>
-        <Ionicons name="trash-outline" size={16} color={yunke.red} />
-      </Pressable>
+      <View style={styles.actions}>
+        <Pressable style={[styles.toggleBtn, item.is_active ? styles.btnActive : styles.btnInactive]} onPress={() => toggleVisibilidad(item)}>
+          <Ionicons name={item.is_active ? "eye-outline" : "eye-off-outline"} size={16} color={item.is_active ? yunke.success : yunke.textSecondary} />
+        </Pressable>
+        <Pressable style={styles.deleteBtn} onPress={() => eliminarJugador(item)}>
+          <Ionicons name="trash-outline" size={16} color={yunke.red} />
+        </Pressable>
+      </View>
     </Card>
   );
 
@@ -159,11 +169,18 @@ const styles = StyleSheet.create({
   categoryText: { fontSize: 13, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary },
   categoryTextActive: { color: yunke.white },
   card: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 14, borderRadius: 16, marginBottom: 12 },
+  cardInactive: { opacity: 0.6 },
   playerInfo: { flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 },
   playerIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: yunke.primary + '12', justifyContent: 'center', alignItems: 'center' },
+  playerIconInactive: { backgroundColor: yunke.textTertiary + '12' },
   playerText: { flex: 1 },
   playerName: { fontSize: 15, fontFamily: 'Montserrat_600SemiBold', color: yunke.text },
+  inactive: { opacity: 0.4 },
   playerCategory: { fontSize: 13, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary, marginTop: 2 },
+  actions: { flexDirection: 'row', gap: 8 },
+  toggleBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
+  btnActive: { backgroundColor: yunke.success + '15' },
+  btnInactive: { backgroundColor: yunke.surface },
   deleteBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.red + '12' },
   fab: { position: 'absolute', bottom: 30, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: yunke.primary, justifyContent: 'center', alignItems: 'center', shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
 });

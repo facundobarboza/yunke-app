@@ -52,8 +52,7 @@ export default function CreateMatchScreen() {
   const handleGuardar = async () => {
     if (!rival || !selectedCategoria) { Alert.alert('Error', 'El rival y la categoría son obligatorios.'); return; }
     setSaving(true);
-    let fechaParaGuardar = fecha;
-    if (Platform.OS === 'android') { const offset = fecha.getTimezoneOffset() * 60000; fechaParaGuardar = new Date(fecha.getTime() - offset); }
+    const fechaParaGuardar = fecha;
 
     let finalEscudoUrl = escudoUri;
     if (escudoUri && !escudoUri.startsWith('http')) {
