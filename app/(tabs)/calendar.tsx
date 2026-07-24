@@ -137,7 +137,7 @@ export default function CalendarScreen() {
                 ) : (
                   item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.escudoCalendar} resizeMode="contain" /> : <View style={[styles.escudoCalendar, styles.placeholderEscudoCal]}><Ionicons name="shield-outline" size={14} color={yunke.textTertiary} /></View>
                 )}
-                <Text style={styles.teamText} numberOfLines={1}>{item.es_local ? 'Club Yunke' : item.rival}</Text>
+                <Text style={styles.teamText} numberOfLines={1}>{item.es_local ? 'Yunke FC' : item.rival}</Text>
               </View>
 
               <Text style={styles.vsText}>vs</Text>
@@ -148,7 +148,7 @@ export default function CalendarScreen() {
                 ) : (
                   item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.escudoCalendar} resizeMode="contain" /> : <View style={[styles.escudoCalendar, styles.placeholderEscudoCal]}><Ionicons name="shield-outline" size={14} color={yunke.textTertiary} /></View>
                 )}
-                <Text style={styles.teamText} numberOfLines={1}>{!item.es_local ? 'Club Yunke' : item.rival}</Text>
+                <Text style={styles.teamText} numberOfLines={1}>{!item.es_local ? 'Yunke FC' : item.rival}</Text>
               </View>
 
             </View>

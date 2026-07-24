@@ -187,7 +187,7 @@ export default function HomeScreen() {
               style={styles.teamEscudo} 
               resizeMode="contain" 
             />
-            <Text style={styles.teamNameShort} numberOfLines={1}>YUNKE</Text>
+            <Text style={styles.teamNameShort} numberOfLines={1}>YUNKE FC</Text>
           </View>
           
           <View style={styles.vsContainer}>
@@ -243,7 +243,7 @@ export default function HomeScreen() {
           style={styles.headerLogo} 
           resizeMode="contain" 
         />
-        <Text style={styles.clubTitle}>YUNKE FC</Text>
+        <Text style={styles.clubTitle}>YUNKE</Text>
         <Text style={styles.clubSubtitle}>FÚTBOL CLUB</Text>
       </LinearGradient>
 
