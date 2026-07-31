@@ -16,6 +16,25 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider } from '@/src/contexts/AuthContext';
 
+// Deep linking configuration
+const linking = {
+  prefixes: ['yunkeapp://', 'https://yunke.app'],
+  config: {
+    screens: {
+      '(tabs)': {
+        screens: {
+          index: '',
+          profile: 'profile',
+          calendar: 'calendar',
+          team: 'team',
+        },
+      },
+      'reset-password': 'reset-password',
+      modal: 'modal',
+    },
+  },
+};
+
 const queryClient = new QueryClient();
 
 export {
@@ -67,8 +86,9 @@ function RootLayoutNav() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <View style={{ flex: 1 }}>
-            <Stack screenOptions={{ headerShown: false }}>
+            <Stack screenOptions={{ headerShown: false }} linking={linking}>
               <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="reset-password" />
               <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
             </Stack>
           </View>

@@ -16,7 +16,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yunke.app"
+      "bundleIdentifier": "com.yunke.app",
+      "associatedDomains": ["applinks:yunke.app"]
     },
     "android": {
       "adaptiveIcon": {
@@ -24,7 +25,20 @@
         "backgroundColor": "#010100"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.yunke.app"
+      "package": "com.yunke.app",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "yunkeapp",
+              "host": "*",
+              "pathPrefix": "/reset-password"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",

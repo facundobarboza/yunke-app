@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../src/hooks/useAuth';
@@ -25,10 +25,16 @@ export default function ProfileScreen() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [telefono, setTelefono] = useState('');
   const [dni, setDni] = useState('');
+
+  // Estados para modal de "Olvidé mi contraseña"
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [loadingForgot, setLoadingForgot] = useState(false);
 
   const [loadingPago, setLoadingPago] = useState(false);
 
@@ -46,6 +52,11 @@ export default function ProfileScreen() {
       } else {
         if (!nombre || !apellido || !telefono || !dni) {
           Alert.alert('Error', 'Todos los campos son obligatorios');
+          setFormLoading(false);
+          return;
+        }
+        if (password !== confirmPassword) {
+          Alert.alert('Error', 'Las contraseñas no coinciden');
           setFormLoading(false);
           return;
         }
@@ -74,14 +85,48 @@ export default function ProfileScreen() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    setEmail(''); setPassword(''); setNombre(''); setApellido(''); setTelefono(''); setDni('');
+    setEmail(''); setPassword(''); setConfirmPassword(''); setNombre(''); setApellido(''); setTelefono(''); setDni('');
   };
 
   const handleResetPassword = async () => {
     if (!user?.email) return;
-    const { error } = await supabase.auth.resetPasswordForEmail(user.email);
+    
+    // URL de redirección para el deep link
+    const redirectTo = 'yunkeapp://reset-password';
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+      redirectTo,
+    });
     if (error) Alert.alert('Error', error.message);
     else Alert.alert('Email enviado', 'Revisa tu correo para restablecer la contraseña.');
+  };
+
+  const handleForgotPassword = async () => {
+    if (!forgotEmail) {
+      Alert.alert('Error', 'Por favor ingresa tu email');
+      return;
+    }
+
+    setLoadingForgot(true);
+    try {
+      const redirectTo = 'yunkeapp://reset-password';
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+        redirectTo,
+      });
+
+      if (error) throw error;
+
+      Alert.alert(
+        'Email enviado',
+        'Revisa tu correo para restablecer la contraseña.',
+        [{ text: 'OK', onPress: () => { setShowForgotModal(false); setForgotEmail(''); } }]
+      );
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'No se pudo enviar el correo de recuperación.');
+    } finally {
+      setLoadingForgot(false);
+    }
   };
 
   const handlePagarCuota = async () => {
@@ -125,7 +170,7 @@ export default function ProfileScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
-      <ScrollView style={styles.authContainer} contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView style={styles.authContainer} contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 + insets.bottom }}>
         {/* Header con gradiente */}
         <LinearGradient
           colors={yunke.gradientHeader}
@@ -147,13 +192,25 @@ export default function ProfileScreen() {
           <View style={styles.inputGroup}>
             {!isLogin && (
               <>
-                <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor={yunke.textSecondary} value={nombre} onChangeText={setNombre} />
+                <View style={styles.inputRow}>
+                  <Ionicons name="person-outline" size={18} color={yunke.textSecondary} />
+                  <TextInput style={styles.inputWithIcon} placeholder="Nombre" placeholderTextColor={yunke.textSecondary} value={nombre} onChangeText={setNombre} />
+                </View>
                 <View style={styles.inputDivider} />
-                <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor={yunke.textSecondary} value={apellido} onChangeText={setApellido} />
+                <View style={styles.inputRow}>
+                  <Ionicons name="person-outline" size={18} color={yunke.textSecondary} />
+                  <TextInput style={styles.inputWithIcon} placeholder="Apellido" placeholderTextColor={yunke.textSecondary} value={apellido} onChangeText={setApellido} />
+                </View>
                 <View style={styles.inputDivider} />
-                <TextInput style={styles.input} placeholder="Teléfono" placeholderTextColor={yunke.textSecondary} value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" />
+                <View style={styles.inputRow}>
+                  <Ionicons name="call-outline" size={18} color={yunke.textSecondary} />
+                  <TextInput style={styles.inputWithIcon} placeholder="Teléfono" placeholderTextColor={yunke.textSecondary} value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" />
+                </View>
                 <View style={styles.inputDivider} />
-                <TextInput style={styles.input} placeholder="DNI" placeholderTextColor={yunke.textSecondary} value={dni} onChangeText={setDni} keyboardType="numeric" maxLength={8} />
+                <View style={styles.inputRow}>
+                  <Ionicons name="card-outline" size={18} color={yunke.textSecondary} />
+                  <TextInput style={styles.inputWithIcon} placeholder="DNI" placeholderTextColor={yunke.textSecondary} value={dni} onChangeText={setDni} keyboardType="numeric" maxLength={8} />
+                </View>
                 <View style={styles.inputDivider} />
               </>
             )}
@@ -166,17 +223,73 @@ export default function ProfileScreen() {
               <Ionicons name="lock-closed-outline" size={18} color={yunke.textSecondary} />
               <TextInput style={styles.inputWithIcon} placeholder="Contraseña" placeholderTextColor={yunke.textSecondary} value={password} onChangeText={setPassword} secureTextEntry />
             </View>
+            {!isLogin && (
+              <>
+                <View style={styles.inputDivider} />
+                <View style={styles.inputRow}>
+                  <Ionicons name="lock-closed-outline" size={18} color={yunke.textSecondary} />
+                  <TextInput style={styles.inputWithIcon} placeholder="Repetir contraseña" placeholderTextColor={yunke.textSecondary} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
+                </View>
+              </>
+            )}
           </View>
 
           <Pressable style={styles.primaryButton} onPress={handleAuth} disabled={formLoading}>
             {formLoading ? <ActivityIndicator color={yunke.white} /> : <Text style={styles.primaryButtonText}>{isLogin ? 'Entrar' : 'Registrarme'}</Text>}
           </Pressable>
 
+          {isLogin && (
+            <Pressable style={styles.forgotButton} onPress={() => setShowForgotModal(true)}>
+              <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
+            </Pressable>
+          )}
+
           <Pressable style={styles.switchButton} onPress={() => setIsLogin(!isLogin)}>
             <Text style={styles.switchText}>{isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}</Text>
           </Pressable>
         </View>
       </ScrollView>
+
+      {/* Modal de "Olvidé mi contraseña" */}
+      <Modal
+        visible={showForgotModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowForgotModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Recuperar Contraseña</Text>
+            <Text style={styles.modalSubtitle}>Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña</Text>
+            
+            <View style={styles.modalInputRow}>
+              <Ionicons name="mail-outline" size={18} color={yunke.textSecondary} />
+              <TextInput 
+                style={styles.modalInput} 
+                placeholder="Tu email" 
+                placeholderTextColor={yunke.textSecondary} 
+                value={forgotEmail} 
+                onChangeText={setForgotEmail} 
+                autoCapitalize="none" 
+                keyboardType="email-address"
+                autoFocus
+              />
+            </View>
+
+            <Pressable style={styles.modalButton} onPress={handleForgotPassword} disabled={loadingForgot}>
+              {loadingForgot ? (
+                <ActivityIndicator color={yunke.white} />
+              ) : (
+                <Text style={styles.modalButtonText}>Enviar enlace</Text>
+              )}
+            </Pressable>
+
+            <Pressable style={styles.modalCancelButton} onPress={() => { setShowForgotModal(false); setForgotEmail(''); }}>
+              <Text style={styles.modalCancelText}>Cancelar</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
       </KeyboardAvoidingView>
     );
   }
@@ -377,7 +490,7 @@ const styles = StyleSheet.create({
     height: 100,
   },
   authContent: {
-    paddingHorizontal: 30,
+    paddingHorizontal: 24,
     paddingTop: 30,
   },
   title: { 
@@ -448,6 +561,82 @@ const styles = StyleSheet.create({
   },
   switchButton: { alignItems: 'center', marginTop: 10, marginBottom: 40 },
   switchText: { color: yunke.primary, fontSize: 15, fontFamily: 'Montserrat_500Medium' },
+  forgotButton: { alignItems: 'center', marginTop: 5 },
+  forgotText: { color: yunke.textSecondary, fontSize: 14, fontFamily: 'Montserrat_400Regular', textDecorationLine: 'underline' },
+
+  // --- Modal Recuperar Contraseña ---
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: yunke.card,
+    borderRadius: 20,
+    padding: 32,
+    shadowColor: yunke.dark,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontFamily: 'Montserrat_700Bold',
+    color: yunke.text,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: yunke.textSecondary,
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  modalInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: yunke.surface,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: yunke.border,
+  },
+  modalInput: {
+    flex: 1,
+    height: 50,
+    fontSize: 16,
+    fontFamily: 'Montserrat_400Regular',
+    color: yunke.text,
+    marginLeft: 10,
+  },
+  modalButton: {
+    backgroundColor: yunke.primary,
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  modalButtonText: {
+    color: yunke.white,
+    fontSize: 16,
+    fontFamily: 'Montserrat_600SemiBold',
+  },
+  modalCancelButton: {
+    alignItems: 'center',
+    padding: 12,
+  },
+  modalCancelText: {
+    color: yunke.textSecondary,
+    fontSize: 14,
+    fontFamily: 'Montserrat_500Medium',
+  },
 
   // --- Perfil Premium ---
   container: { flex: 1, backgroundColor: yunke.surface },
