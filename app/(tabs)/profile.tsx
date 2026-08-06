@@ -104,8 +104,8 @@ export default function ProfileScreen() {
   const handleResetPassword = async () => {
     if (!user?.email) return;
     
-    // URL de redirección para el deep link - usa ExpoLinking para URL correcta por entorno
-    const redirectTo = ExpoLinking.createURL('reset-password');
+    // URL de redirección para el deep link, forzando el esquema de la app.
+    const redirectTo = ExpoLinking.createURL('reset-password', { scheme: 'yunkeapp' });
     
     const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
       redirectTo,
@@ -122,7 +122,7 @@ export default function ProfileScreen() {
 
     setLoadingForgot(true);
     try {
-      const redirectTo = ExpoLinking.createURL('reset-password');
+      const redirectTo = ExpoLinking.createURL('reset-password', { scheme: 'yunkeapp' });
       
       const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
         redirectTo,
