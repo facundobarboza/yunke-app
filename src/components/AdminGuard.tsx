@@ -4,11 +4,7 @@
 // Usage: wrap the screen export with AdminGuard(permission, router)
 // =============================================================================
 
-import { useEffect } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
-import { yunke } from '@/constants/Colors';
-import { usePermission } from '../hooks/usePermission';
+import { RequirePermission } from './RequirePermission';
 
 interface AdminGuardProps {
   permission: string;
@@ -16,29 +12,7 @@ interface AdminGuardProps {
 }
 
 export function AdminGuard({ permission, children }: AdminGuardProps) {
-  const router = useRouter();
-  const hasPermission = usePermission(permission);
-
-  useEffect(() => {
-    // Give a moment for auth to load, then redirect if no permission
-    const timer = setTimeout(() => {
-      if (!hasPermission) {
-        router.replace('/(tabs)/profile');
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [hasPermission, router]);
-
-  if (!hasPermission) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color={yunke.primary} />
-      </View>
-    );
-  }
-
-  return <>{children}</>;
+  return <RequirePermission permission={permission}>{children}</RequirePermission>;
 }
 
 const styles = StyleSheet.create({

@@ -1,88 +1,182 @@
-import { useEffect, useState } from 'react';
-import { View, Text, TextInput, Alert, StyleSheet, ActivityIndicator } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as Linking from 'expo-linking';
-import { supabase } from '../src/supabase';
+import { useRouter } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { yunke } from '../constants/Colors';
+import { supabase } from '../src/supabase';
 
-// Función para parsear el fragmento del URL de Supabase
-function parseSupabaseFragment(url: string): Record<string, string> {
+/**
+ * Parse query params and fragment from a deep link URL natively.
+ * Handles both:
+ *   - yunkeapp://reset-password?code=xxx  (PKCE)
+ *   - yunkeapp://reset-password#access_token=xxx&refresh_token=xxx  (implicit)
+ */
+const parseUrlParams = (url: string): Record<string, string> => {
   const params: Record<string, string> = {};
-  // Supabase envía: yunkeapp://reset-password#access_token=xxx&type=recovery&...
-  const fragment = url.split('#')[1];
-  if (fragment) {
-    fragment.split('&').forEach((pair) => {
-      const [key, value] = pair.split('=');
-      if (key && value) {
-        params[decodeURIComponent(key)] = decodeURIComponent(value);
-      }
+
+  // Parse query params (?key=value&key2=value2)
+  const queryIndex = url.indexOf('?');
+  if (queryIndex !== -1) {
+    const queryPart = url.substring(queryIndex + 1);
+    // Stop at fragment if present
+    const fragmentIndex = queryPart.indexOf('#');
+    const queryString = fragmentIndex !== -1 ? queryPart.substring(0, fragmentIndex) : queryPart;
+    queryString.split('&').forEach((pair) => {
+      const [key, ...rest] = pair.split('=');
+      const value = rest.join('=');
+      if (key) params[decodeURIComponent(key)] = decodeURIComponent(value || '');
     });
   }
+
+  // Parse fragment (#key=value&key2=value2)
+  const fragmentIndex = url.indexOf('#');
+  if (fragmentIndex !== -1) {
+    const fragmentString = url.substring(fragmentIndex + 1);
+    fragmentString.split('&').forEach((pair) => {
+      const [key, ...rest] = pair.split('=');
+      const value = rest.join('=');
+      if (key) params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+    });
+  }
+
   return params;
-}
+};
+
+/**
+ * Create a session from a deep link URL.
+ * Handles both PKCE flow (code in query params) and implicit flow (tokens in fragment).
+ */
+const createSessionFromUrl = async (url: string) => {
+  console.log('[ResetPassword] Parsing URL:', url);
+
+  const params = parseUrlParams(url);
+  console.log('[ResetPassword] Parsed params:', Object.keys(params).join(', '));
+
+  // PKCE flow: exchange code for session
+  const code = params['code'];
+  if (code) {
+    console.log('[ResetPassword] PKCE code found, exchanging...');
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      console.log('[ResetPassword] PKCE exchange error:', error.message);
+      throw error;
+    }
+    console.log('[ResetPassword] PKCE exchange SUCCESS');
+    return data.session;
+  }
+
+  // Implicit flow: use access_token from fragment
+  const { access_token, refresh_token } = params;
+
+  if (!access_token) {
+    console.log('[ResetPassword] No code or access_token found in URL');
+    throw new Error('No code or access_token found in URL');
+  }
+
+  console.log('[ResetPassword] Implicit flow tokens found');
+  const { data, error } = await supabase.auth.setSession({
+    access_token,
+    refresh_token,
+  });
+  if (error) {
+    console.log('[ResetPassword] Implicit flow error:', error.message);
+    throw error;
+  }
+
+  console.log('[ResetPassword] Implicit flow SUCCESS');
+  return data.session;
+};
 
 export default function ResetPasswordScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [validToken, setValidToken] = useState(false);
   const [checking, setChecking] = useState(true);
+  const handledRef = useRef(false);
+
+  const handleUrl = useCallback(async (url: string) => {
+    if (handledRef.current) return;
+    handledRef.current = true;
+
+    console.log('[ResetPassword] Deep link received:', url);
+
+    try {
+      await createSessionFromUrl(url);
+      setValidToken(true);
+    } catch (error: any) {
+      console.log('[ResetPassword] Error creating session:', error?.message);
+
+      // Fallback: check for existing session (user might already be logged in)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        console.log('[ResetPassword] Existing session found as fallback');
+        setValidToken(true);
+      } else {
+        Alert.alert(
+          'Error',
+          'El enlace de recuperación no es válido o ha expirado. Por favor solicitá uno nuevo.'
+        );
+      }
+    } finally {
+      setChecking(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const handleDeepLink = async () => {
-      try {
-        // 1. Intentar obtener el URL completo del deep link
-        const initialUrl = await Linking.getInitialURL();
-        
-        if (initialUrl && initialUrl.includes('#')) {
-          // Parsear el fragmento del URL de Supabase
-          const fragmentParams = parseSupabaseFragment(initialUrl);
-          const accessToken = fragmentParams['access_token'];
-          const type = fragmentParams['type'];
-
-          if (accessToken && type === 'recovery') {
-            // Establecer la sesión con el access token
-            const { error } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: fragmentParams['refresh_token'] || '',
-            });
-
-            if (!error) {
+    // 1. Check initial URL (deep link on cold start)
+    console.log('[ResetPassword] Checking initial URL...');
+    Linking.getInitialURL().then((url) => {
+      console.log('[ResetPassword] Initial URL:', url || '(none)');
+      if (url) {
+        handleUrl(url);
+      } else {
+        // No initial URL — check for existing session
+        console.log('[ResetPassword] No initial URL, checking session...');
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (!handledRef.current) {
+            handledRef.current = true;
+            if (session) {
+              console.log('[ResetPassword] Existing session found in useEffect');
               setValidToken(true);
             } else {
-              Alert.alert('Error', 'No se pudo validar el token de recuperación.');
+              console.log('[ResetPassword] No session in useEffect, showing error');
+              Alert.alert(
+                'Error',
+                'El enlace de recuperación no es válido o ha expirado. Por favor solicitá uno nuevo.'
+              );
             }
-            return;
+            setChecking(false);
           }
-        }
-
-        // 2. Intentar con los params de Expo Router (fallback)
-        const token = params.token as string;
-        const type = params.type as string;
-
-        if (token && type === 'recovery') {
-          setValidToken(true);
-          return;
-        }
-
-        // 3. Verificar si ya hay una sesión activa
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          setValidToken(true);
-        } else {
-          Alert.alert('Error', 'Token de recuperación inválido o expirado.');
-        }
-      } catch (error) {
-        Alert.alert('Error', 'No se pudo validar el token de recuperación.');
-      } finally {
-        setChecking(false);
+        });
       }
-    };
+    });
 
-    handleDeepLink();
-  }, [params]);
+    // 2. Listen for URL events (deep link on warm start / already running)
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      console.log('[ResetPassword] URL event received:', url);
+      handleUrl(url);
+    });
+
+    // 3. Also listen for auth state changes (PASSWORD_RECOVERY event)
+    const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('[ResetPassword] Auth state changed:', event, session ? 'has session' : 'no session');
+        if (!handledRef.current && event === 'PASSWORD_RECOVERY' && session) {
+          console.log('[ResetPassword] PASSWORD_RECOVERY event with session');
+          handledRef.current = true;
+          setValidToken(true);
+          setChecking(false);
+        }
+      }
+    );
+
+    return () => {
+      subscription.remove();
+      authSub.unsubscribe();
+    };
+  }, [handleUrl]);
 
   const handleResetPassword = async () => {
     if (!password || !confirmPassword) {
