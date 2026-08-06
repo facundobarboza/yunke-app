@@ -132,23 +132,19 @@ export default function ResetPasswordScreen() {
       if (url) {
         handleUrl(url);
       } else {
-        // No initial URL — check for existing session
+        // No initial URL — check for existing session.
+        // Do not lock out later URL events by setting handledRef when no URL is present.
         console.log('[ResetPassword] No initial URL, checking session...');
         supabase.auth.getSession().then(({ data: { session } }) => {
-          if (!handledRef.current) {
+          if (session) {
+            console.log('[ResetPassword] Existing session found in useEffect');
             handledRef.current = true;
-            if (session) {
-              console.log('[ResetPassword] Existing session found in useEffect');
-              setValidToken(true);
-            } else {
-              console.log('[ResetPassword] No session in useEffect, showing error');
-              Alert.alert(
-                'Error',
-                'El enlace de recuperación no es válido o ha expirado. Por favor solicitá uno nuevo.'
-              );
-            }
-            setChecking(false);
+            setValidToken(true);
+          } else {
+            console.log('[ResetPassword] No session in useEffect');
+            // Keep checking open for a later deep link event.
           }
+          setChecking(false);
         });
       }
     });
