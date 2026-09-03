@@ -1,5 +1,6 @@
 import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import * as ExpoLinking from 'expo-linking';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -103,8 +104,8 @@ export default function ProfileScreen() {
   const handleResetPassword = async () => {
     if (!user?.email) return;
     
-    // URL de redirección para el deep link, usando directamente el esquema personalizado.
-    const redirectTo = 'yunkeapp://reset-password';
+    const redirectTo = ExpoLinking.createURL('reset-password');
+    console.log('[Profile] resetPasswordForEmail redirectTo:', redirectTo);
     
     const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
       redirectTo,
@@ -121,7 +122,8 @@ export default function ProfileScreen() {
 
     setLoadingForgot(true);
     try {
-      const redirectTo = 'yunkeapp://reset-password';
+      const redirectTo = ExpoLinking.createURL('reset-password');
+      console.log('[Profile] forgotPassword resetPasswordForEmail redirectTo:', redirectTo);
       
       const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
         redirectTo,

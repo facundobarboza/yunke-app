@@ -4,11 +4,14 @@
 // Usage: wrap the screen export with AdminGuard(permission, router)
 // =============================================================================
 
+import { yunke } from '@/constants/Colors';
+import { type ReactNode } from 'react';
+import { StyleSheet } from 'react-native';
 import { RequirePermission } from './RequirePermission';
 
 interface AdminGuardProps {
   permission: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function AdminGuard({ permission, children }: AdminGuardProps) {

@@ -27,11 +27,14 @@ export default function CreateSponsorScreen() {
 
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [webUrl, setWebUrl] = useState('');
-  const [instagram, setInstagram] = useState('');
-  const [telefono, setTelefono] = useState('');
   const [direccion, setDireccion] = useState('');
   const [horarios, setHorarios] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [telefonoWhatsapp, setTelefonoWhatsapp] = useState(true);
+  const [telefonoLlamada, setTelefonoLlamada] = useState(true);
+  const [instagram, setInstagram] = useState('');
+  const [facebook, setFacebook] = useState('');
+  const [webUrl, setWebUrl] = useState('');
   const [logoUri, setLogoUri] = useState<string | null>(null);
   const [portadaUri, setPortadaUri] = useState<string | null>(null);
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
@@ -39,9 +42,44 @@ export default function CreateSponsorScreen() {
 
   useEffect(() => { if (isEditing) fetchSponsor(id as string); }, [id]);
 
+  // Fields store only the username; the full URL is derived on save.
+  // On edit, legacy full-URL values are normalized back to a handle for the form.
+  const socialHandleFromValue = (value: string | null, platform: 'instagram' | 'facebook') => {
+    if (!value) return '';
+    return value
+      .replace(new RegExp(`^https?:\\/\\/(www\\.)?${platform}\\.com\\/`), '')
+      .replace(/\/+$/, '')
+      .replace(/^@/, '')
+      .trim();
+  };
+
+  const buildSocialUrl = (handle: string, platform: 'instagram' | 'facebook') => {
+    const clean = handle.replace(/^@/, '').trim();
+    if (!clean) return null;
+    return `https://${platform}.com/${clean}`;
+  };
+
+  const orNull = (value: string) => {
+    const trimmed = value.trim();
+    return trimmed === '' ? null : trimmed;
+  };
+
   const fetchSponsor = async (sponsorId: string) => {
     const { data } = await supabase.from('sponsors').select('*').eq('id', sponsorId).single();
-    if (data) { setNombre(data.nombre); setDescripcion(data.descripcion || ''); setWebUrl(data.web_url || ''); setInstagram(data.instagram || ''); setTelefono(data.telefono || ''); setDireccion(data.direccion || ''); setHorarios(data.horarios || ''); setLogoUri(data.logo_url); setPortadaUri(data.portada_url); }
+    if (data) {
+      setNombre(data.nombre);
+      setDescripcion(data.descripcion || '');
+      setDireccion(data.direccion || '');
+      setHorarios(data.horarios || '');
+      setTelefono(data.telefono || '');
+      setTelefonoWhatsapp(data.telefono_whatsapp ?? true);
+      setTelefonoLlamada(data.telefono_llamada ?? true);
+      setInstagram(socialHandleFromValue(data.instagram, 'instagram'));
+      setFacebook(socialHandleFromValue(data.facebook, 'facebook'));
+      setWebUrl(data.web_url || '');
+      setLogoUri(data.logo_url);
+      setPortadaUri(data.portada_url);
+    }
 
     const { data: images } = await supabase.from('sponsor_images').select('id, url, caption').eq('sponsor_id', sponsorId).order('orden', { ascending: true });
     if (images) setGalleryImages(images);
@@ -91,7 +129,20 @@ export default function CreateSponsorScreen() {
     try {
       const finalLogoUrl = logoUri ? await uploadImage(logoUri, 'sponsors') : null;
       const finalPortadaUrl = portadaUri ? await uploadImage(portadaUri, 'sponsors') : null;
-      const payload = { nombre, descripcion, web_url: webUrl, instagram, telefono, direccion, horarios, logo_url: finalLogoUrl, portada_url: finalPortadaUrl };
+      const payload = {
+        nombre,
+        descripcion: orNull(descripcion),
+        direccion: orNull(direccion),
+        horarios: orNull(horarios),
+        telefono: orNull(telefono),
+        telefono_whatsapp: telefonoWhatsapp,
+        telefono_llamada: telefonoLlamada,
+        instagram: buildSocialUrl(instagram, 'instagram'),
+        facebook: buildSocialUrl(facebook, 'facebook'),
+        web_url: orNull(webUrl),
+        logo_url: finalLogoUrl,
+        portada_url: finalPortadaUrl,
+      };
 
       let sponsorId = id;
 
@@ -167,19 +218,6 @@ export default function CreateSponsorScreen() {
             <View style={styles.inputRow}><Ionicons name="storefront-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Nombre del comercio" placeholderTextColor={yunke.textSecondary} value={nombre} onChangeText={setNombre} /></View>
             <View style={styles.inputDivider} />
             <View style={styles.inputRow}><Ionicons name="document-text-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Descripción" placeholderTextColor={yunke.textSecondary} value={descripcion} onChangeText={setDescripcion} multiline /></View>
-            <View style={styles.inputDivider} />
-            <View style={styles.inputRow}><Ionicons name="globe-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Sitio Web" placeholderTextColor={yunke.textSecondary} value={webUrl} onChangeText={setWebUrl} autoCapitalize="none" /></View>
-            <View style={styles.inputDivider} />
-            <View style={styles.inputRow}><Ionicons name="logo-instagram" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Instagram" placeholderTextColor={yunke.textSecondary} value={instagram} onChangeText={setInstagram} autoCapitalize="none" /></View>
-          </View>
-
-          <Text style={styles.sectionTitle}>CONTACTO</Text>
-          <View style={styles.inputGroup}>
-            <View style={styles.inputRow}><Ionicons name="call-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Teléfono" placeholderTextColor={yunke.textSecondary} value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" /></View>
-            <View style={styles.inputDivider} />
-            <View style={styles.inputRow}><Ionicons name="location-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Dirección" placeholderTextColor={yunke.textSecondary} value={direccion} onChangeText={setDireccion} /></View>
-            <View style={styles.inputDivider} />
-            <View style={styles.inputRow}><Ionicons name="time-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Horarios" placeholderTextColor={yunke.textSecondary} value={horarios} onChangeText={setHorarios} /></View>
           </View>
 
           {/* GALERÍA DE IMÁGENES */}
@@ -197,6 +235,38 @@ export default function CreateSponsorScreen() {
               <Ionicons name="add" size={28} color={yunke.textSecondary} />
               <Text style={styles.galleryAddText}>Agregar</Text>
             </Pressable>
+          </View>
+
+          <Text style={styles.sectionTitle}>CONTACTO</Text>
+          <View style={styles.inputGroup}>
+            <View style={styles.inputRow}><Ionicons name="location-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Dirección" placeholderTextColor={yunke.textSecondary} value={direccion} onChangeText={setDireccion} /></View>
+            <View style={styles.inputDivider} />
+            <View style={styles.inputRow}><Ionicons name="time-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Horarios" placeholderTextColor={yunke.textSecondary} value={horarios} onChangeText={setHorarios} /></View>
+            <View style={styles.inputDivider} />
+            <View style={styles.inputRow}><Ionicons name="call-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Teléfono" placeholderTextColor={yunke.textSecondary} value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" /></View>
+            {telefono.trim() !== '' && (
+              <>
+                <View style={styles.inputDivider} />
+                <Pressable style={styles.inputRow} onPress={() => setTelefonoWhatsapp(!telefonoWhatsapp)}>
+                  <Ionicons name={telefonoWhatsapp ? 'checkbox' : 'square-outline'} size={22} color={telefonoWhatsapp ? yunke.primary : yunke.textSecondary} />
+                  <Text style={styles.checkboxLabel}>El número sirve para WhatsApp</Text>
+                </Pressable>
+                <View style={styles.inputDivider} />
+                <Pressable style={styles.inputRow} onPress={() => setTelefonoLlamada(!telefonoLlamada)}>
+                  <Ionicons name={telefonoLlamada ? 'checkbox' : 'square-outline'} size={22} color={telefonoLlamada ? yunke.primary : yunke.textSecondary} />
+                  <Text style={styles.checkboxLabel}>El número sirve para llamadas</Text>
+                </Pressable>
+              </>
+            )}
+          </View>
+
+          <Text style={styles.sectionTitle}>REDES</Text>
+          <View style={styles.inputGroup}>
+            <View style={styles.inputRow}><Ionicons name="logo-instagram" size={18} color={yunke.textSecondary} /><Text style={styles.inputPrefix}>instagram.com/</Text><TextInput style={styles.input} placeholder="usuario" placeholderTextColor={yunke.textSecondary} value={instagram} onChangeText={setInstagram} autoCapitalize="none" autoCorrect={false} /></View>
+            <View style={styles.inputDivider} />
+            <View style={styles.inputRow}><Ionicons name="logo-facebook" size={18} color={yunke.textSecondary} /><Text style={styles.inputPrefix}>facebook.com/</Text><TextInput style={styles.input} placeholder="usuario" placeholderTextColor={yunke.textSecondary} value={facebook} onChangeText={setFacebook} autoCapitalize="none" autoCorrect={false} /></View>
+            <View style={styles.inputDivider} />
+            <View style={styles.inputRow}><Ionicons name="globe-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Sitio Web" placeholderTextColor={yunke.textSecondary} value={webUrl} onChangeText={setWebUrl} autoCapitalize="none" /></View>
           </View>
 
           <Pressable style={styles.saveButton} onPress={handleGuardar} disabled={saving}>
@@ -225,6 +295,8 @@ const styles = StyleSheet.create({
   inputGroup: { backgroundColor: yunke.card, borderRadius: 16, paddingHorizontal: 16, marginHorizontal: 24, marginBottom: 16, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 50 },
   input: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.text, paddingVertical: 12 },
+  inputPrefix: { fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary },
+  checkboxLabel: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.text },
   inputDivider: { height: 1, backgroundColor: yunke.border },
   sectionTitle: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12, marginLeft: 28 },
   galleryContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginHorizontal: 24, marginBottom: 24 },

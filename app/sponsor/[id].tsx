@@ -18,6 +18,8 @@ type Sponsor = {
   horarios: string | null;
   direccion: string | null;
   telefono: string | null;
+  telefono_whatsapp: boolean | null;
+  telefono_llamada: boolean | null;
   web_url: string | null;
   instagram: string | null;
   facebook: string | null;
@@ -64,6 +66,17 @@ export default function SponsorDetailScreen() {
 
   const openLink = (url: string) => {
     if (url) Linking.openURL(url);
+  };
+
+  // Strips everything except digits for wa.me (needs international format without symbols)
+  const normalizePhone = (raw: string) => raw.replace(/\D/g, '');
+
+  const openWhatsApp = (phone: string) => {
+    openLink(`https://wa.me/${normalizePhone(phone)}`);
+  };
+
+  const openPhoneCall = (phone: string) => {
+    openLink(`tel:${phone}`);
   };
 
   if (loading) {
@@ -144,22 +157,35 @@ export default function SponsorDetailScreen() {
             </View>
           )}
           {sponsor.telefono && (
-            <Pressable style={styles.infoRow} onPress={() => openLink(`tel:${sponsor.telefono}`)}>
+            <View style={styles.infoRow}>
               <Ionicons name="call-outline" size={20} color={yunke.red} />
-              <Text style={[styles.infoText, styles.linkText]}>{sponsor.telefono}</Text>
-            </Pressable>
+              <Text style={styles.infoText}>{sponsor.telefono}</Text>
+              <View style={styles.phoneActions}>
+                {sponsor.telefono_whatsapp !== false && (
+                  <Pressable
+                    style={[styles.phoneActionButton, styles.whatsappButton]}
+                    onPress={() => openWhatsApp(sponsor.telefono!)}
+                    accessibilityLabel="Abrir WhatsApp"
+                  >
+                    <Ionicons name="logo-whatsapp" size={18} color={yunke.white} />
+                  </Pressable>
+                )}
+                {sponsor.telefono_llamada !== false && (
+                  <Pressable
+                    style={[styles.phoneActionButton, styles.callButton]}
+                    onPress={() => openPhoneCall(sponsor.telefono!)}
+                    accessibilityLabel="Llamar"
+                  >
+                    <Ionicons name="call" size={18} color={yunke.white} />
+                  </Pressable>
+                )}
+              </View>
+            </View>
           )}
         </View>
 
         {/* REDES Y WEB */}
         <View style={styles.infoGroup}>
-          {sponsor.web_url && (
-            <Pressable style={styles.infoRow} onPress={() => openLink(sponsor.web_url!)}>
-              <Ionicons name="globe-outline" size={20} color={yunke.primary} />
-              <Text style={[styles.infoText, styles.linkText]}>Sitio Web Oficial</Text>
-              <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} style={{ marginLeft: 'auto' }} />
-            </Pressable>
-          )}
           {sponsor.instagram && (
             <Pressable style={styles.infoRow} onPress={() => openLink(sponsor.instagram!)}>
               <Ionicons name="logo-instagram" size={20} color={yunke.primary} />
@@ -171,6 +197,13 @@ export default function SponsorDetailScreen() {
             <Pressable style={styles.infoRow} onPress={() => openLink(sponsor.facebook!)}>
               <Ionicons name="logo-facebook" size={20} color={yunke.primary} />
               <Text style={[styles.infoText, styles.linkText]}>Facebook</Text>
+              <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} style={{ marginLeft: 'auto' }} />
+            </Pressable>
+          )}
+          {sponsor.web_url && (
+            <Pressable style={styles.infoRow} onPress={() => openLink(sponsor.web_url!)}>
+              <Ionicons name="globe-outline" size={20} color={yunke.primary} />
+              <Text style={[styles.infoText, styles.linkText]}>Sitio Web Oficial</Text>
               <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} style={{ marginLeft: 'auto' }} />
             </Pressable>
           )}
@@ -305,5 +338,23 @@ const styles = StyleSheet.create({
   },
   linkText: {
     color: yunke.primary,
+  },
+  phoneActions: {
+    marginLeft: 'auto',
+    flexDirection: 'row',
+    gap: 8,
+  },
+  phoneActionButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  whatsappButton: {
+    backgroundColor: '#25D366', // WhatsApp brand green
+  },
+  callButton: {
+    backgroundColor: yunke.primary,
   },
 });

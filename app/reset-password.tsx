@@ -1,18 +1,35 @@
 import * as Linking from 'expo-linking';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { yunke } from '../constants/Colors';
 import { supabase } from '../src/supabase';
+import * as QueryParams from 'expo-auth-session/build/QueryParams';
 
 /**
  * Parse query params and fragment from a deep link URL natively.
  * Handles both:
  *   - yunkeapp://reset-password?code=xxx  (PKCE)
  *   - yunkeapp://reset-password#access_token=xxx&refresh_token=xxx  (implicit)
+ *
+ * Falls back to the official expo-auth-session QueryParams parser first,
+ * then merges manual parsing as a safety net for URLs that QueryParams
+ * does not normalize (e.g. custom schemes).
  */
 const parseUrlParams = (url: string): Record<string, string> => {
   const params: Record<string, string> = {};
+
+  // Official parser from expo-auth-session (handles query + fragment + errorCode).
+  try {
+    const { params: officialParams } = QueryParams.getQueryParams(url);
+    if (officialParams) {
+      Object.entries(officialParams).forEach(([key, value]) => {
+        if (key) params[key] = value ?? '';
+      });
+    }
+  } catch (e) {
+    console.log('[ResetPassword] QueryParams official parser failed:', e);
+  }
 
   // Parse query params (?key=value&key2=value2)
   const queryIndex = url.indexOf('?');
@@ -46,16 +63,47 @@ const parseUrlParams = (url: string): Record<string, string> => {
  * Create a session from a deep link URL.
  * Handles both PKCE flow (code in query params) and implicit flow (tokens in fragment).
  */
-const createSessionFromUrl = async (url: string) => {
-  console.log('[ResetPassword] Parsing URL:', url);
+const unwrapExpoDevClientUrl = (url: string) => {
+  let current = url;
+  for (let i = 0; i < 5; i += 1) {
+    try {
+      const parsed = new URL(current);
+      const nested = parsed.searchParams.get('url');
+      if (!nested || nested === current) break;
+      const decoded = decodeURIComponent(nested);
+      console.log('[ResetPassword] Unwrapped Expo Dev Client URL:', decoded);
+      current = decoded;
+      continue;
+    } catch {
+      break;
+    }
+  }
+  return current;
+};
 
-  const params = parseUrlParams(url);
-  console.log('[ResetPassword] Parsed params:', Object.keys(params).join(', '));
+const isPasswordRecoveryDeepLink = (url: string) => {
+  const effectiveUrl = unwrapExpoDevClientUrl(url);
+  const params = parseUrlParams(effectiveUrl);
+  return Boolean(params['code'] || params['token'] || params['access_token'] || params['error']);
+};
 
-  // PKCE flow: exchange code for session
-  const code = params['code'];
+const createSessionFromParams = async (params: Record<string, string>) => {
+  console.log('[ResetPassword] Session params:', Object.keys(params).join(', '));
+
+  // If Supabase returned an error (e.g. otp_expired), surface it to caller
+  if (params['error']) {
+    const errMsg = params['error_description'] || params['error'];
+    console.log('[ResetPassword] Supabase returned error:', errMsg);
+    throw new Error(errMsg || 'Recovery link invalid or expired');
+  }
+
+  // PKCE flow: exchange code or token for session
+  // Supabase password recovery links may provide the PKCE token under the
+  // `token` query param (e.g. token=pkce_...), so accept either `code` or
+  // `token` here.
+  const code = params['code'] || params['token'];
   if (code) {
-    console.log('[ResetPassword] PKCE code found, exchanging...');
+    console.log('[ResetPassword] PKCE code/token found, exchanging...');
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
       console.log('[ResetPassword] PKCE exchange error:', error.message);
@@ -87,72 +135,159 @@ const createSessionFromUrl = async (url: string) => {
   return data.session;
 };
 
+const createSessionFromUrl = async (url: string) => {
+  const effectiveUrl = unwrapExpoDevClientUrl(url);
+  console.log('[ResetPassword] Parsing URL:', effectiveUrl);
+  const params = parseUrlParams(effectiveUrl);
+  return createSessionFromParams(params);
+};
+
+/**
+ * Normalize expo-router search params (string | string[]) into plain strings.
+ */
+const extractParamsFromSearchParams = (
+  searchParams: Record<string, string | string[]>
+): Record<string, string> => {
+  const params: Record<string, string> = {};
+  Object.entries(searchParams).forEach(([key, value]) => {
+    if (key) params[key] = Array.isArray(value) ? String(value[0] ?? '') : String(value ?? '');
+  });
+  return params;
+};
+
+const isRecoveryParams = (params: Record<string, string>) =>
+  Boolean(params['code'] || params['token'] || params['access_token'] || params['error']);
+
+/**
+ * Supabase devuelve los errores de updateUser en inglés; traducimos los
+ * mensajes conocidos al español del resto de la app.
+ */
+const translateAuthError = (message: string): string => {
+  const map: Record<string, string> = {
+    'New password should be different from the old password.': 'La nueva contraseña debe ser diferente a la vieja.',
+    'Password should be at least 6 characters.': 'La contraseña debe tener al menos 6 caracteres.',
+    'Password should be at least 12 characters.': 'La contraseña debe tener al menos 12 caracteres.',
+    'Password cannot be the same as the old password.': 'La nueva contraseña no puede ser igual a la vieja.',
+  };
+  return map[message] || message;
+};
+
 export default function ResetPasswordScreen() {
   const router = useRouter();
+  // Params of the deep link that navigated to this screen (works on cold AND
+  // warm start: expo-router already routed the URL here, so code/token/error
+  // are available without depending on the timing of Linking events).
+  const searchParams = useLocalSearchParams<Record<string, string | string[]>>();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [validToken, setValidToken] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [debugInfo, setDebugInfo] = useState('');
   const handledRef = useRef(false);
+  const debugTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleUrl = useCallback(async (url: string) => {
+  const addDebug = useCallback((line: string) => {
+    setDebugInfo((prev) => `${prev}${prev ? '\n' : ''}${line}`);
+  }, []);
+
+  const handleParams = useCallback(async (params: Record<string, string>, source: string) => {
     if (handledRef.current) return;
     handledRef.current = true;
 
-    console.log('[ResetPassword] Deep link received:', url);
+    console.log(`[ResetPassword] Params vía ${source}:`, Object.keys(params).join(', '));
+    addDebug(`[${new Date().toLocaleTimeString()}] Params vía ${source}: ${Object.keys(params).join(', ')}`);
 
     try {
-      await createSessionFromUrl(url);
+      await createSessionFromParams(params);
+      addDebug('[OK] Sesión creada con el enlace.');
       setValidToken(true);
     } catch (error: any) {
-      console.log('[ResetPassword] Error creating session:', error?.message);
+        console.log('[ResetPassword] Error creating session:', error?.message);
+        addDebug(`[ERROR] ${error?.message || String(error)}`);
 
-      // Fallback: check for existing session (user might already be logged in)
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        console.log('[ResetPassword] Existing session found as fallback');
-        setValidToken(true);
-      } else {
-        Alert.alert(
-          'Error',
-          'El enlace de recuperación no es válido o ha expirado. Por favor solicitá uno nuevo.'
-        );
-      }
+        // Fallback: check for existing session (user might already be logged in)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          console.log('[ResetPassword] Existing session found as fallback');
+          addDebug('[OK] Sesión existente detectada (fallback).');
+          setValidToken(true);
+        } else {
+          const message = error?.message || 'El enlace de recuperación no es válido o ha expirado. Por favor solicitá uno nuevo.';
+          Alert.alert('Error', message);
+        }
     } finally {
       setChecking(false);
     }
-  }, []);
+  }, [addDebug]);
+
+  const handleUrl = useCallback(async (url: string) => {
+    const effectiveUrl = unwrapExpoDevClientUrl(url);
+    console.log('[ResetPassword] Deep link received:', url);
+    addDebug(`[${new Date().toLocaleTimeString()}] URL procesada:\n${effectiveUrl || '(ninguna)'}`);
+    const params = parseUrlParams(effectiveUrl);
+    await handleParams(params, 'Linking');
+  }, [addDebug, handleParams]);
 
   useEffect(() => {
-    // 1. Check initial URL (deep link on cold start)
-    console.log('[ResetPassword] Checking initial URL...');
-    Linking.getInitialURL().then((url) => {
-      console.log('[ResetPassword] Initial URL:', url || '(none)');
-      if (url) {
-        handleUrl(url);
-      } else {
-        // No initial URL — check for existing session.
-        // Do not lock out later URL events by setting handledRef when no URL is present.
-        console.log('[ResetPassword] No initial URL, checking session...');
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (session) {
-            console.log('[ResetPassword] Existing session found in useEffect');
-            handledRef.current = true;
-            setValidToken(true);
-          } else {
-            console.log('[ResetPassword] No session in useEffect');
-            // Keep checking open for a later deep link event.
-          }
-          setChecking(false);
-        });
-      }
-    });
+    // PRIORITY 1: expo-router route params. The deep link navigated to this
+    // screen, so its query params (code/token/error) are already here — both
+    // on cold start and on warm start, where Linking.getInitialURL() returns
+    // null and the url event can fire before this screen mounts.
+    const routeParams = extractParamsFromSearchParams(searchParams);
+    if (isRecoveryParams(routeParams)) {
+      console.log('[ResetPassword] Recovery params via useLocalSearchParams:', Object.keys(routeParams).join(', '));
+      handleParams(routeParams, 'expo-router');
+    } else {
+      // PRIORITY 2: check initial URL (deep link on cold start)
+      console.log('[ResetPassword] Checking initial URL...');
+      Linking.getInitialURL().then((url) => {
+        console.log('[ResetPassword] Initial URL:', url || '(none)');
+        addDebug(`[${new Date().toLocaleTimeString()}] getInitialURL: ${url || '(ninguna)'}`);
+        if (url && isPasswordRecoveryDeepLink(url)) {
+          handleUrl(url);
+        } else {
+          addDebug('URL inicial sin params de recovery (code/token/access_token/error).');
+          // No initial recovery link — check for existing session.
+          // Do not lock out later URL events by setting handledRef when no URL is present.
+          console.log('[ResetPassword] No recovery link in initial URL, checking session...');
+          supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+              console.log('[ResetPassword] Existing session found in useEffect');
+              addDebug('[OK] Sesión existente detectada.');
+              handledRef.current = true;
+              setValidToken(true);
+              setChecking(false);
+            } else {
+              console.log('[ResetPassword] No session in useEffect');
+              // Keep checking open for a later deep link event.
+              // On Android the deep link intent can arrive shortly after
+              // getInitialURL resolves to null — give the URL event a window
+              // before declaring the link invalid.
+              const timeout = setTimeout(() => {
+                if (!handledRef.current) {
+                  console.log('[ResetPassword] No URL event within window, showing error');
+                  addDebug(`[${new Date().toLocaleTimeString()}] Timeout: ningún evento de URL válido en 4s.`);
+                  setChecking(false);
+                }
+              }, 4000);
+              // @ts-ignore stored so the timeout can be cancelled on unmount
+              debugTimeoutRef.current = timeout;
+            }
+          });
+        }
+      });
+    }
 
-    // 2. Listen for URL events (deep link on warm start / already running)
+    // PRIORITY 3: listen for URL events (deep link on warm start / already running)
     const subscription = Linking.addEventListener('url', ({ url }) => {
       console.log('[ResetPassword] URL event received:', url);
-      handleUrl(url);
+      addDebug(`[${new Date().toLocaleTimeString()}] url event: ${url}`);
+      if (isPasswordRecoveryDeepLink(url)) {
+        handleUrl(url);
+      } else {
+        addDebug('Evento ignorado: sin params de recovery (code/token/access_token/error).');
+      }
     });
 
     // 3. Also listen for auth state changes (PASSWORD_RECOVERY event)
@@ -171,8 +306,10 @@ export default function ResetPasswordScreen() {
     return () => {
       subscription.remove();
       authSub.unsubscribe();
+      // @ts-ignore clear pending timeout
+      if (debugTimeoutRef.current) clearTimeout(debugTimeoutRef.current);
     };
-  }, [handleUrl]);
+  }, [addDebug, handleParams, handleUrl, searchParams]);
 
   const handleResetPassword = async () => {
     if (!password || !confirmPassword) {
@@ -209,7 +346,7 @@ export default function ResetPasswordScreen() {
         ]
       );
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'No se pudo actualizar la contraseña.');
+      Alert.alert('Error', translateAuthError(error.message || 'No se pudo actualizar la contraseña.'));
     } finally {
       setLoading(false);
     }
@@ -229,6 +366,16 @@ export default function ResetPasswordScreen() {
       <View style={styles.container}>
         <View style={styles.card}>
           <Text style={styles.errorText}>El enlace de recuperación no es válido o ha expirado.</Text>
+          {debugInfo ? (
+            <>
+              <Text style={styles.debugTitle}>DIAGNÓSTICO</Text>
+              <Text selectable style={styles.debugText}>{debugInfo}</Text>
+            </>
+          ) : (
+            <Text style={styles.debugTitle}>
+              (Sin diagnóstico: esta APK no incluye el build con el texto de depuración. Reinstalá la versión nueva.)
+            </Text>
+          )}
           <View style={styles.button} onTouchEnd={() => router.replace('/(tabs)')}>
             <Text style={styles.buttonText}>Volver al inicio</Text>
           </View>
@@ -338,6 +485,22 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     color: yunke.error,
+    textAlign: 'center',
+  },
+  debugText: {
+    marginTop: 8,
+    fontSize: 11,
+    color: yunke.textSecondary,
+    textAlign: 'left',
+    backgroundColor: yunke.surface,
+    borderRadius: 8,
+    padding: 8,
+  },
+  debugTitle: {
+    marginTop: 12,
+    fontSize: 10,
+    fontFamily: 'Montserrat_600SemiBold',
+    color: yunke.textSecondary,
     textAlign: 'center',
   },
 });
