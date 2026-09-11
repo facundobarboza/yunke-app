@@ -2,6 +2,9 @@ import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { yunke } from '@/constants/Colors';
+import type { ThemePalette } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -18,6 +21,8 @@ type RoleInfo = {
 };
 
 export default function AdminRolesScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [roles, setRoles] = useState<RoleInfo[]>([]);
@@ -81,7 +86,7 @@ export default function AdminRolesScreen() {
     <Card style={styles.card}>
       <Pressable style={styles.roleInfo} onPress={() => router.push(`/admin/create-role?id=${item.id}`)}>
         <View style={styles.roleIcon}>
-          <Ionicons name="shield-outline" size={18} color={yunke.primary} />
+          <Ionicons name="shield-outline" size={18} color={colors.primaryLight} />
         </View>
         <View style={styles.roleText}>
           <Text style={styles.roleName}>{item.name}</Text>
@@ -100,7 +105,7 @@ export default function AdminRolesScreen() {
     </Card>
   );
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={colors.primaryLight} /></View>;
 
   return (
     <AdminGuard permission="gestionar_roles">
@@ -130,15 +135,16 @@ export default function AdminRolesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface },
   card: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 14, marginBottom: 12 },
   roleInfo: { flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 },
   roleIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: yunke.primary + '12', justifyContent: 'center', alignItems: 'center' },
   roleText: { flex: 1 },
-  roleName: { fontSize: 15, fontFamily: 'Montserrat_600SemiBold', color: yunke.text },
-  roleDescription: { fontSize: 13, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary, marginTop: 2 },
+  roleName: { fontSize: 15, fontFamily: 'Montserrat_600SemiBold', color: theme.text },
+  roleDescription: { fontSize: 13, fontFamily: 'Montserrat_400Regular', color: theme.textSecondary, marginTop: 2 },
   badge: { minWidth: 28, height: 28, borderRadius: 14, backgroundColor: yunke.primary + '15', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 8 },
   badgeText: { fontSize: 13, fontFamily: 'Montserrat_700Bold', color: yunke.primary },
   deleteBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.red + '12', marginLeft: 8 },

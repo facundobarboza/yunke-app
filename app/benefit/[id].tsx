@@ -1,4 +1,7 @@
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -19,6 +22,8 @@ type Beneficio = {
 };
 
 export default function BenefitDetailScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [beneficio, setBeneficio] = useState<Beneficio | null>(null);
@@ -40,11 +45,11 @@ export default function BenefitDetailScreen() {
   };
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
+    return <View style={styles.center}><ActivityIndicator size="large" color={colors.primaryLight} /></View>;
   }
 
   if (!beneficio) {
-    return <View style={styles.center}><Text style={{ color: yunke.textSecondary }}>No se encontró el beneficio.</Text></View>;
+    return <View style={styles.center}><Text style={{ color: colors.textSecondary }}>No se encontró el beneficio.</Text></View>;
   }
 
   const renderHeroContent = () => (
@@ -114,7 +119,7 @@ export default function BenefitDetailScreen() {
         {!!beneficio.terminos && (
           <View style={styles.terminosCard}>
             <View style={styles.terminosHeader}>
-              <Ionicons name="reader-outline" size={14} color={yunke.textSecondary} />
+              <Ionicons name="reader-outline" size={14} color={colors.textSecondary} />
               <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Términos y condiciones</Text>
             </View>
             <Text style={styles.terminosText}>{beneficio.terminos}</Text>
@@ -123,7 +128,7 @@ export default function BenefitDetailScreen() {
 
         {/* NOTA */}
         <View style={styles.noteCard}>
-          <Ionicons name="information-circle-outline" size={20} color={yunke.primary} />
+          <Ionicons name="information-circle-outline" size={20} color={colors.primaryLight} />
           <Text style={styles.noteText}>Presentá tu carnet digital de socio en el comercio para acceder al beneficio.</Text>
         </View>
 
@@ -132,9 +137,10 @@ export default function BenefitDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface },
 
   // Hero
   heroSection: {
@@ -219,19 +225,19 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 26,
     fontFamily: 'Montserrat_900Black',
-    color: yunke.text,
+    color: theme.text,
     textAlign: 'center',
     letterSpacing: -0.5,
   },
 
   // Card
   card: {
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     marginHorizontal: 24,
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -240,7 +246,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 12,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 10,
@@ -248,13 +254,13 @@ const styles = StyleSheet.create({
   descriptionText: {
     fontSize: 16,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.text,
+    color: theme.text,
     lineHeight: 24,
   },
 
   // Términos y condiciones (letra chica)
   terminosCard: {
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     marginHorizontal: 24,
     borderRadius: 16,
     padding: 16,
@@ -269,7 +275,7 @@ const styles = StyleSheet.create({
   terminosText: {
     fontSize: 12,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     lineHeight: 18,
   },
 
@@ -277,7 +283,7 @@ const styles = StyleSheet.create({
   noteCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: yunke.primary + '10',
+    backgroundColor: theme.isDark ? theme.card : yunke.primary + '10',
     marginHorizontal: 24,
     borderRadius: 14,
     padding: 16,
@@ -287,7 +293,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.primary,
+    color: theme.primaryLight,
     lineHeight: 20,
   },
 });

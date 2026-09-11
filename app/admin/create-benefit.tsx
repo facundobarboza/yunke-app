@@ -1,4 +1,7 @@
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { decode } from 'base64-arraybuffer';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -30,6 +33,8 @@ const ICONOS = [
 ];
 
 export default function CreateBenefitScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const isEditing = !!id;
@@ -135,7 +140,7 @@ export default function CreateBenefitScreen() {
                   style={[styles.iconOption, icono === icon && styles.iconOptionActive]}
                   onPress={() => setIcono(icon)}
                 >
-                  <Ionicons name={icon as any} size={22} color={icono === icon ? yunke.white : yunke.textSecondary} />
+                  <Ionicons name={icon as any} size={22} color={icono === icon ? yunke.white : colors.textSecondary} />
                 </Pressable>
               ))}
             </View>
@@ -151,7 +156,7 @@ export default function CreateBenefitScreen() {
               </View>
             ) : (
               <Pressable style={styles.portadaPicker} onPress={pickPortada}>
-                <Ionicons name="image-outline" size={28} color={yunke.textSecondary} />
+                <Ionicons name="image-outline" size={28} color={colors.textSecondary} />
                 <Text style={styles.portadaPickerText}>Subir imagen de portada</Text>
               </Pressable>
             )}
@@ -160,23 +165,23 @@ export default function CreateBenefitScreen() {
             <Text style={styles.sectionTitle}>INFORMACIÓN</Text>
             <View style={styles.inputGroup}>
               <View style={styles.inputRow}>
-                <Ionicons name="storefront-outline" size={18} color={yunke.textSecondary} />
-                <TextInput style={styles.input} placeholder="Nombre del comercio" placeholderTextColor={yunke.textSecondary} value={tienda} onChangeText={setTienda} />
+                <Ionicons name="storefront-outline" size={18} color={colors.textSecondary} />
+                <TextInput style={styles.input} placeholder="Nombre del comercio" placeholderTextColor={colors.textSecondary} value={tienda} onChangeText={setTienda} />
               </View>
               <View style={styles.inputDivider} />
               <View style={styles.inputRow}>
-                <Ionicons name="pricetag-outline" size={18} color={yunke.textSecondary} />
-                <TextInput style={styles.input} placeholder="Ej: 20% OFF, 2x1" placeholderTextColor={yunke.textSecondary} value={descuento} onChangeText={setDescuento} />
+                <Ionicons name="pricetag-outline" size={18} color={colors.textSecondary} />
+                <TextInput style={styles.input} placeholder="Ej: 20% OFF, 2x1" placeholderTextColor={colors.textSecondary} value={descuento} onChangeText={setDescuento} />
               </View>
               <View style={styles.inputDivider} />
               <View style={styles.inputRow}>
-                <Ionicons name="document-text-outline" size={18} color={yunke.textSecondary} />
-                <TextInput style={styles.input} placeholder="Detalle del beneficio" placeholderTextColor={yunke.textSecondary} value={detalle} onChangeText={setDetalle} multiline />
+                <Ionicons name="document-text-outline" size={18} color={colors.textSecondary} />
+                <TextInput style={styles.input} placeholder="Detalle del beneficio" placeholderTextColor={colors.textSecondary} value={detalle} onChangeText={setDetalle} multiline />
               </View>
               <View style={styles.inputDivider} />
               <View style={styles.inputRow}>
-                <Ionicons name="reader-outline" size={18} color={yunke.textSecondary} />
-                <TextInput style={styles.input} placeholder="Términos y condiciones (letra chica, opcional)" placeholderTextColor={yunke.textSecondary} value={terminos} onChangeText={setTerminos} multiline />
+                <Ionicons name="reader-outline" size={18} color={colors.textSecondary} />
+                <TextInput style={styles.input} placeholder="Términos y condiciones (letra chica, opcional)" placeholderTextColor={colors.textSecondary} value={terminos} onChangeText={setTerminos} multiline />
               </View>
             </View>
 
@@ -213,8 +218,9 @@ export default function CreateBenefitScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
   
   header: {
     paddingTop: 60,
@@ -249,7 +255,7 @@ const styles = StyleSheet.create({
   sectionTitle: { 
     fontSize: 12, 
     fontFamily: 'Montserrat_600SemiBold', 
-    color: yunke.textSecondary, 
+    color: theme.textSecondary, 
     textTransform: 'uppercase', 
     letterSpacing: 1,
     marginBottom: 12,
@@ -266,11 +272,11 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 12,
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: yunke.border,
+    borderColor: theme.border,
   },
   iconOptionActive: {
     backgroundColor: yunke.primary,
@@ -281,10 +287,10 @@ const styles = StyleSheet.create({
   portadaPicker: {
     height: 140,
     borderRadius: 16,
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: yunke.border,
+    borderColor: theme.border,
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
@@ -293,7 +299,7 @@ const styles = StyleSheet.create({
   portadaPickerText: {
     fontSize: 14,
     fontFamily: 'Montserrat_500Medium',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
   portadaPreview: {
     height: 140,
@@ -319,11 +325,11 @@ const styles = StyleSheet.create({
   },
 
   inputGroup: { 
-    backgroundColor: yunke.card, 
+    backgroundColor: theme.card, 
     borderRadius: 16, 
     paddingHorizontal: 16, 
     marginBottom: 24,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -339,20 +345,20 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16, 
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.text,
+    color: theme.text,
     paddingVertical: 12,
   },
-  inputDivider: { height: 1, backgroundColor: yunke.border },
+  inputDivider: { height: 1, backgroundColor: theme.border },
 
   // Preview card
   previewCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderRadius: 16,
     padding: 16,
     marginBottom: 24,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -373,12 +379,12 @@ const styles = StyleSheet.create({
   previewTienda: {
     fontSize: 16,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.text,
+    color: theme.text,
   },
   previewDetalle: {
     fontSize: 13,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     marginTop: 2,
   },
   previewBadge: {

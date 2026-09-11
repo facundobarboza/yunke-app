@@ -1,4 +1,7 @@
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -31,6 +34,8 @@ type Foto = {
 };
 
 export default function PlayerDetailScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams();
   const router = useRouter();
@@ -133,21 +138,21 @@ export default function PlayerDetailScreen() {
       <View style={styles.statsRow}>
         <View style={styles.statCard}>
           <View style={styles.statIconContainer}>
-            <Ionicons name="football-outline" size={18} color={yunke.primary} />
+            <Ionicons name="football-outline" size={18} color={colors.primaryLight} />
           </View>
           <Text style={styles.statValue}>{jugador.posicion || 'N/A'}</Text>
           <Text style={styles.statLabel}>Posición</Text>
         </View>
         <View style={styles.statCard}>
           <View style={styles.statIconContainer}>
-            <Ionicons name="calendar-outline" size={18} color={yunke.primary} />
+            <Ionicons name="calendar-outline" size={18} color={colors.primaryLight} />
           </View>
           <Text style={styles.statValue}>{calcularEdad(jugador.fecha_nacimiento)}</Text>
           <Text style={styles.statLabel}>Edad</Text>
         </View>
         <View style={styles.statCard}>
           <View style={styles.statIconContainer}>
-            <Ionicons name="keypad-outline" size={18} color={yunke.primary} />
+            <Ionicons name="keypad-outline" size={18} color={colors.primaryLight} />
           </View>
           <Text style={styles.statValue}>{jugador.dorsal || 'N/A'}</Text>
           <Text style={styles.statLabel}>Dorsal</Text>
@@ -160,7 +165,7 @@ export default function PlayerDetailScreen() {
           <Text style={styles.sectionTitle}>Información</Text>
           <View style={styles.bioCard}>
             <View style={styles.infoRow}>
-              <Ionicons name="globe-outline" size={16} color={yunke.textSecondary} />
+              <Ionicons name="globe-outline" size={16} color={colors.textSecondary} />
               <Text style={styles.infoText}>Nacionalidad: {jugador.nacionalidad}</Text>
             </View>
           </View>
@@ -198,16 +203,17 @@ export default function PlayerDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.dark },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.dark },
   
   // Header con gradiente
   header: {
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     paddingBottom: 30,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 15,
@@ -257,7 +263,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 4,
     borderColor: yunke.primary,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -318,11 +324,11 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
@@ -340,12 +346,12 @@ const styles = StyleSheet.create({
   statValue: { 
     fontSize: 18, 
     fontFamily: 'Montserrat_700Bold', 
-    color: yunke.text 
+    color: theme.text 
   },
   statLabel: { 
     fontSize: 11, 
     fontFamily: 'Montserrat_500Medium',
-    color: yunke.textSecondary, 
+    color: theme.textSecondary, 
     marginTop: 4, 
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -356,14 +362,14 @@ const styles = StyleSheet.create({
   sectionTitle: { 
     fontSize: 18, 
     fontFamily: 'Montserrat_700Bold', 
-    color: yunke.text, 
+    color: theme.text, 
     marginBottom: 14 
   },
   bioCard: {
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderRadius: 16,
     padding: 18,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -372,7 +378,7 @@ const styles = StyleSheet.create({
   bioText: { 
     fontSize: 15, 
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.darkSoft, 
+    color: theme.darkSoft, 
     lineHeight: 24 
   },
   infoRow: {
@@ -384,7 +390,7 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 14,
     fontFamily: 'Montserrat_500Medium',
-    color: yunke.darkSoft,
+    color: theme.darkSoft,
   },
 
   // Galería premium

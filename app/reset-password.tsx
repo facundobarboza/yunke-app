@@ -3,6 +3,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { yunke } from '../constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { supabase } from '../src/supabase';
 import * as QueryParams from 'expo-auth-session/build/QueryParams';
 
@@ -173,6 +176,8 @@ const translateAuthError = (message: string): string => {
 };
 
 export default function ResetPasswordScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   // Params of the deep link that navigated to this screen (works on cold AND
   // warm start: expo-router already routed the URL here, so code/token/error
@@ -355,7 +360,7 @@ export default function ResetPasswordScreen() {
   if (checking) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color={yunke.primary} />
+        <ActivityIndicator size="large" color={colors.primaryLight} />
         <Text style={styles.loadingText}>Verificando enlace...</Text>
       </View>
     );
@@ -393,7 +398,7 @@ export default function ResetPasswordScreen() {
         <TextInput
           style={styles.input}
           placeholder="Nueva contraseña"
-          placeholderTextColor={yunke.textSecondary}
+          placeholderTextColor={colors.textSecondary}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -403,7 +408,7 @@ export default function ResetPasswordScreen() {
         <TextInput
           style={styles.input}
           placeholder="Confirmar contraseña"
-          placeholderTextColor={yunke.textSecondary}
+          placeholderTextColor={colors.textSecondary}
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry
@@ -422,21 +427,22 @@ export default function ResetPasswordScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     padding: 24,
   },
   card: {
     width: '100%',
     maxWidth: 400,
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderRadius: 20,
     padding: 32,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
@@ -445,25 +451,25 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.text,
+    color: theme.text,
     textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
     marginBottom: 24,
   },
   input: {
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: yunke.text,
+    color: theme.text,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: yunke.border,
+    borderColor: theme.border,
   },
   button: {
     backgroundColor: yunke.primary,
@@ -480,7 +486,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 14,
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
   errorText: {
     fontSize: 16,
@@ -490,9 +496,9 @@ const styles = StyleSheet.create({
   debugText: {
     marginTop: 8,
     fontSize: 11,
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'left',
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     borderRadius: 8,
     padding: 8,
   },
@@ -500,7 +506,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 10,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
   },
 });

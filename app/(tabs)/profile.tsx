@@ -1,4 +1,7 @@
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import * as ExpoLinking from 'expo-linking';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,6 +16,8 @@ import { usePermission } from '../../src/hooks/usePermission';
 import { supabase } from '../../src/supabase';
 
 export default function ProfileScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors, mode, setMode } = useTheme();
   const insets = useSafeAreaInsets();
   const { user, profile, loading, isAuthenticated, isAdmin } = useAuth();
   const canManageRoles = usePermission('gestionar_roles');
@@ -169,8 +174,8 @@ export default function ProfileScreen() {
   // =================================================================
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface }}>
-        <ActivityIndicator size="large" color={yunke.primary} />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.surface }}>
+        <ActivityIndicator size="large" color={colors.primaryLight} />
       </View>
     );
   }
@@ -207,42 +212,42 @@ export default function ProfileScreen() {
             {!isLogin && (
               <>
                 <View style={styles.inputRow}>
-                  <Ionicons name="person-outline" size={18} color={yunke.textSecondary} />
-                  <TextInput style={styles.inputWithIcon} placeholder="Nombre" placeholderTextColor={yunke.textSecondary} value={nombre} onChangeText={setNombre} />
+                  <Ionicons name="person-outline" size={18} color={colors.textSecondary} />
+                  <TextInput style={styles.inputWithIcon} placeholder="Nombre" placeholderTextColor={colors.textSecondary} value={nombre} onChangeText={setNombre} />
                 </View>
                 <View style={styles.inputDivider} />
                 <View style={styles.inputRow}>
-                  <Ionicons name="person-outline" size={18} color={yunke.textSecondary} />
-                  <TextInput style={styles.inputWithIcon} placeholder="Apellido" placeholderTextColor={yunke.textSecondary} value={apellido} onChangeText={setApellido} />
+                  <Ionicons name="person-outline" size={18} color={colors.textSecondary} />
+                  <TextInput style={styles.inputWithIcon} placeholder="Apellido" placeholderTextColor={colors.textSecondary} value={apellido} onChangeText={setApellido} />
                 </View>
                 <View style={styles.inputDivider} />
                 <View style={styles.inputRow}>
-                  <Ionicons name="call-outline" size={18} color={yunke.textSecondary} />
-                  <TextInput style={styles.inputWithIcon} placeholder="Teléfono" placeholderTextColor={yunke.textSecondary} value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" />
+                  <Ionicons name="call-outline" size={18} color={colors.textSecondary} />
+                  <TextInput style={styles.inputWithIcon} placeholder="Teléfono" placeholderTextColor={colors.textSecondary} value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" />
                 </View>
                 <View style={styles.inputDivider} />
                 <View style={styles.inputRow}>
-                  <Ionicons name="card-outline" size={18} color={yunke.textSecondary} />
-                  <TextInput style={styles.inputWithIcon} placeholder="DNI" placeholderTextColor={yunke.textSecondary} value={dni} onChangeText={setDni} keyboardType="numeric" maxLength={8} />
+                  <Ionicons name="card-outline" size={18} color={colors.textSecondary} />
+                  <TextInput style={styles.inputWithIcon} placeholder="DNI" placeholderTextColor={colors.textSecondary} value={dni} onChangeText={setDni} keyboardType="numeric" maxLength={8} />
                 </View>
                 <View style={styles.inputDivider} />
               </>
             )}
             <View style={styles.inputRow}>
-              <Ionicons name="mail-outline" size={18} color={yunke.textSecondary} />
-              <TextInput style={styles.inputWithIcon} placeholder="Email" placeholderTextColor={yunke.textSecondary} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
+              <Ionicons name="mail-outline" size={18} color={colors.textSecondary} />
+              <TextInput style={styles.inputWithIcon} placeholder="Email" placeholderTextColor={colors.textSecondary} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
             </View>
             <View style={styles.inputDivider} />
             <View style={styles.inputRow}>
-              <Ionicons name="lock-closed-outline" size={18} color={yunke.textSecondary} />
-              <TextInput style={styles.inputWithIcon} placeholder="Contraseña" placeholderTextColor={yunke.textSecondary} value={password} onChangeText={setPassword} secureTextEntry />
+              <Ionicons name="lock-closed-outline" size={18} color={colors.textSecondary} />
+              <TextInput style={styles.inputWithIcon} placeholder="Contraseña" placeholderTextColor={colors.textSecondary} value={password} onChangeText={setPassword} secureTextEntry />
             </View>
             {!isLogin && (
               <>
                 <View style={styles.inputDivider} />
                 <View style={styles.inputRow}>
-                  <Ionicons name="lock-closed-outline" size={18} color={yunke.textSecondary} />
-                  <TextInput style={styles.inputWithIcon} placeholder="Repetir contraseña" placeholderTextColor={yunke.textSecondary} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
+                  <Ionicons name="lock-closed-outline" size={18} color={colors.textSecondary} />
+                  <TextInput style={styles.inputWithIcon} placeholder="Repetir contraseña" placeholderTextColor={colors.textSecondary} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
                 </View>
               </>
             )}
@@ -277,11 +282,11 @@ export default function ProfileScreen() {
             <Text style={styles.modalSubtitle}>Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña</Text>
             
             <View style={styles.modalInputRow}>
-              <Ionicons name="mail-outline" size={18} color={yunke.textSecondary} />
+              <Ionicons name="mail-outline" size={18} color={colors.textSecondary} />
               <TextInput 
                 style={styles.modalInput} 
                 placeholder="Tu email" 
-                placeholderTextColor={yunke.textSecondary} 
+                placeholderTextColor={colors.textSecondary} 
                 value={forgotEmail} 
                 onChangeText={setForgotEmail} 
                 autoCapitalize="none" 
@@ -378,27 +383,49 @@ export default function ProfileScreen() {
         </View>
       ) : null}
 
+      {/* APARIENCIA: 3-state theme toggle (system -> light -> dark -> system) */}
+      <Text style={styles.sectionTitle}>APARIENCIA</Text>
+      <Pressable
+        style={styles.menuRow}
+        onPress={() => setMode(mode === 'system' ? 'light' : mode === 'light' ? 'dark' : 'system')}
+      >
+        <View style={styles.menuIconContainer}>
+          <Ionicons
+            name={mode === 'system' ? 'contrast-outline' : mode === 'light' ? 'sunny-outline' : 'moon-outline'}
+            size={18}
+            color={colors.primaryLight}
+          />
+        </View>
+        <View style={styles.menuTextContainer}>
+          <Text style={styles.menuText}>Tema</Text>
+          <Text style={styles.menuSubtext}>
+            {mode === 'system' ? 'Automático (sistema)' : mode === 'light' ? 'Claro' : 'Oscuro'}
+          </Text>
+        </View>
+        <Ionicons name="sync-outline" size={18} color={colors.textTertiary} />
+      </Pressable>
+
       {/* DATOS PERSONALES */}
       <Text style={styles.sectionTitle}>CUENTA</Text>
       <Pressable style={styles.menuRow} onPress={() => router.push('/edit-profile')}>
         <View style={styles.menuIconContainer}>
-          <Ionicons name="person-outline" size={18} color={yunke.primary} />
+          <Ionicons name="person-outline" size={18} color={colors.primaryLight} />
         </View>
         <View style={styles.menuTextContainer}>
           <Text style={styles.menuText}>Datos Personales</Text>
           <Text style={styles.menuSubtext}>{profile?.nombre || 'Sin nombre'} {profile?.apellido || ''}</Text>
         </View>
-        <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+        <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
       </Pressable>
 
       {/* SEGURIDAD */}
       <Text style={styles.sectionTitle}>SEGURIDAD</Text>
       <Pressable style={styles.menuRow} onPress={handleResetPassword}>
         <View style={styles.menuIconContainer}>
-          <Ionicons name="lock-closed-outline" size={18} color={yunke.primary} />
+          <Ionicons name="lock-closed-outline" size={18} color={colors.primaryLight} />
         </View>
         <Text style={styles.menuText}>Restablecer contraseña</Text>
-        <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+        <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
       </Pressable>
 
       {/* MENÚ DE ADMINISTRACIÓN (Solo visible si tiene permiso ver_admin) */}
@@ -411,7 +438,7 @@ export default function ProfileScreen() {
               <Ionicons name="people-outline" size={18} color={yunke.red} />
             </View>
             <Text style={styles.menuText}>Gestionar Plantilla</Text>
-            <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
           </Pressable>
 
           <Pressable style={styles.menuRow} onPress={() => router.push('/admin/matches')}>
@@ -419,7 +446,7 @@ export default function ProfileScreen() {
               <Ionicons name="calendar-outline" size={18} color={yunke.red} />
             </View>
             <Text style={styles.menuText}>Gestionar Partidos</Text>
-            <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
           </Pressable>
 
           <Pressable style={styles.menuRow} onPress={() => router.push('/admin/sponsors')}>
@@ -427,7 +454,7 @@ export default function ProfileScreen() {
               <Ionicons name="business-outline" size={18} color={yunke.red} />
             </View>
             <Text style={styles.menuText}>Gestionar Sponsors</Text>
-            <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
           </Pressable>
 
           <Pressable style={styles.menuRow} onPress={() => router.push('/admin/benefits')}>
@@ -435,7 +462,7 @@ export default function ProfileScreen() {
               <Ionicons name="gift-outline" size={18} color={yunke.gold} />
             </View>
             <Text style={styles.menuText}>Gestionar Beneficios</Text>
-            <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
           </Pressable>
 
           {canTakeAttendance && (
@@ -444,37 +471,37 @@ export default function ProfileScreen() {
                 <Ionicons name="clipboard-outline" size={18} color={yunke.red} />
               </View>
               <Text style={styles.menuText}>Tomar Asistencia</Text>
-              <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
             </Pressable>
           )}
 
           {canManageRoles && (
             <Pressable style={styles.menuRow} onPress={() => router.push('/admin/roles')}>
               <View style={[styles.menuIconContainer, { backgroundColor: yunke.primary + '20' }]}>
-                <Ionicons name="shield-checkmark-outline" size={18} color={yunke.primary} />
+                <Ionicons name="shield-checkmark-outline" size={18} color={colors.primaryLight} />
               </View>
               <Text style={styles.menuText}>Gestionar Roles</Text>
-              <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
             </Pressable>
           )}
 
           {canManagePermissions && (
             <Pressable style={styles.menuRow} onPress={() => router.push('/admin/permissions')}>
               <View style={[styles.menuIconContainer, { backgroundColor: yunke.primary + '20' }]}>
-                <Ionicons name="key-outline" size={18} color={yunke.primary} />
+                <Ionicons name="key-outline" size={18} color={colors.primaryLight} />
               </View>
               <Text style={styles.menuText}>Gestionar Permisos</Text>
-              <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
             </Pressable>
           )}
 
           {canManageRoles && (
             <Pressable style={styles.menuRow} onPress={() => router.push('/admin/users')}>
               <View style={[styles.menuIconContainer, { backgroundColor: yunke.primary + '20' }]}>
-                <Ionicons name="people-circle-outline" size={18} color={yunke.primary} />
+                <Ionicons name="people-circle-outline" size={18} color={colors.primaryLight} />
               </View>
               <Text style={styles.menuText}>Gestionar Usuarios</Text>
-              <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
             </Pressable>
           )}
         </View>
@@ -489,9 +516,10 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
   // --- Login Premium ---
-  authContainer: { flex: 1, backgroundColor: yunke.surface },
+  authContainer: { flex: 1, backgroundColor: theme.surface },
   authHeader: {
     paddingTop: 80,
     paddingBottom: 40,
@@ -510,25 +538,25 @@ const styles = StyleSheet.create({
   title: { 
     fontSize: 28, 
     fontFamily: 'Montserrat_900Black', 
-    color: yunke.text, 
+    color: theme.text, 
     textAlign: 'center',
     letterSpacing: -0.5,
   },
   subtitle: { 
     fontSize: 15, 
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.textSecondary, 
+    color: theme.textSecondary, 
     textAlign: 'center', 
     marginBottom: 30, 
     marginTop: 4 
   },
   inputGroup: { 
-    backgroundColor: yunke.card, 
+    backgroundColor: theme.card, 
     borderRadius: 16, 
     paddingHorizontal: 16, 
     marginBottom: 20,
     marginHorizontal: 24,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -544,16 +572,16 @@ const styles = StyleSheet.create({
     height: 50, 
     fontSize: 16, 
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.text 
+    color: theme.text 
   },
   inputWithIcon: {
     flex: 1,
     height: 50,
     fontSize: 16,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.text,
+    color: theme.text,
   },
-  inputDivider: { height: 1, backgroundColor: yunke.border },
+  inputDivider: { height: 1, backgroundColor: theme.border },
   primaryButton: { 
     backgroundColor: yunke.primary, 
     height: 52, 
@@ -576,7 +604,7 @@ const styles = StyleSheet.create({
   switchButton: { alignItems: 'center', marginTop: 10, marginBottom: 40 },
   switchText: { color: yunke.primary, fontSize: 15, fontFamily: 'Montserrat_500Medium' },
   forgotButton: { alignItems: 'center', marginTop: 5 },
-  forgotText: { color: yunke.textSecondary, fontSize: 14, fontFamily: 'Montserrat_400Regular', textDecorationLine: 'underline' },
+  forgotText: { color: theme.textSecondary, fontSize: 14, fontFamily: 'Montserrat_400Regular', textDecorationLine: 'underline' },
 
   // --- Modal Recuperar Contraseña ---
   modalOverlay: {
@@ -589,10 +617,10 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 400,
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderRadius: 20,
     padding: 32,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
@@ -601,13 +629,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.text,
+    color: theme.text,
     textAlign: 'center',
     marginBottom: 8,
   },
   modalSubtitle: {
     fontSize: 14,
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
     marginBottom: 24,
     lineHeight: 20,
@@ -615,19 +643,19 @@ const styles = StyleSheet.create({
   modalInputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     borderRadius: 12,
     paddingHorizontal: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: yunke.border,
+    borderColor: theme.border,
   },
   modalInput: {
     flex: 1,
     height: 50,
     fontSize: 16,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.text,
+    color: theme.text,
     marginLeft: 10,
   },
   modalButton: {
@@ -647,19 +675,19 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   modalCancelText: {
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     fontSize: 14,
     fontFamily: 'Montserrat_500Medium',
   },
 
   // --- Perfil Premium ---
-  container: { flex: 1, backgroundColor: yunke.surface },
+  container: { flex: 1, backgroundColor: theme.surface },
   header: {
     paddingTop: 60,
     paddingBottom: 30,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
@@ -709,12 +737,12 @@ const styles = StyleSheet.create({
   
   // Carnet Socio Premium
   card: { 
-    backgroundColor: yunke.dark, 
+    backgroundColor: theme.dark, 
     borderRadius: 20, 
     padding: 24, 
     marginHorizontal: 24,
     marginTop: 20,
-    shadowColor: yunke.dark, 
+    shadowColor: theme.dark, 
     shadowOffset: { width: 0, height: 10 }, 
     shadowOpacity: 0.2, 
     shadowRadius: 20, 
@@ -722,10 +750,10 @@ const styles = StyleSheet.create({
   },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   cardClubName: { color: yunke.gold, fontSize: 18, fontFamily: 'Montserrat_900Black', letterSpacing: 1 },
-  cardMemberLabel: { color: yunke.textSecondary, fontSize: 11, fontFamily: 'Montserrat_600SemiBold' },
-  cardBody: { borderBottomWidth: 1, borderBottomColor: yunke.darkSoft, paddingBottom: 15, marginTop: 20 },
+  cardMemberLabel: { color: theme.textSecondary, fontSize: 11, fontFamily: 'Montserrat_600SemiBold' },
+  cardBody: { borderBottomWidth: 1, borderBottomColor: theme.darkSoft, paddingBottom: 15, marginTop: 20 },
   cardName: { color: yunke.white, fontSize: 22, fontFamily: 'Montserrat_700Bold', textTransform: 'uppercase' },
-  cardDni: { color: yunke.textSecondary, fontSize: 14, fontFamily: 'Montserrat_400Regular', marginTop: 5 },
+  cardDni: { color: theme.textSecondary, fontSize: 14, fontFamily: 'Montserrat_400Regular', marginTop: 5 },
   cardFooter: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 15 },
   statusBadge: { 
     flexDirection: 'row',
@@ -786,7 +814,7 @@ const styles = StyleSheet.create({
   sectionTitle: { 
     fontSize: 12, 
     fontFamily: 'Montserrat_600SemiBold', 
-    color: yunke.textSecondary, 
+    color: theme.textSecondary, 
     textTransform: 'uppercase', 
     letterSpacing: 1,
     marginBottom: 12, 
@@ -798,14 +826,14 @@ const styles = StyleSheet.create({
   menuRow: { 
     flexDirection: 'row', 
     alignItems: 'center', 
-    backgroundColor: yunke.card, 
+    backgroundColor: theme.card, 
     borderRadius: 16, 
     paddingVertical: 16, 
     paddingHorizontal: 16, 
     gap: 12, 
     marginBottom: 12,
     marginHorizontal: 24,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -828,7 +856,7 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 15,
     fontFamily: 'Montserrat_500Medium',
-    color: yunke.text,
+    color: theme.text,
     flex: 1
   },
   menuTextContainer: {
@@ -837,7 +865,7 @@ const styles = StyleSheet.create({
   menuSubtext: {
     fontSize: 13,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     marginTop: 2,
   },
 
@@ -848,11 +876,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center', 
     gap: 8,
-    backgroundColor: yunke.card, 
+    backgroundColor: theme.card, 
     borderRadius: 16,
     marginHorizontal: 24,
     marginTop: 24,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,

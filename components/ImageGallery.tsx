@@ -1,4 +1,6 @@
 import { yunke } from '@/constants/Colors';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Dimensions, FlatList, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -16,6 +18,7 @@ type ImageGalleryProps = {
 };
 
 export function ImageGallery({ images }: ImageGalleryProps) {
+  const styles = useThemedStyles(createStyles);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
   if (images.length === 0) return null;
@@ -102,14 +105,15 @@ export function ImageGallery({ images }: ImageGalleryProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
   section: {
     marginBottom: 24,
   },
   sectionTitle: {
     fontSize: 13,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textTransform: 'uppercase',
     marginBottom: 12,
     paddingHorizontal: 24,

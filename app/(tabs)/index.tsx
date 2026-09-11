@@ -1,5 +1,8 @@
 import { FadeInUp } from '@/components/FadeInUp';
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -58,6 +61,8 @@ const CATEGORY_GRADIENTS: readonly (readonly [string, string])[] = [
 ];
 
 export default function HomeScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const [proximosPartidos, setProximosPartidos] = useState<Partido[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -213,7 +218,7 @@ export default function HomeScreen() {
               <Image source={{ uri: item.escudo_url }} style={styles.teamEscudo} resizeMode="contain" />
             ) : (
               <View style={[styles.teamEscudo, styles.placeholderEscudo]}>
-                <Ionicons name="shield-outline" size={24} color={yunke.textTertiary} />
+                <Ionicons name="shield-outline" size={24} color={colors.textTertiary} />
               </View>
             )}
             <Text style={styles.teamNameShort} numberOfLines={1}>{item.rival.toUpperCase()}</Text>
@@ -222,13 +227,13 @@ export default function HomeScreen() {
 
         <View style={styles.matchFooter}>
           <View style={styles.matchDateContainer}>
-            <Ionicons name="calendar-outline" size={10} color={yunke.textSecondary} />
+            <Ionicons name="calendar-outline" size={10} color={colors.textSecondary} />
             <Text style={styles.matchDateText}>{formatearFecha(item.fecha)},</Text>
             <Text style={styles.matchTimeText}>{formatearHora(item.fecha)} HS.</Text>
           </View>
           {item.ubicacion ? (
           <View style={styles.matchTimeContainer}>
-            <Ionicons name="location-outline" size={10} color={yunke.textSecondary} />
+            <Ionicons name="location-outline" size={10} color={colors.textSecondary} />
             <Text style={styles.matchUbicationText}>{item.ubicacion}</Text>
           </View>
           ) : null}
@@ -238,7 +243,7 @@ export default function HomeScreen() {
   );
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
+    return <View style={styles.center}><ActivityIndicator size="large" color={colors.primaryLight} /></View>;
   }
 
   return (
@@ -395,9 +400,10 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface },
   
   // Header con foto de fondo + overlay azul
   header: {
@@ -409,7 +415,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
     overflow: 'hidden', // aplica el radio al ImageBackground
     backgroundColor: yunke.primary, // fallback mientras carga la foto
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
@@ -441,20 +447,20 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.primary,
+    color: theme.isDark ? yunke.red : yunke.primary,
     marginBottom: 15,
     paddingHorizontal: 24,
   },
   sponsorCard: {
     width: width - 48,
     height: 180,
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderRadius: 20,
     marginHorizontal: 24,
     marginBottom: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
@@ -489,7 +495,7 @@ const styles = StyleSheet.create({
   sponsorNameText: { 
     fontSize: 20, 
     fontFamily: 'Montserrat_700Bold', 
-    color: yunke.text 
+    color: theme.text 
   },
 
   // Dots del carrusel
@@ -504,7 +510,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: yunke.border,
+    backgroundColor: theme.border,
   },
   dotActive: {
     width: 24,
@@ -516,12 +522,12 @@ const styles = StyleSheet.create({
   matchesSection: { marginTop: 24, marginBottom: 10 },
   matchCard: {
     width: 350,
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 10,
     paddingTop: 0,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
@@ -530,7 +536,7 @@ const styles = StyleSheet.create({
   },
   matchTop: {
     borderBottomWidth: 1,
-    borderBottomColor: yunke.border,
+    borderBottomColor: theme.border,
     paddingBottom: 12,
     marginTop: 10,
     marginBottom: 10,
@@ -539,14 +545,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 10,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textTransform: 'uppercase',
   },
   matchCompeticion: {
     textAlign: 'center',
     fontSize: 10,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     letterSpacing: 0.5,
   },
   matchTeamsContainer: {
@@ -562,7 +568,7 @@ const styles = StyleSheet.create({
   teamNameShort: {
     fontSize: 12,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.text,
+    color: theme.text,
     marginTop: 6,
   },
   vsContainer: {
@@ -572,21 +578,21 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 25,
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     justifyContent: 'center',
     alignItems: 'center',
   },
   vsText: {
     fontSize: 8,
     fontFamily: 'Montserrat_900Black',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
   matchFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: yunke.border,
+    borderTopColor: theme.border,
     paddingTop: 15,
   },
   matchDateContainer: {
@@ -598,7 +604,7 @@ const styles = StyleSheet.create({
   matchDateText: {
     fontSize: 10,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textTransform: 'capitalize',
   },
   matchTimeContainer: {
@@ -609,18 +615,18 @@ const styles = StyleSheet.create({
   matchTimeText: {
     fontSize: 10,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
   matchUbicationText: {
     fontSize: 10,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
   emptyText: {
     textAlign: 'center',
     marginTop: 20,
     fontSize: 10,
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     paddingHorizontal: 24,
   },
   teamEscudo: { 
@@ -628,7 +634,7 @@ const styles = StyleSheet.create({
     height: 50,
   },
   placeholderEscudo: {
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center'
@@ -709,7 +715,7 @@ const styles = StyleSheet.create({
     width: (width - 52) / 2,
     borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.18,
     shadowRadius: 14,

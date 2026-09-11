@@ -1,4 +1,7 @@
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
@@ -19,6 +22,8 @@ type Beneficio = {
 };
 
 export default function AdminBenefitsScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [beneficios, setBeneficios] = useState<Beneficio[]>([]);
@@ -69,7 +74,7 @@ export default function AdminBenefitsScreen() {
       
       <View style={styles.actions}>
         <Pressable style={[styles.toggleBtn, item.is_active ? styles.btnActive : styles.btnInactive]} onPress={() => toggleVisibilidad(item)}>
-          <Ionicons name={item.is_active ? "eye-outline" : "eye-off-outline"} size={16} color={item.is_active ? yunke.success : yunke.textSecondary} />
+          <Ionicons name={item.is_active ? "eye-outline" : "eye-off-outline"} size={16} color={item.is_active ? yunke.success : colors.textSecondary} />
         </Pressable>
         <Pressable style={styles.deleteBtn} onPress={() => eliminarBeneficio(item)}>
           <Ionicons name="trash-outline" size={16} color={yunke.red} />
@@ -78,7 +83,7 @@ export default function AdminBenefitsScreen() {
     </View>
   );
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={colors.primaryLight} /></View>;
 
   return (
     <AdminGuard permission="gestionar_beneficios">
@@ -107,18 +112,19 @@ export default function AdminBenefitsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface },
   card: {
     flexDirection: 'row', 
     alignItems: 'center', 
     justifyContent: 'space-between', 
-    backgroundColor: yunke.card, 
+    backgroundColor: theme.card, 
     padding: 14, 
     borderRadius: 16, 
     marginBottom: 12,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -144,7 +150,7 @@ const styles = StyleSheet.create({
   name: { 
     fontSize: 15, 
     fontFamily: 'Montserrat_600SemiBold', 
-    color: yunke.text 
+    color: theme.text 
   },
   discount: {
     fontSize: 13,
@@ -165,7 +171,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   btnActive: { backgroundColor: yunke.success + '15' },
-  btnInactive: { backgroundColor: yunke.surface },
+  btnInactive: { backgroundColor: theme.surface },
   deleteBtn: {
     width: 36,
     height: 36,
@@ -174,7 +180,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: yunke.red + '12',
   },
-  emptyText: { textAlign: 'center', marginTop: 40, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary },
+  emptyText: { textAlign: 'center', marginTop: 40, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: theme.textSecondary },
   fab: { 
     position: 'absolute', 
     bottom: 30, 

@@ -2,6 +2,9 @@ import { EmptyState } from '@/components/EmptyState';
 import { FadeInUp } from '@/components/FadeInUp';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -27,6 +30,8 @@ type Partido = {
 };
 
 export default function CalendarScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const [proximos, setProximos] = useState<Partido[]>([]);
   const [resultados, setResultados] = useState<Partido[]>([]);
@@ -89,7 +94,7 @@ export default function CalendarScreen() {
   };
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
+    return <View style={styles.center}><ActivityIndicator size="large" color={colors.primaryLight} /></View>;
   }
 
   const renderPartido = ({ item, index }: { item: Partido; index: number }) => {
@@ -117,7 +122,7 @@ export default function CalendarScreen() {
                 <Image source={escudoLocal} style={styles.teamEscudo} resizeMode="contain" />
               ) : (
                 <View style={[styles.teamEscudo, styles.escudoPlaceholder]}>
-                  <Ionicons name="shield-outline" size={18} color={yunke.textTertiary} />
+                  <Ionicons name="shield-outline" size={18} color={colors.textTertiary} />
                 </View>
               )}
               <Text style={styles.teamName} numberOfLines={1}>{nombreLocal}</Text>
@@ -150,7 +155,7 @@ export default function CalendarScreen() {
                 <Image source={escudoVisitante} style={styles.teamEscudo} resizeMode="contain" />
               ) : (
                 <View style={[styles.teamEscudo, styles.escudoPlaceholder]}>
-                  <Ionicons name="shield-outline" size={18} color={yunke.textTertiary} />
+                  <Ionicons name="shield-outline" size={18} color={colors.textTertiary} />
                 </View>
               )}
               <Text style={styles.teamName} numberOfLines={1}>{nombreVisitante}</Text>
@@ -160,14 +165,14 @@ export default function CalendarScreen() {
           {/* Footer: fecha, ubicación */}
           <View style={styles.cardFooter}>
             <View style={styles.footerInfo}>
-              <Ionicons name="calendar-outline" size={11} color={yunke.textSecondary} />
+              <Ionicons name="calendar-outline" size={11} color={colors.textSecondary} />
               <Text style={styles.footerText}>{formatearFecha(item.fecha)}</Text>
-              <Ionicons name="time-outline" size={11} color={yunke.textSecondary} style={{ marginLeft: 6 }} />
+              <Ionicons name="time-outline" size={11} color={colors.textSecondary} style={{ marginLeft: 6 }} />
               <Text style={styles.footerText}>{formatearHora(item.fecha)}</Text>
             </View>
             {item.ubicacion && (
               <View style={styles.footerInfo}>
-                <Ionicons name="location-outline" size={11} color={yunke.textSecondary} />
+                <Ionicons name="location-outline" size={11} color={colors.textSecondary} />
                 <Text style={styles.footerText} numberOfLines={1}>{item.ubicacion}</Text>
               </View>
             )}
@@ -190,7 +195,7 @@ export default function CalendarScreen() {
           style={[styles.filterPill, filtro === 'proximos' && styles.filterPillActive]} 
           onPress={() => setFiltro('proximos')}
         >
-          <Ionicons name="calendar-outline" size={16} color={filtro === 'proximos' ? yunke.white : yunke.textSecondary} />
+          <Ionicons name="calendar-outline" size={16} color={filtro === 'proximos' ? yunke.white : colors.textSecondary} />
           <Text style={[styles.filterText, filtro === 'proximos' && styles.filterTextActive]}>
             Próximos
           </Text>
@@ -199,7 +204,7 @@ export default function CalendarScreen() {
           style={[styles.filterPill, filtro === 'resultados' && styles.filterPillActive]} 
           onPress={() => setFiltro('resultados')}
         >
-          <Ionicons name="trophy-outline" size={16} color={filtro === 'resultados' ? yunke.white : yunke.textSecondary} />
+          <Ionicons name="trophy-outline" size={16} color={filtro === 'resultados' ? yunke.white : colors.textSecondary} />
           <Text style={[styles.filterText, filtro === 'resultados' && styles.filterTextActive]}>
             Resultados
           </Text>
@@ -229,9 +234,10 @@ export default function CalendarScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface },
   
   // Filtro premium
   filterContainer: {
@@ -245,13 +251,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingVertical: 12,
     borderRadius: 14,
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderWidth: 1,
-    borderColor: yunke.border,
+    borderColor: theme.border,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 4,
@@ -268,7 +274,7 @@ const styles = StyleSheet.create({
   filterText: {
     fontSize: 15,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
   filterTextActive: {
     color: yunke.white,
@@ -276,11 +282,11 @@ const styles = StyleSheet.create({
 
   // Card del partido
   card: {
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     marginHorizontal: 24,
     marginBottom: 12,
     borderRadius: 16,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -295,12 +301,12 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: yunke.border,
+    borderBottomColor: theme.border,
   },
   cardCategory: {
     fontSize: 10,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textTransform: 'uppercase',
   },
   cardCompeticion: {
@@ -328,17 +334,17 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   escudoPlaceholder: {
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     borderWidth: 1.5,
     borderStyle: 'dashed',
-    borderColor: yunke.border,
+    borderColor: theme.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
   teamName: {
     fontSize: 11,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.text,
+    color: theme.text,
     textAlign: 'center',
     maxWidth: 70,
   },
@@ -356,20 +362,20 @@ const styles = StyleSheet.create({
   scoreNumber: {
     fontSize: 24,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.text,
+    color: theme.text,
   },
   scoreDash: {
     fontSize: 18,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
   penalesSide: {
     fontSize: 12,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.text,
+    color: theme.text,
   },
   vsBadge: {
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 8,
@@ -377,7 +383,7 @@ const styles = StyleSheet.create({
   vsText: {
     fontSize: 13,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
 
   // Footer
@@ -389,7 +395,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: yunke.border,
+    borderTopColor: theme.border,
   },
   footerInfo: {
     flexDirection: 'row',
@@ -399,6 +405,6 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 10,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
 });

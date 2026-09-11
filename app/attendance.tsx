@@ -1,4 +1,7 @@
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
@@ -64,6 +67,8 @@ function formatDisplayDate(date: Date): string {
 // Content (rendered only when permission is granted)
 // ---------------------------------------------------------------------------
 function AttendanceContent() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
@@ -225,7 +230,7 @@ function AttendanceContent() {
     const state = attendance[jugadorId];
     if (state === true) return { name: 'checkmark-circle', color: yunke.success };
     if (state === false) return { name: 'close-circle', color: yunke.red };
-    return { name: 'remove-outline', color: yunke.textTertiary };
+    return { name: 'remove-outline', color: colors.textTertiary };
   };
 
   // -----------------------------------------------------------------------
@@ -252,7 +257,7 @@ function AttendanceContent() {
             </Text>
             {item.posicion && (
               <View style={styles.positionContainer}>
-                <Ionicons name="football-outline" size={12} color={yunke.textSecondary} />
+                <Ionicons name="football-outline" size={12} color={colors.textSecondary} />
                 <Text style={styles.playerPosition}>{item.posicion}</Text>
               </View>
             )}
@@ -268,7 +273,7 @@ function AttendanceContent() {
   if (loading && categorias.length === 0) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={yunke.primary} />
+        <ActivityIndicator size="large" color={colors.primaryLight} />
       </View>
     );
   }
@@ -308,9 +313,9 @@ function AttendanceContent() {
 
       {/* Date picker row */}
       <Pressable style={styles.dateRow} onPress={() => setShowDatePicker(true)}>
-        <Ionicons name="calendar-outline" size={20} color={yunke.primary} />
+        <Ionicons name="calendar-outline" size={20} color={colors.primaryLight} />
         <Text style={styles.dateText}>{formatDisplayDate(selectedDate)}</Text>
-        <Ionicons name="chevron-down" size={18} color={yunke.textTertiary} />
+        <Ionicons name="chevron-down" size={18} color={colors.textTertiary} />
       </Pressable>
 
       {showDatePicker && Platform.OS === 'ios' && (
@@ -388,6 +393,8 @@ function AttendanceContent() {
 // Exported screen (wrapped with permission guard)
 // ---------------------------------------------------------------------------
 export default function AttendanceScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <RequirePermission permission="tomar_asistencia">
       <AttendanceContent />
@@ -398,16 +405,17 @@ export default function AttendanceScreen() {
 // ---------------------------------------------------------------------------
 // Styles
 // ---------------------------------------------------------------------------
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
   },
 
   // -- Categories --
@@ -419,11 +427,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 14,
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     marginRight: 10,
     borderWidth: 1,
-    borderColor: yunke.border,
-    shadowColor: yunke.dark,
+    borderColor: theme.border,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 4,
@@ -440,7 +448,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 14,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
   categoryTextActive: {
     color: yunke.white,
@@ -450,14 +458,14 @@ const styles = StyleSheet.create({
   dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     marginHorizontal: 24,
     marginBottom: 4,
     borderRadius: 14,
     paddingVertical: 14,
     paddingHorizontal: 16,
     gap: 10,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 4,
@@ -467,7 +475,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontFamily: 'Montserrat_500Medium',
-    color: yunke.text,
+    color: theme.text,
     textTransform: 'capitalize',
   },
 
@@ -479,7 +487,7 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 13,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -488,12 +496,12 @@ const styles = StyleSheet.create({
   playerCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     marginHorizontal: 24,
     marginBottom: 12,
     borderRadius: 16,
     padding: 14,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -508,14 +516,14 @@ const styles = StyleSheet.create({
     borderRadius: 28,
   },
   placeholderPhoto: {
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     justifyContent: 'center',
     alignItems: 'center',
   },
   placeholderText: {
     fontSize: 22,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
   playerInfo: {
     flex: 1,
@@ -523,7 +531,7 @@ const styles = StyleSheet.create({
   playerName: {
     fontSize: 17,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.text,
+    color: theme.text,
   },
   positionContainer: {
     flexDirection: 'row',
@@ -534,7 +542,7 @@ const styles = StyleSheet.create({
   playerPosition: {
     fontSize: 13,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textTransform: 'capitalize',
   },
 
@@ -546,7 +554,7 @@ const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: 24,
     paddingTop: 16,
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
   },
   saveButton: {
     backgroundColor: yunke.primary,
@@ -577,11 +585,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderRadius: 20,
     padding: 20,
     marginHorizontal: 24,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 20,

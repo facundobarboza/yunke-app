@@ -1,4 +1,7 @@
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -23,6 +26,8 @@ function slugify(text: string): string {
 }
 
 export default function CreatePermissionScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams();
@@ -107,7 +112,7 @@ export default function CreatePermissionScreen() {
     }
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={colors.primaryLight} /></View>;
 
   return (
     <AdminGuard permission="gestionar_permisos">
@@ -130,11 +135,11 @@ export default function CreatePermissionScreen() {
           <Text style={styles.sectionTitle}>INFORMACIÓN DEL PERMISO</Text>
           <View style={styles.inputGroup}>
             <View style={styles.inputRow}>
-              <Ionicons name="key-outline" size={18} color={yunke.textSecondary} />
+              <Ionicons name="key-outline" size={18} color={colors.textSecondary} />
               <TextInput
                 style={styles.input}
                 placeholder="Nombre del permiso"
-                placeholderTextColor={yunke.textSecondary}
+                placeholderTextColor={colors.textSecondary}
                 value={name}
                 onChangeText={handleNameChange}
                 autoCapitalize="words"
@@ -142,11 +147,11 @@ export default function CreatePermissionScreen() {
             </View>
             <View style={styles.inputDivider} />
             <View style={styles.inputRow}>
-              <Ionicons name="code-outline" size={18} color={yunke.textSecondary} />
+              <Ionicons name="code-outline" size={18} color={colors.textSecondary} />
               <TextInput
                 style={[styles.input, styles.codeInput]}
                 placeholder="codigo_del_permiso"
-                placeholderTextColor={yunke.textTertiary}
+                placeholderTextColor={colors.textTertiary}
                 value={code}
                 onChangeText={handleCodeChange}
                 autoCapitalize="none"
@@ -155,11 +160,11 @@ export default function CreatePermissionScreen() {
             </View>
             <View style={styles.inputDivider} />
             <View style={styles.inputRow}>
-              <Ionicons name="document-text-outline" size={18} color={yunke.textSecondary} />
+              <Ionicons name="document-text-outline" size={18} color={colors.textSecondary} />
               <TextInput
                 style={styles.input}
                 placeholder="Descripción (opcional)"
-                placeholderTextColor={yunke.textSecondary}
+                placeholderTextColor={colors.textSecondary}
                 value={description}
                 onChangeText={setDescription}
               />
@@ -189,20 +194,21 @@ export default function CreatePermissionScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface },
   header: { paddingBottom: 24, paddingHorizontal: 24, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 },
   backButton: { flexDirection: 'row', alignItems: 'center', paddingBottom: 16, gap: 4 },
   backText: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.white },
   headerTitle: { fontSize: 26, fontFamily: 'Montserrat_900Black', color: yunke.white, letterSpacing: -0.5 },
-  sectionTitle: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12, marginLeft: 28, marginTop: 24 },
-  inputGroup: { backgroundColor: yunke.card, borderRadius: 16, paddingHorizontal: 16, marginHorizontal: 24, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
+  sectionTitle: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12, marginLeft: 28, marginTop: 24 },
+  inputGroup: { backgroundColor: theme.card, borderRadius: 16, paddingHorizontal: 16, marginHorizontal: 24, shadowColor: theme.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 50 },
-  input: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.text, paddingVertical: 12 },
+  input: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: theme.text, paddingVertical: 12 },
   codeInput: { fontFamily: 'Montserrat_500Medium', letterSpacing: 0.3 },
-  inputDivider: { height: 1, backgroundColor: yunke.border },
-  autoCodeHint: { fontSize: 13, fontFamily: 'Montserrat_400Regular', color: yunke.textTertiary, marginHorizontal: 28, marginTop: 12, lineHeight: 20 },
+  inputDivider: { height: 1, backgroundColor: theme.border },
+  autoCodeHint: { fontSize: 13, fontFamily: 'Montserrat_400Regular', color: theme.textTertiary, marginHorizontal: 28, marginTop: 12, lineHeight: 20 },
   autoCodeValue: { fontFamily: 'Montserrat_600SemiBold', color: yunke.primary },
   saveButton: { backgroundColor: yunke.primary, marginHorizontal: 24, height: 52, borderRadius: 14, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 32, shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 },
   saveButtonText: { color: yunke.white, fontSize: 16, fontFamily: 'Montserrat_600SemiBold' },

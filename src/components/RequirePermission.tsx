@@ -6,6 +6,9 @@
 // =============================================================================
 
 import { yunke } from '@/constants/Colors';
+import type { ThemePalette } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { useRouter } from 'expo-router';
 import { useEffect, type ReactNode } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
@@ -26,6 +29,8 @@ export function RequirePermission({
   fallback = null,
 }: RequirePermissionProps) {
   const router = useRouter();
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { permissions, loading, isAuthenticated } = useAuth();
   const hasPermission = permissions.includes(permission);
 
@@ -38,7 +43,7 @@ export function RequirePermission({
   if (loading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color={yunke.primary} />
+        <ActivityIndicator size="large" color={colors.primaryLight} />
       </View>
     );
   }
@@ -50,11 +55,12 @@ export function RequirePermission({
   return <>{children}</>;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: yunke.surface,
-  },
-});
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: theme.surface,
+    },
+  });

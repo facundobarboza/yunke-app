@@ -2,6 +2,9 @@ import { EmptyState } from '@/components/EmptyState';
 import { FadeInUp } from '@/components/FadeInUp';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -24,6 +27,8 @@ type Jugador = {
 };
 
 export default function TeamScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { categoria } = useLocalSearchParams<{ categoria?: string }>();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -98,13 +103,13 @@ export default function TeamScreen() {
           <Text style={styles.playerName}>{item.nombre} {item.apellido || ''}</Text>
           {item.posicion && (
             <View style={styles.positionContainer}>
-              <Ionicons name="football-outline" size={12} color={yunke.textSecondary} />
+              <Ionicons name="football-outline" size={12} color={colors.textSecondary} />
               <Text style={styles.playerPosition}>{item.posicion}</Text>
             </View>
           )}
         </View>
         
-        <Ionicons name="chevron-forward" size={20} color={yunke.textTertiary} />
+        <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
       </Pressable>
     </FadeInUp>
   );
@@ -112,7 +117,7 @@ export default function TeamScreen() {
   if (loading && categorias.length === 0) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={yunke.primary} />
+        <ActivityIndicator size="large" color={colors.primaryLight} />
       </View>
     );
   }
@@ -169,16 +174,17 @@ export default function TeamScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
   },
   categoriesList: {
     paddingHorizontal: 24,
@@ -188,11 +194,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 14,
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     marginRight: 10,
     borderWidth: 1,
-    borderColor: yunke.border,
-    shadowColor: yunke.dark,
+    borderColor: theme.border,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 4,
@@ -209,7 +215,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 14,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
   categoryTextActive: {
     color: yunke.white,
@@ -217,12 +223,12 @@ const styles = StyleSheet.create({
   playerCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     marginHorizontal: 24,
     marginBottom: 12,
     borderRadius: 16,
     padding: 14,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -238,14 +244,14 @@ const styles = StyleSheet.create({
     borderRadius: 28,
   },
   placeholderPhoto: {
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     justifyContent: 'center',
     alignItems: 'center',
   },
   placeholderText: {
     fontSize: 22,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
   capitanBadge: {
     position: 'absolute',
@@ -258,7 +264,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: yunke.card,
+    borderColor: theme.card,
   },
   capitanBadgeText: {
     fontSize: 10,
@@ -272,7 +278,7 @@ const styles = StyleSheet.create({
   playerName: {
     fontSize: 17,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.text,
+    color: theme.text,
   },
   positionContainer: {
     flexDirection: 'row',
@@ -283,7 +289,7 @@ const styles = StyleSheet.create({
   playerPosition: {
     fontSize: 13,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textTransform: 'capitalize',
   },
 });

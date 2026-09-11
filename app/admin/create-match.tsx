@@ -1,4 +1,7 @@
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { decode } from 'base64-arraybuffer';
@@ -13,6 +16,8 @@ import { supabase } from '../../src/supabase';
 import { AdminGuard } from '../../src/components/AdminGuard';
 
 export default function CreateMatchScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { id } = useLocalSearchParams();
@@ -109,22 +114,22 @@ export default function CreateMatchScreen() {
         <Text style={styles.sectionTitle}>LOCALÍA</Text>
         <View style={styles.localiaContainer}>
           <Pressable style={[styles.localiaBtn, esLocal && styles.localiaActive]} onPress={() => setEsLocal(true)}>
-            <Ionicons name="home-outline" size={16} color={esLocal ? yunke.white : yunke.textSecondary} />
+            <Ionicons name="home-outline" size={16} color={esLocal ? yunke.white : colors.textSecondary} />
             <Text style={[styles.localiaText, esLocal && styles.localiaTextActive]}>Local</Text>
           </Pressable>
           <Pressable style={[styles.localiaBtn, !esLocal && styles.localiaActive]} onPress={() => setEsLocal(false)}>
-            <Ionicons name="airplane-outline" size={16} color={!esLocal ? yunke.white : yunke.textSecondary} />
+            <Ionicons name="airplane-outline" size={16} color={!esLocal ? yunke.white : colors.textSecondary} />
             <Text style={[styles.localiaText, !esLocal && styles.localiaTextActive]}>Visitante</Text>
           </Pressable>
         </View>
 
         <Text style={styles.sectionTitle}>DATOS DEL PARTIDO</Text>
         <View style={styles.inputGroup}>
-          <View style={styles.inputRow}><Ionicons name="people-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Rival" placeholderTextColor={yunke.textSecondary} value={rival} onChangeText={handleRivalChange} /></View>
+          <View style={styles.inputRow}><Ionicons name="people-outline" size={18} color={colors.textSecondary} /><TextInput style={styles.input} placeholder="Rival" placeholderTextColor={colors.textSecondary} value={rival} onChangeText={handleRivalChange} /></View>
           <View style={styles.inputDivider} />
-          <View style={styles.inputRow}><Ionicons name="trophy-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Competición" placeholderTextColor={yunke.textSecondary} value={competicion} onChangeText={setCompeticion} /></View>
+          <View style={styles.inputRow}><Ionicons name="trophy-outline" size={18} color={colors.textSecondary} /><TextInput style={styles.input} placeholder="Competición" placeholderTextColor={colors.textSecondary} value={competicion} onChangeText={setCompeticion} /></View>
           <View style={styles.inputDivider} />
-          <View style={styles.inputRow}><Ionicons name="location-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Ubicación" placeholderTextColor={yunke.textSecondary} value={ubicacion} onChangeText={setUbicacion} /></View>
+          <View style={styles.inputRow}><Ionicons name="location-outline" size={18} color={colors.textSecondary} /><TextInput style={styles.input} placeholder="Ubicación" placeholderTextColor={colors.textSecondary} value={ubicacion} onChangeText={setUbicacion} /></View>
         </View>
 
         <Text style={styles.sectionTitle}>ESCUDO DEL RIVAL</Text>
@@ -134,7 +139,7 @@ export default function CreateMatchScreen() {
               contentContainerStyle={{ paddingVertical: 10, gap: 12 }}
               renderItem={({ item }) => (
                 <Pressable style={[styles.rivalCard, rival.toLowerCase() === item.nombre.toLowerCase() && styles.rivalCardActive]} onPress={() => { setRival(item.nombre); setEscudoUri(item.escudo_url); }}>
-                  {item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.rivalEscudo} /> : <View style={[styles.rivalEscudo, styles.placeholder]}><Ionicons name="shield-outline" size={18} color={yunke.textTertiary} /></View>}
+                  {item.escudo_url ? <Image source={{ uri: item.escudo_url }} style={styles.rivalEscudo} /> : <View style={[styles.rivalEscudo, styles.placeholder]}><Ionicons name="shield-outline" size={18} color={colors.textTertiary} /></View>}
                   <Text style={styles.rivalName} numberOfLines={1}>{item.nombre}</Text>
                 </Pressable>
               )} />
@@ -142,7 +147,7 @@ export default function CreateMatchScreen() {
         )}
         <Pressable style={styles.escudoContainer} onPress={pickEscudo}>
           {escudoUri ? <Image source={{ uri: escudoUri }} style={styles.escudoImage} /> : (
-            <View style={[styles.escudoImage, styles.placeholder]}><Ionicons name="shield-outline" size={28} color={yunke.textSecondary} /><Text style={styles.photoText}>Subir Escudo</Text></View>
+            <View style={[styles.escudoImage, styles.placeholder]}><Ionicons name="shield-outline" size={28} color={colors.textSecondary} /><Text style={styles.photoText}>Subir Escudo</Text></View>
           )}
         </Pressable>
 
@@ -158,11 +163,11 @@ export default function CreateMatchScreen() {
         <Text style={styles.sectionTitle}>FECHA Y HORA</Text>
         <View style={styles.dateButtonsContainer}>
           <Pressable style={styles.dateBtn} onPress={showDatepicker}>
-            <Ionicons name="calendar-outline" size={18} color={yunke.primary} />
+            <Ionicons name="calendar-outline" size={18} color={colors.primaryLight} />
             <Text style={styles.dateText}>{fecha.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</Text>
           </Pressable>
           <Pressable style={styles.dateBtn} onPress={showDatepicker}>
-            <Ionicons name="time-outline" size={18} color={yunke.primary} />
+            <Ionicons name="time-outline" size={18} color={colors.primaryLight} />
             <Text style={styles.dateText}>{fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</Text>
           </Pressable>
         </View>
@@ -179,39 +184,40 @@ export default function CreateMatchScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
   header: { paddingTop: 60, paddingBottom: 24, paddingHorizontal: 24, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 },
   backButton: { flexDirection: 'row', alignItems: 'center', paddingBottom: 16, gap: 4 },
   backText: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.white },
   headerTitle: { fontSize: 26, fontFamily: 'Montserrat_900Black', color: yunke.white, letterSpacing: -0.5 },
-  sectionTitle: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12, marginLeft: 28, marginTop: 24 },
+  sectionTitle: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12, marginLeft: 28, marginTop: 24 },
   localiaContainer: { flexDirection: 'row', paddingHorizontal: 24, gap: 10 },
-  localiaBtn: { flex: 1, flexDirection: 'row', height: 48, borderRadius: 14, backgroundColor: yunke.card, borderWidth: 1, borderColor: yunke.border, justifyContent: 'center', alignItems: 'center', gap: 6, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+  localiaBtn: { flex: 1, flexDirection: 'row', height: 48, borderRadius: 14, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, justifyContent: 'center', alignItems: 'center', gap: 6, shadowColor: theme.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
   localiaActive: { backgroundColor: yunke.primary, borderColor: yunke.primary },
-  localiaText: { fontSize: 15, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary },
+  localiaText: { fontSize: 15, fontFamily: 'Montserrat_600SemiBold', color: theme.textSecondary },
   localiaTextActive: { color: yunke.white },
-  inputGroup: { backgroundColor: yunke.card, borderRadius: 16, paddingHorizontal: 16, marginHorizontal: 24, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
+  inputGroup: { backgroundColor: theme.card, borderRadius: 16, paddingHorizontal: 16, marginHorizontal: 24, shadowColor: theme.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 50 },
-  input: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.text, paddingVertical: 12 },
-  inputDivider: { height: 1, backgroundColor: yunke.border },
-  rivalesGallery: { marginBottom: 16, backgroundColor: yunke.card, borderRadius: 16, padding: 10, marginHorizontal: 24, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
+  input: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: theme.text, paddingVertical: 12 },
+  inputDivider: { height: 1, backgroundColor: theme.border },
+  rivalesGallery: { marginBottom: 16, backgroundColor: theme.card, borderRadius: 16, padding: 10, marginHorizontal: 24, shadowColor: theme.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   rivalCard: { alignItems: 'center', width: 70, paddingVertical: 8, borderRadius: 12, borderWidth: 2, borderColor: 'transparent' },
   rivalCardActive: { borderColor: yunke.primary, backgroundColor: yunke.primary + '10' },
   rivalEscudo: { width: 40, height: 40, marginBottom: 5, borderRadius: 20 },
-  rivalName: { fontSize: 11, fontFamily: 'Montserrat_500Medium', color: yunke.text, textAlign: 'center' },
-  placeholder: { borderWidth: 2, borderStyle: 'dashed', borderColor: yunke.border, justifyContent: 'center', alignItems: 'center' },
+  rivalName: { fontSize: 11, fontFamily: 'Montserrat_500Medium', color: theme.text, textAlign: 'center' },
+  placeholder: { borderWidth: 2, borderStyle: 'dashed', borderColor: theme.border, justifyContent: 'center', alignItems: 'center' },
   escudoContainer: { alignItems: 'center', marginBottom: 16 },
-  escudoImage: { width: 100, height: 100, borderRadius: 50, backgroundColor: yunke.card, justifyContent: 'center', alignItems: 'center' },
-  photoText: { fontSize: 12, fontFamily: 'Montserrat_500Medium', color: yunke.textSecondary, marginTop: 6 },
+  escudoImage: { width: 100, height: 100, borderRadius: 50, backgroundColor: theme.card, justifyContent: 'center', alignItems: 'center' },
+  photoText: { fontSize: 12, fontFamily: 'Montserrat_500Medium', color: theme.textSecondary, marginTop: 6 },
   categoriesContainer: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 24, gap: 10 },
-  categoryPill: { paddingHorizontal: 20, paddingVertical: 12, borderRadius: 14, backgroundColor: yunke.card, borderWidth: 1, borderColor: yunke.border, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+  categoryPill: { paddingHorizontal: 20, paddingVertical: 12, borderRadius: 14, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, shadowColor: theme.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
   categoryPillActive: { backgroundColor: yunke.primary, borderColor: yunke.primary },
-  categoryText: { fontSize: 14, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary },
+  categoryText: { fontSize: 14, fontFamily: 'Montserrat_600SemiBold', color: theme.textSecondary },
   categoryTextActive: { color: yunke.white },
   dateButtonsContainer: { flexDirection: 'row', gap: 10, marginHorizontal: 24 },
-  dateBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: yunke.card, borderRadius: 14, padding: 16, gap: 10, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
-  dateText: { fontSize: 14, fontFamily: 'Montserrat_500Medium', color: yunke.text, textTransform: 'capitalize', flex: 1 },
+  dateBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: theme.card, borderRadius: 14, padding: 16, gap: 10, shadowColor: theme.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
+  dateText: { fontSize: 14, fontFamily: 'Montserrat_500Medium', color: theme.text, textTransform: 'capitalize', flex: 1 },
   saveButton: { backgroundColor: yunke.primary, marginHorizontal: 24, height: 52, borderRadius: 14, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 32, shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 },
   saveButtonText: { color: yunke.white, fontSize: 16, fontFamily: 'Montserrat_600SemiBold' },
 });

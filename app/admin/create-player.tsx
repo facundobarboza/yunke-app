@@ -1,4 +1,7 @@
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { decode } from 'base64-arraybuffer';
@@ -12,6 +15,8 @@ import { AdminGuard } from '../../src/components/AdminGuard';
 import { supabase } from '../../src/supabase';
 
 export default function CreatePlayerScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const isEditing = !!id;
@@ -154,7 +159,7 @@ export default function CreatePlayerScreen() {
               <Image source={{ uri: imageUri }} style={styles.profilePhoto} />
             ) : (
               <View style={[styles.profilePhoto, styles.placeholderPhoto]}>
-                <Ionicons name="camera-outline" size={36} color={yunke.textSecondary} />
+                <Ionicons name="camera-outline" size={36} color={colors.textSecondary} />
                 <Text style={styles.photoText}>Agregar Foto</Text>
               </View>
             )}
@@ -164,31 +169,31 @@ export default function CreatePlayerScreen() {
           <Text style={styles.sectionTitle}>DATOS PERSONALES</Text>
           <View style={styles.inputGroup}>
             <View style={styles.inputRow}>
-              <Ionicons name="person-outline" size={18} color={yunke.textSecondary} />
-              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor={yunke.textSecondary} value={nombre} onChangeText={setNombre} />
+              <Ionicons name="person-outline" size={18} color={colors.textSecondary} />
+              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor={colors.textSecondary} value={nombre} onChangeText={setNombre} />
             </View>
             <View style={styles.inputDivider} />
             <View style={styles.inputRow}>
-              <Ionicons name="person-outline" size={18} color={yunke.textSecondary} />
-              <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor={yunke.textSecondary} value={apellido} onChangeText={setApellido} />
+              <Ionicons name="person-outline" size={18} color={colors.textSecondary} />
+              <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor={colors.textSecondary} value={apellido} onChangeText={setApellido} />
             </View>
             <View style={styles.inputDivider} />
             <View style={styles.inputRow}>
-              <Ionicons name="card-outline" size={18} color={yunke.textSecondary} />
-              <TextInput style={styles.input} placeholder="DNI" placeholderTextColor={yunke.textSecondary} value={dni} onChangeText={setDni} keyboardType="numeric" />
+              <Ionicons name="card-outline" size={18} color={colors.textSecondary} />
+              <TextInput style={styles.input} placeholder="DNI" placeholderTextColor={colors.textSecondary} value={dni} onChangeText={setDni} keyboardType="numeric" />
             </View>
             <View style={styles.inputDivider} />
             <View style={styles.inputRow}>
-              <Ionicons name="globe-outline" size={18} color={yunke.textSecondary} />
-              <TextInput style={styles.input} placeholder="Nacionalidad" placeholderTextColor={yunke.textSecondary} value={nacionalidad} onChangeText={setNacionalidad} />
+              <Ionicons name="globe-outline" size={18} color={colors.textSecondary} />
+              <TextInput style={styles.input} placeholder="Nacionalidad" placeholderTextColor={colors.textSecondary} value={nacionalidad} onChangeText={setNacionalidad} />
             </View>
             <View style={styles.inputDivider} />
             <Pressable style={styles.inputRow} onPress={() => setShowDatePicker(true)}>
-              <Ionicons name="calendar-outline" size={18} color={yunke.textSecondary} />
-              <Text style={[styles.input, !fechaNacimiento && { color: yunke.textSecondary }]}>
+              <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
+              <Text style={[styles.input, !fechaNacimiento && { color: colors.textSecondary }]}>
                 {fechaNacimiento ? fechaNacimiento.split('-').reverse().join('-') : 'Fecha de nacimiento'}
               </Text>
-              <Ionicons name="chevron-down" size={16} color={yunke.textSecondary} />
+              <Ionicons name="chevron-down" size={16} color={colors.textSecondary} />
             </Pressable>
           </View>
 
@@ -244,13 +249,13 @@ export default function CreatePlayerScreen() {
           <Text style={styles.sectionTitle}>DATOS DEPORTIVOS</Text>
           <View style={styles.inputGroup}>
             <View style={styles.inputRow}>
-              <Ionicons name="football-outline" size={18} color={yunke.textSecondary} />
-              <TextInput style={styles.input} placeholder="Posición" placeholderTextColor={yunke.textSecondary} value={posicion} onChangeText={setPosicion} />
+              <Ionicons name="football-outline" size={18} color={colors.textSecondary} />
+              <TextInput style={styles.input} placeholder="Posición" placeholderTextColor={colors.textSecondary} value={posicion} onChangeText={setPosicion} />
             </View>
             <View style={styles.inputDivider} />
             <View style={styles.inputRow}>
-              <Ionicons name="keypad-outline" size={18} color={yunke.textSecondary} />
-              <TextInput style={styles.input} placeholder="Dorsal" placeholderTextColor={yunke.textSecondary} value={dorsal} onChangeText={setDorsal} keyboardType="numeric" />
+              <Ionicons name="keypad-outline" size={18} color={colors.textSecondary} />
+              <TextInput style={styles.input} placeholder="Dorsal" placeholderTextColor={colors.textSecondary} value={dorsal} onChangeText={setDorsal} keyboardType="numeric" />
             </View>
           </View>
 
@@ -258,8 +263,8 @@ export default function CreatePlayerScreen() {
           <Text style={styles.sectionTitle}>REDES SOCIALES</Text>
           <View style={styles.inputGroup}>
             <View style={styles.inputRow}>
-              <Ionicons name="logo-instagram" size={18} color={yunke.textSecondary} />
-              <TextInput style={styles.input} placeholder="Instagram (usuario)" placeholderTextColor={yunke.textSecondary} value={instagram} onChangeText={setInstagram} autoCapitalize="none" />
+              <Ionicons name="logo-instagram" size={18} color={colors.textSecondary} />
+              <TextInput style={styles.input} placeholder="Instagram (usuario)" placeholderTextColor={colors.textSecondary} value={instagram} onChangeText={setInstagram} autoCapitalize="none" />
             </View>
           </View>
 
@@ -267,11 +272,11 @@ export default function CreatePlayerScreen() {
           <Text style={styles.sectionTitle}>DESCRIPCIÓN</Text>
           <View style={styles.inputGroup}>
             <View style={[styles.inputRow, { alignItems: 'flex-start', minHeight: 80, paddingTop: 12 }]}>
-              <Ionicons name="document-text-outline" size={18} color={yunke.textSecondary} style={{ marginTop: 12 }} />
+              <Ionicons name="document-text-outline" size={18} color={colors.textSecondary} style={{ marginTop: 12 }} />
               <TextInput
                 style={[styles.input, { minHeight: 60, textAlignVertical: 'top' }]}
                 placeholder="Breve descripción del jugador..."
-                placeholderTextColor={yunke.textSecondary}
+                placeholderTextColor={colors.textSecondary}
                 value={descripcion}
                 onChangeText={setDescripcion}
                 multiline
@@ -283,18 +288,18 @@ export default function CreatePlayerScreen() {
           {/* Categoría - desplegable */}
           <Text style={styles.sectionTitle}>CATEGORÍA</Text>
           <Pressable style={styles.dropdown} onPress={() => setShowCategoriaModal(true)}>
-            <Ionicons name="grid-outline" size={18} color={yunke.textSecondary} />
+            <Ionicons name="grid-outline" size={18} color={colors.textSecondary} />
             <Text style={[styles.dropdownText, !selectedCategoria && styles.dropdownPlaceholder]}>
               {getCategoriaNombre()}
             </Text>
-            <Ionicons name="chevron-down" size={18} color={yunke.textSecondary} />
+            <Ionicons name="chevron-down" size={18} color={colors.textSecondary} />
           </Pressable>
 
           {/* Capitán - toggle */}
           <Text style={styles.sectionTitle}>CAPITÁN</Text>
           <Pressable style={styles.toggleRow} onPress={() => setIsCapitan(!isCapitan)}>
             <View style={styles.toggleLeft}>
-              <Ionicons name="ribbon-outline" size={20} color={isCapitan ? yunke.gold : yunke.textSecondary} />
+              <Ionicons name="ribbon-outline" size={20} color={isCapitan ? yunke.gold : colors.textSecondary} />
               <Text style={styles.toggleLabel}>Es capitán del equipo</Text>
             </View>
             <View style={[styles.toggleSwitch, isCapitan && styles.toggleSwitchActive]}>
@@ -318,7 +323,7 @@ export default function CreatePlayerScreen() {
                       <Text style={[styles.modalItemText, selectedCategoria === item.id && styles.modalItemTextActive]}>
                         {item.nombre}
                       </Text>
-                      {selectedCategoria === item.id && <Ionicons name="checkmark" size={20} color={yunke.primary} />}
+                      {selectedCategoria === item.id && <Ionicons name="checkmark" size={20} color={colors.primaryLight} />}
                     </Pressable>
                   )}
                 />
@@ -337,64 +342,65 @@ export default function CreatePlayerScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
   header: { paddingTop: 60, paddingBottom: 24, paddingHorizontal: 24, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 },
   backButton: { flexDirection: 'row', alignItems: 'center', paddingBottom: 16, gap: 4 },
   backText: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.white },
   headerTitle: { fontSize: 26, fontFamily: 'Montserrat_900Black', color: yunke.white, letterSpacing: -0.5 },
   photoContainer: { alignItems: 'center', marginTop: 24, marginBottom: 24 },
-  profilePhoto: { width: 120, height: 120, borderRadius: 60, backgroundColor: yunke.card, justifyContent: 'center', alignItems: 'center' },
-  placeholderPhoto: { borderWidth: 2, borderColor: yunke.border, borderStyle: 'dashed' },
-  photoText: { fontSize: 13, fontFamily: 'Montserrat_500Medium', color: yunke.textSecondary, marginTop: 6 },
-  inputGroup: { backgroundColor: yunke.card, borderRadius: 16, paddingHorizontal: 16, marginHorizontal: 24, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
+  profilePhoto: { width: 120, height: 120, borderRadius: 60, backgroundColor: theme.card, justifyContent: 'center', alignItems: 'center' },
+  placeholderPhoto: { borderWidth: 2, borderColor: theme.border, borderStyle: 'dashed' },
+  photoText: { fontSize: 13, fontFamily: 'Montserrat_500Medium', color: theme.textSecondary, marginTop: 6 },
+  inputGroup: { backgroundColor: theme.card, borderRadius: 16, paddingHorizontal: 16, marginHorizontal: 24, shadowColor: theme.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 50 },
-  input: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.text, paddingVertical: 12 },
-  inputDivider: { height: 1, backgroundColor: yunke.border },
-  sectionTitle: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12, marginLeft: 28, marginTop: 24 },
+  input: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: theme.text, paddingVertical: 12 },
+  inputDivider: { height: 1, backgroundColor: theme.border },
+  sectionTitle: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12, marginLeft: 28, marginTop: 24 },
 
   // Dropdown
   dropdown: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 16,
     marginHorizontal: 24,
     gap: 10,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
   },
-  dropdownText: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.text },
-  dropdownPlaceholder: { color: yunke.textTertiary },
+  dropdownText: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_500Medium', color: theme.text },
+  dropdownPlaceholder: { color: theme.textTertiary },
 
   // Toggle
   toggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 16,
     marginHorizontal: 24,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
   },
   toggleLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  toggleLabel: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.text },
+  toggleLabel: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: theme.text },
   toggleSwitch: {
     width: 50,
     height: 28,
     borderRadius: 14,
-    backgroundColor: yunke.border,
+    backgroundColor: theme.border,
     justifyContent: 'center',
     paddingHorizontal: 3,
   },
@@ -404,7 +410,7 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 11,
     backgroundColor: yunke.white,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
@@ -414,19 +420,19 @@ const styles = StyleSheet.create({
 
   // Modal
   modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContent: { backgroundColor: yunke.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 20, paddingBottom: 40, maxHeight: '60%' },
-  modalTitle: { fontSize: 18, fontFamily: 'Montserrat_700Bold', color: yunke.text, textAlign: 'center', marginBottom: 16, paddingHorizontal: 24 },
-  modalItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: yunke.border },
+  modalContent: { backgroundColor: theme.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 20, paddingBottom: 40, maxHeight: '60%' },
+  modalTitle: { fontSize: 18, fontFamily: 'Montserrat_700Bold', color: theme.text, textAlign: 'center', marginBottom: 16, paddingHorizontal: 24 },
+  modalItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: theme.border },
   modalItemActive: { backgroundColor: yunke.primary + '10' },
-  modalItemText: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.text },
+  modalItemText: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: theme.text },
   modalItemTextActive: { color: yunke.primary, fontFamily: 'Montserrat_600SemiBold' },
 
   // Date picker modal
   dateModalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
-  dateModalContent: { backgroundColor: yunke.card, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 },
-  dateModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: yunke.border },
-  dateModalTitle: { fontSize: 16, fontFamily: 'Montserrat_600SemiBold', color: yunke.text },
-  dateModalCancel: { fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary },
+  dateModalContent: { backgroundColor: theme.card, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20 },
+  dateModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border },
+  dateModalTitle: { fontSize: 16, fontFamily: 'Montserrat_600SemiBold', color: theme.text },
+  dateModalCancel: { fontSize: 16, fontFamily: 'Montserrat_400Regular', color: theme.textSecondary },
   dateModalDone: { fontSize: 16, fontFamily: 'Montserrat_600SemiBold', color: yunke.primary },
 
   // Save

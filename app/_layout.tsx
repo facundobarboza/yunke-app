@@ -13,8 +13,8 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider } from '@/src/contexts/AuthContext';
+import { AppThemeProvider, useThemeContext } from '@/src/contexts/ThemeContext';
 
 // Deep linking configuration
 const linking = {
@@ -64,36 +64,41 @@ export default function RootLayout() {
 
   const loaded = spaceMonoLoaded && montserratLoaded;
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
+  return (
+    <AuthProvider>
+      <AppThemeProvider>
+        <RootLayoutNav fontsLoaded={loaded} />
+      </AppThemeProvider>
+    </AuthProvider>
+  );
+}
+
+function RootLayoutNav({ fontsLoaded }: { fontsLoaded: boolean }) {
+  const { scheme, themeResolved } = useThemeContext();
+
+  // Hold the splash screen until fonts AND the persisted theme are resolved
+  // to avoid a flash of the wrong color scheme.
   useEffect(() => {
-    if (loaded) {
+    if (fontsLoaded && themeResolved) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [fontsLoaded, themeResolved]);
 
-  if (!loaded) {
+  if (!fontsLoaded || !themeResolved) {
     return null;
   }
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <View style={{ flex: 1 }}>
-            <Stack screenOptions={{ headerShown: false }} linking={linking}>
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="reset-password" />
-              <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-            </Stack>
-          </View>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider value={scheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <View style={{ flex: 1 }}>
+          <Stack screenOptions={{ headerShown: false }} linking={linking}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="reset-password" />
+            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          </Stack>
+        </View>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

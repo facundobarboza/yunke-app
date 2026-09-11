@@ -1,4 +1,7 @@
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
@@ -25,6 +28,8 @@ type Partido = {
 };
 
 export default function AdminMatchesScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [partidos, setPartidos] = useState<Partido[]>([]);
@@ -121,7 +126,7 @@ export default function AdminMatchesScreen() {
               <Image source={escudoLocal} style={styles.teamEscudo} resizeMode="contain" />
             ) : (
               <View style={[styles.teamEscudo, styles.escudoPlaceholder]}>
-                <Ionicons name="shield-outline" size={20} color={yunke.textTertiary} />
+                <Ionicons name="shield-outline" size={20} color={colors.textTertiary} />
               </View>
             )}
             <Text style={styles.teamName} numberOfLines={1}>{nombreLocal}</Text>
@@ -154,7 +159,7 @@ export default function AdminMatchesScreen() {
               <Image source={escudoVisitante} style={styles.teamEscudo} resizeMode="contain" />
             ) : (
               <View style={[styles.teamEscudo, styles.escudoPlaceholder]}>
-                <Ionicons name="shield-outline" size={20} color={yunke.textTertiary} />
+                <Ionicons name="shield-outline" size={20} color={colors.textTertiary} />
               </View>
             )}
             <Text style={styles.teamName} numberOfLines={1}>{nombreVisitante}</Text>
@@ -165,18 +170,18 @@ export default function AdminMatchesScreen() {
         <View style={styles.cardFooter}>
           <View style={styles.cardInfo}>
             <View style={styles.infoRow}>
-              <Ionicons name="calendar-outline" size={12} color={yunke.textSecondary} />
+              <Ionicons name="calendar-outline" size={12} color={colors.textSecondary} />
               <Text style={styles.infoText}>
                 {new Date(item.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
               </Text>
-              <Ionicons name="time-outline" size={12} color={yunke.textSecondary} style={{ marginLeft: 8 }} />
+              <Ionicons name="time-outline" size={12} color={colors.textSecondary} style={{ marginLeft: 8 }} />
               <Text style={styles.infoText}>
                 {new Date(item.fecha).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
               </Text>
             </View>
             {item.ubicacion && (
               <View style={styles.infoRow}>
-                <Ionicons name="location-outline" size={12} color={yunke.textSecondary} />
+                <Ionicons name="location-outline" size={12} color={colors.textSecondary} />
                 <Text style={styles.infoText} numberOfLines={1}>{item.ubicacion}</Text>
               </View>
             )}
@@ -184,7 +189,7 @@ export default function AdminMatchesScreen() {
 
           {item.jugado ? (
             <Pressable style={styles.editBtn} onPress={() => abrirModalResultado(item)}>
-              <Ionicons name="create-outline" size={14} color={yunke.primary} />
+              <Ionicons name="create-outline" size={14} color={colors.primaryLight} />
               <Text style={styles.editBtnText}>Editar</Text>
             </Pressable>
           ) : esPasado ? (
@@ -194,7 +199,7 @@ export default function AdminMatchesScreen() {
             </Pressable>
           ) : (
             <View style={styles.scheduledContainer}>
-              <Ionicons name="time-outline" size={12} color={yunke.textSecondary} />
+              <Ionicons name="time-outline" size={12} color={colors.textSecondary} />
               <Text style={styles.scheduledLabel}>Programado</Text>
             </View>
           )}
@@ -203,7 +208,7 @@ export default function AdminMatchesScreen() {
     );
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={colors.primaryLight} /></View>;
 
   return (
     <AdminGuard permission="gestionar_partidos">
@@ -234,12 +239,12 @@ export default function AdminMatchesScreen() {
               <View style={styles.scoreInputsContainer}>
                 <View style={styles.scoreInputGroup}>
                   <Text style={styles.scoreInputLabel}>{partidoActual?.es_local ? 'Yunke FC' : partidoActual?.rival}</Text>
-                  <TextInput style={styles.scoreInput} keyboardType="numeric" placeholder="0" placeholderTextColor={yunke.textTertiary} value={golesLocal} onChangeText={setGolesLocal} maxLength={2} />
+                  <TextInput style={styles.scoreInput} keyboardType="numeric" placeholder="0" placeholderTextColor={colors.textTertiary} value={golesLocal} onChangeText={setGolesLocal} maxLength={2} />
                 </View>
                 <Text style={styles.scoreDashModal}>-</Text>
                 <View style={styles.scoreInputGroup}>
                   <Text style={styles.scoreInputLabel}>{partidoActual?.es_local ? partidoActual?.rival : 'Yunke FC'}</Text>
-                  <TextInput style={styles.scoreInput} keyboardType="numeric" placeholder="0" placeholderTextColor={yunke.textTertiary} value={golesVisitante} onChangeText={setGolesVisitante} maxLength={2} />
+                  <TextInput style={styles.scoreInput} keyboardType="numeric" placeholder="0" placeholderTextColor={colors.textTertiary} value={golesVisitante} onChangeText={setGolesVisitante} maxLength={2} />
                 </View>
               </View>
 
@@ -255,9 +260,9 @@ export default function AdminMatchesScreen() {
               {huboPenales && (
                 <View style={styles.penalesContainer}>
                   <View style={styles.scoreInputsContainer}>
-                    <TextInput style={styles.penalesInput} keyboardType="numeric" placeholder="0" placeholderTextColor={yunke.textTertiary} value={penalesLocal} onChangeText={setPenalesLocal} maxLength={2} />
+                    <TextInput style={styles.penalesInput} keyboardType="numeric" placeholder="0" placeholderTextColor={colors.textTertiary} value={penalesLocal} onChangeText={setPenalesLocal} maxLength={2} />
                     <Text style={styles.scoreDashModal}>-</Text>
-                    <TextInput style={styles.penalesInput} keyboardType="numeric" placeholder="0" placeholderTextColor={yunke.textTertiary} value={penalesVisitante} onChangeText={setPenalesVisitante} maxLength={2} />
+                    <TextInput style={styles.penalesInput} keyboardType="numeric" placeholder="0" placeholderTextColor={colors.textTertiary} value={penalesVisitante} onChangeText={setPenalesVisitante} maxLength={2} />
                   </View>
                 </View>
               )}
@@ -279,16 +284,17 @@ export default function AdminMatchesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface },
 
   // Card del partido
   card: {
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderRadius: 16,
     marginBottom: 12,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -303,12 +309,12 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: yunke.border,
+    borderBottomColor: theme.border,
   },
   cardCategory: {
     fontSize: 11,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textTransform: 'uppercase',
   },
   cardCompeticion: {
@@ -336,17 +342,17 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   escudoPlaceholder: {
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: yunke.border,
+    borderColor: theme.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
   teamName: {
     fontSize: 12,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.text,
+    color: theme.text,
     textAlign: 'center',
     maxWidth: 80,
   },
@@ -368,15 +374,15 @@ const styles = StyleSheet.create({
   scoreDash: {
     fontSize: 20,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
   penalesSide: {
     fontSize: 14,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.text,
+    color: theme.text,
   },
   scheduledBadge: {
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
@@ -384,7 +390,7 @@ const styles = StyleSheet.create({
   scheduledText: {
     fontSize: 14,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
 
   // Footer
@@ -396,7 +402,7 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: yunke.border,
+    borderTopColor: theme.border,
   },
   cardInfo: {
     flex: 1,
@@ -410,7 +416,7 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 11,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
 
   // Botones de acción
@@ -445,7 +451,7 @@ const styles = StyleSheet.create({
   scheduledContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
@@ -454,10 +460,10 @@ const styles = StyleSheet.create({
   scheduledLabel: {
     fontSize: 12,
     fontFamily: 'Montserrat_500Medium',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
 
-  emptyText: { textAlign: 'center', marginTop: 40, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary },
+  emptyText: { textAlign: 'center', marginTop: 40, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: theme.textSecondary },
 
   // FAB
   fab: {
@@ -479,15 +485,15 @@ const styles = StyleSheet.create({
 
   // Modal
   modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContent: { width: '90%', backgroundColor: yunke.card, borderRadius: 20, padding: 24, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 10 },
-  modalTitle: { fontSize: 20, fontFamily: 'Montserrat_700Bold', color: yunke.text, textAlign: 'center', marginBottom: 24 },
+  modalContent: { width: '90%', backgroundColor: theme.card, borderRadius: 20, padding: 24, shadowColor: theme.dark, shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 10 },
+  modalTitle: { fontSize: 20, fontFamily: 'Montserrat_700Bold', color: theme.text, textAlign: 'center', marginBottom: 24 },
 
   // Score inputs
   scoreInputsContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 24 },
   scoreInputGroup: { alignItems: 'center', gap: 8 },
-  scoreInputLabel: { fontSize: 12, fontFamily: 'Montserrat_500Medium', color: yunke.textSecondary },
-  scoreInput: { width: 70, height: 70, borderWidth: 1, borderColor: yunke.border, borderRadius: 16, textAlign: 'center', fontSize: 32, fontFamily: 'Montserrat_700Bold', color: yunke.text, backgroundColor: yunke.surface },
-  scoreDashModal: { fontSize: 30, fontFamily: 'Montserrat_700Bold', color: yunke.textSecondary },
+  scoreInputLabel: { fontSize: 12, fontFamily: 'Montserrat_500Medium', color: theme.textSecondary },
+  scoreInput: { width: 70, height: 70, borderWidth: 1, borderColor: theme.border, borderRadius: 16, textAlign: 'center', fontSize: 32, fontFamily: 'Montserrat_700Bold', color: theme.text, backgroundColor: theme.surface },
+  scoreDashModal: { fontSize: 30, fontFamily: 'Montserrat_700Bold', color: theme.textSecondary },
 
   // Penales toggle
   penalesToggle: {
@@ -496,10 +502,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 14,
     borderRadius: 12,
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: yunke.border,
+    borderColor: theme.border,
   },
   penalesToggleActive: {
     backgroundColor: yunke.primary + '10',
@@ -508,7 +514,7 @@ const styles = StyleSheet.create({
   penalesToggleText: {
     fontSize: 14,
     fontFamily: 'Montserrat_500Medium',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
   penalesToggleTextActive: {
     color: yunke.primary,
@@ -517,7 +523,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 28,
     borderRadius: 14,
-    backgroundColor: yunke.border,
+    backgroundColor: theme.border,
     justifyContent: 'center',
     paddingHorizontal: 3,
   },
@@ -543,13 +549,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: yunke.gold + '30',
   },
-  penalesInput: { width: 60, height: 50, borderWidth: 1, borderColor: yunke.gold + '50', borderRadius: 12, textAlign: 'center', fontSize: 22, fontFamily: 'Montserrat_700Bold', color: yunke.text, backgroundColor: yunke.surface },
+  penalesInput: { width: 60, height: 50, borderWidth: 1, borderColor: yunke.gold + '50', borderRadius: 12, textAlign: 'center', fontSize: 22, fontFamily: 'Montserrat_700Bold', color: theme.text, backgroundColor: theme.surface },
 
   // Modal buttons
   modalButtons: { flexDirection: 'row', gap: 12, width: '100%', marginTop: 8 },
   modalBtn: { flex: 1, height: 48, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-  cancelBtn: { backgroundColor: yunke.surface },
-  cancelBtnText: { color: yunke.textSecondary, fontSize: 16, fontFamily: 'Montserrat_600SemiBold' },
+  cancelBtn: { backgroundColor: theme.surface },
+  cancelBtnText: { color: theme.textSecondary, fontSize: 16, fontFamily: 'Montserrat_600SemiBold' },
   saveBtn: { backgroundColor: yunke.primary },
   saveBtnText: { color: yunke.white, fontSize: 16, fontFamily: 'Montserrat_600SemiBold' },
 });

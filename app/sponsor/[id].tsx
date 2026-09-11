@@ -1,5 +1,8 @@
 import { ImageGallery } from '@/components/ImageGallery';
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -32,6 +35,8 @@ type GalleryImage = {
 };
 
 export default function SponsorDetailScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [sponsor, setSponsor] = useState<Sponsor | null>(null);
@@ -80,7 +85,7 @@ export default function SponsorDetailScreen() {
   };
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
+    return <View style={styles.center}><ActivityIndicator size="large" color={colors.primaryLight} /></View>;
   }
 
   if (!sponsor) {
@@ -188,23 +193,23 @@ export default function SponsorDetailScreen() {
         <View style={styles.infoGroup}>
           {sponsor.instagram && (
             <Pressable style={styles.infoRow} onPress={() => openLink(sponsor.instagram!)}>
-              <Ionicons name="logo-instagram" size={20} color={yunke.primary} />
+              <Ionicons name="logo-instagram" size={20} color={colors.primaryLight} />
               <Text style={[styles.infoText, styles.linkText]}>Instagram</Text>
-              <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} style={{ marginLeft: 'auto' }} />
+              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} style={{ marginLeft: 'auto' }} />
             </Pressable>
           )}
           {sponsor.facebook && (
             <Pressable style={styles.infoRow} onPress={() => openLink(sponsor.facebook!)}>
-              <Ionicons name="logo-facebook" size={20} color={yunke.primary} />
+              <Ionicons name="logo-facebook" size={20} color={colors.primaryLight} />
               <Text style={[styles.infoText, styles.linkText]}>Facebook</Text>
-              <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} style={{ marginLeft: 'auto' }} />
+              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} style={{ marginLeft: 'auto' }} />
             </Pressable>
           )}
           {sponsor.web_url && (
             <Pressable style={styles.infoRow} onPress={() => openLink(sponsor.web_url!)}>
-              <Ionicons name="globe-outline" size={20} color={yunke.primary} />
+              <Ionicons name="globe-outline" size={20} color={colors.primaryLight} />
               <Text style={[styles.infoText, styles.linkText]}>Sitio Web Oficial</Text>
-              <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} style={{ marginLeft: 'auto' }} />
+              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} style={{ marginLeft: 'auto' }} />
             </Pressable>
           )}
         </View>
@@ -214,9 +219,10 @@ export default function SponsorDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface },
 
   // HERO: Cover + Logo
   heroSection: {
@@ -254,10 +260,10 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 24,
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 12,
@@ -269,14 +275,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   logoPlaceholder: {
-    backgroundColor: yunke.surface,
+    backgroundColor: theme.surface,
     justifyContent: 'center',
     alignItems: 'center',
   },
   logoPlaceholderText: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
   },
 
   // Name
@@ -288,14 +294,14 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 28,
     fontFamily: 'Montserrat_900Black',
-    color: yunke.text,
+    color: theme.text,
     textAlign: 'center',
     paddingHorizontal: 24,
   },
 
   // Cards
   card: {
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     marginHorizontal: 24,
     borderRadius: 16,
     padding: 20,
@@ -304,19 +310,19 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: '600',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textTransform: 'uppercase',
     marginBottom: 8,
   },
   descriptionText: {
     fontSize: 16,
-    color: yunke.text,
+    color: theme.text,
     lineHeight: 24,
   },
 
   // Info rows (iOS-style grouped)
   infoGroup: {
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     marginHorizontal: 24,
     borderRadius: 14,
     marginBottom: 20,
@@ -329,15 +335,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: yunke.border,
+    borderBottomColor: theme.border,
   },
   infoText: {
     fontSize: 16,
-    color: yunke.text,
+    color: theme.text,
     flexShrink: 1,
   },
   linkText: {
-    color: yunke.primary,
+    color: theme.primaryLight,
   },
   phoneActions: {
     marginLeft: 'auto',

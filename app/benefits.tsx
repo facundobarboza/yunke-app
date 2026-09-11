@@ -2,6 +2,9 @@ import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { yunke } from '@/constants/Colors';
+import type { ThemePalette } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -18,6 +21,8 @@ type Beneficio = {
 };
 
 export default function BenefitsScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const [beneficios, setBeneficios] = useState<Beneficio[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +60,7 @@ export default function BenefitsScreen() {
         {/* LISTA DE BENEFICIOS */}
         <View style={styles.benefitsList}>
           {loading ? (
-            <ActivityIndicator size="large" color={yunke.primary} style={{ marginTop: 40 }} />
+            <ActivityIndicator size="large" color={colors.primaryLight} style={{ marginTop: 40 }} />
           ) : beneficios.length === 0 ? (
             <EmptyState title="No hay beneficios disponibles" />
           ) : (
@@ -85,8 +90,9 @@ export default function BenefitsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
 
   benefitsList: {
     paddingHorizontal: 24,
@@ -115,13 +121,13 @@ const styles = StyleSheet.create({
   tienda: {
     fontSize: 16,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.text,
+    color: theme.text,
     marginBottom: 4,
   },
   detalle: {
     fontSize: 13,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     lineHeight: 18,
   },
   discountBadge: {

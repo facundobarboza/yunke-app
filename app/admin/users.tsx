@@ -2,6 +2,9 @@ import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -13,6 +16,8 @@ import type { Role, UserWithRoles } from '../../src/types/rbac';
 import { AdminGuard } from '../../src/components/AdminGuard';
 
 export default function AdminUsersScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { profile: currentUser } = useAuth();
@@ -131,7 +136,7 @@ export default function AdminUsersScreen() {
       <Card style={styles.card}>
         <Pressable style={styles.userInfo} onPress={() => abrirModal(item)}>
           <View style={styles.userIcon}>
-            <Ionicons name="person-outline" size={18} color={yunke.primary} />
+            <Ionicons name="person-outline" size={18} color={colors.primaryLight} />
           </View>
           <View style={styles.userText}>
             <Text style={styles.userName}>{fullName}</Text>
@@ -149,13 +154,13 @@ export default function AdminUsersScreen() {
               <Text style={styles.noRoles}>Sin roles asignados</Text>
             )}
           </View>
-          <Ionicons name="chevron-forward" size={18} color={yunke.textTertiary} />
+          <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
         </Pressable>
       </Card>
     );
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={colors.primaryLight} /></View>;
 
   return (
     <AdminGuard permission="gestionar_roles">
@@ -208,7 +213,7 @@ export default function AdminUsersScreen() {
                             <Ionicons
                               name={isAssigned ? 'checkmark-circle' : 'add-circle-outline'}
                               size={22}
-                              color={isAssigned ? yunke.success : yunke.textSecondary}
+                              color={isAssigned ? yunke.success : colors.textSecondary}
                             />
                             <View style={styles.roleToggleInfo}>
                               <Text style={[styles.roleToggleName, isAssigned && styles.roleToggleNameActive]}>
@@ -228,7 +233,7 @@ export default function AdminUsersScreen() {
                   </View>
 
                   {modalLoading && (
-                    <ActivityIndicator style={{ marginTop: 16 }} color={yunke.primary} />
+                    <ActivityIndicator style={{ marginTop: 16 }} color={colors.primaryLight} />
                   )}
 
                   <Pressable style={styles.modalCloseButton} onPress={cerrarModal}>
@@ -244,37 +249,38 @@ export default function AdminUsersScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface },
 
   // Cards de usuario
   card: { padding: 14, marginBottom: 12 },
   userInfo: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   userIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: yunke.primary + '12', justifyContent: 'center', alignItems: 'center' },
   userText: { flex: 1 },
-  userName: { fontSize: 15, fontFamily: 'Montserrat_600SemiBold', color: yunke.text },
-  userEmail: { fontSize: 13, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary, marginTop: 1 },
+  userName: { fontSize: 15, fontFamily: 'Montserrat_600SemiBold', color: theme.text },
+  userEmail: { fontSize: 13, fontFamily: 'Montserrat_400Regular', color: theme.textSecondary, marginTop: 1 },
   chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 },
   chip: { backgroundColor: yunke.primary + '15', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
   chipText: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.primary },
-  noRoles: { fontSize: 12, fontFamily: 'Montserrat_400Regular', color: yunke.textTertiary, marginTop: 4, fontStyle: 'italic' },
+  noRoles: { fontSize: 12, fontFamily: 'Montserrat_400Regular', color: theme.textTertiary, marginTop: 4, fontStyle: 'italic' },
 
   // Modal
   modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
   modalContent: {
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 12,
     paddingBottom: 40 + 20,
     maxHeight: '80%',
   },
-  modalHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: yunke.border, alignSelf: 'center', marginBottom: 16 },
-  modalTitle: { fontSize: 18, fontFamily: 'Montserrat_700Bold', color: yunke.text, textAlign: 'center', paddingHorizontal: 24 },
-  modalSubtitle: { fontSize: 14, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary, textAlign: 'center', marginTop: 4, paddingHorizontal: 24 },
-  modalDivider: { height: 1, backgroundColor: yunke.border, marginVertical: 16, marginHorizontal: 24 },
-  modalSectionTitle: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, paddingHorizontal: 24 },
+  modalHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: 'center', marginBottom: 16 },
+  modalTitle: { fontSize: 18, fontFamily: 'Montserrat_700Bold', color: theme.text, textAlign: 'center', paddingHorizontal: 24 },
+  modalSubtitle: { fontSize: 14, fontFamily: 'Montserrat_400Regular', color: theme.textSecondary, textAlign: 'center', marginTop: 4, paddingHorizontal: 24 },
+  modalDivider: { height: 1, backgroundColor: theme.border, marginVertical: 16, marginHorizontal: 24 },
+  modalSectionTitle: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, paddingHorizontal: 24 },
   rolesList: { paddingHorizontal: 24 },
   roleToggleRow: {
     flexDirection: 'row',
@@ -285,14 +291,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: yunke.border,
+    borderColor: theme.border,
   },
   roleToggleRowActive: { borderColor: yunke.primary + '30', backgroundColor: yunke.primary + '08' },
   roleToggleLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
   roleToggleInfo: { flex: 1 },
-  roleToggleName: { fontSize: 15, fontFamily: 'Montserrat_500Medium', color: yunke.text },
+  roleToggleName: { fontSize: 15, fontFamily: 'Montserrat_500Medium', color: theme.text },
   roleToggleNameActive: { fontFamily: 'Montserrat_600SemiBold', color: yunke.primary },
-  roleToggleDesc: { fontSize: 12, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary, marginTop: 2 },
-  modalCloseButton: { marginHorizontal: 24, marginTop: 16, height: 48, borderRadius: 14, backgroundColor: yunke.surface, justifyContent: 'center', alignItems: 'center' },
-  modalCloseButtonText: { fontSize: 16, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary },
+  roleToggleDesc: { fontSize: 12, fontFamily: 'Montserrat_400Regular', color: theme.textSecondary, marginTop: 2 },
+  modalCloseButton: { marginHorizontal: 24, marginTop: 16, height: 48, borderRadius: 14, backgroundColor: theme.surface, justifyContent: 'center', alignItems: 'center' },
+  modalCloseButtonText: { fontSize: 16, fontFamily: 'Montserrat_600SemiBold', color: theme.textSecondary },
 });

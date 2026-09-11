@@ -1,4 +1,7 @@
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { decode } from 'base64-arraybuffer';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -20,6 +23,8 @@ type GalleryImage = {
 };
 
 export default function CreateSponsorScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams();
@@ -204,20 +209,20 @@ export default function CreateSponsorScreen() {
 
           <Pressable style={styles.portadaContainer} onPress={() => pickImage('portada')}>
             {portadaUri ? <Image source={{ uri: portadaUri }} style={styles.portada} /> : (
-              <View style={[styles.portada, styles.placeholder]}><Ionicons name="image-outline" size={36} color={yunke.textSecondary} /><Text style={styles.photoText}>Foto de Portada (16:9)</Text></View>
+              <View style={[styles.portada, styles.placeholder]}><Ionicons name="image-outline" size={36} color={colors.textSecondary} /><Text style={styles.photoText}>Foto de Portada (16:9)</Text></View>
             )}
           </Pressable>
 
           <Pressable style={styles.logoContainer} onPress={() => pickImage('logo')}>
             {logoUri ? <Image source={{ uri: logoUri }} style={styles.logo} /> : (
-              <View style={[styles.logo, styles.placeholder]}><Ionicons name="business-outline" size={28} color={yunke.textSecondary} /><Text style={styles.photoText}>Logo</Text></View>
+              <View style={[styles.logo, styles.placeholder]}><Ionicons name="business-outline" size={28} color={colors.textSecondary} /><Text style={styles.photoText}>Logo</Text></View>
             )}
           </Pressable>
 
           <View style={styles.inputGroup}>
-            <View style={styles.inputRow}><Ionicons name="storefront-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Nombre del comercio" placeholderTextColor={yunke.textSecondary} value={nombre} onChangeText={setNombre} /></View>
+            <View style={styles.inputRow}><Ionicons name="storefront-outline" size={18} color={colors.textSecondary} /><TextInput style={styles.input} placeholder="Nombre del comercio" placeholderTextColor={colors.textSecondary} value={nombre} onChangeText={setNombre} /></View>
             <View style={styles.inputDivider} />
-            <View style={styles.inputRow}><Ionicons name="document-text-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Descripción" placeholderTextColor={yunke.textSecondary} value={descripcion} onChangeText={setDescripcion} multiline /></View>
+            <View style={styles.inputRow}><Ionicons name="document-text-outline" size={18} color={colors.textSecondary} /><TextInput style={styles.input} placeholder="Descripción" placeholderTextColor={colors.textSecondary} value={descripcion} onChangeText={setDescripcion} multiline /></View>
           </View>
 
           {/* GALERÍA DE IMÁGENES */}
@@ -232,28 +237,28 @@ export default function CreateSponsorScreen() {
               </View>
             ))}
             <Pressable style={styles.galleryAddBtn} onPress={pickGalleryImage}>
-              <Ionicons name="add" size={28} color={yunke.textSecondary} />
+              <Ionicons name="add" size={28} color={colors.textSecondary} />
               <Text style={styles.galleryAddText}>Agregar</Text>
             </Pressable>
           </View>
 
           <Text style={styles.sectionTitle}>CONTACTO</Text>
           <View style={styles.inputGroup}>
-            <View style={styles.inputRow}><Ionicons name="location-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Dirección" placeholderTextColor={yunke.textSecondary} value={direccion} onChangeText={setDireccion} /></View>
+            <View style={styles.inputRow}><Ionicons name="location-outline" size={18} color={colors.textSecondary} /><TextInput style={styles.input} placeholder="Dirección" placeholderTextColor={colors.textSecondary} value={direccion} onChangeText={setDireccion} /></View>
             <View style={styles.inputDivider} />
-            <View style={styles.inputRow}><Ionicons name="time-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Horarios" placeholderTextColor={yunke.textSecondary} value={horarios} onChangeText={setHorarios} /></View>
+            <View style={styles.inputRow}><Ionicons name="time-outline" size={18} color={colors.textSecondary} /><TextInput style={styles.input} placeholder="Horarios" placeholderTextColor={colors.textSecondary} value={horarios} onChangeText={setHorarios} /></View>
             <View style={styles.inputDivider} />
-            <View style={styles.inputRow}><Ionicons name="call-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Teléfono" placeholderTextColor={yunke.textSecondary} value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" /></View>
+            <View style={styles.inputRow}><Ionicons name="call-outline" size={18} color={colors.textSecondary} /><TextInput style={styles.input} placeholder="Teléfono" placeholderTextColor={colors.textSecondary} value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" /></View>
             {telefono.trim() !== '' && (
               <>
                 <View style={styles.inputDivider} />
                 <Pressable style={styles.inputRow} onPress={() => setTelefonoWhatsapp(!telefonoWhatsapp)}>
-                  <Ionicons name={telefonoWhatsapp ? 'checkbox' : 'square-outline'} size={22} color={telefonoWhatsapp ? yunke.primary : yunke.textSecondary} />
+                  <Ionicons name={telefonoWhatsapp ? 'checkbox' : 'square-outline'} size={22} color={telefonoWhatsapp ? yunke.primary : colors.textSecondary} />
                   <Text style={styles.checkboxLabel}>El número sirve para WhatsApp</Text>
                 </Pressable>
                 <View style={styles.inputDivider} />
                 <Pressable style={styles.inputRow} onPress={() => setTelefonoLlamada(!telefonoLlamada)}>
-                  <Ionicons name={telefonoLlamada ? 'checkbox' : 'square-outline'} size={22} color={telefonoLlamada ? yunke.primary : yunke.textSecondary} />
+                  <Ionicons name={telefonoLlamada ? 'checkbox' : 'square-outline'} size={22} color={telefonoLlamada ? yunke.primary : colors.textSecondary} />
                   <Text style={styles.checkboxLabel}>El número sirve para llamadas</Text>
                 </Pressable>
               </>
@@ -262,11 +267,11 @@ export default function CreateSponsorScreen() {
 
           <Text style={styles.sectionTitle}>REDES</Text>
           <View style={styles.inputGroup}>
-            <View style={styles.inputRow}><Ionicons name="logo-instagram" size={18} color={yunke.textSecondary} /><Text style={styles.inputPrefix}>instagram.com/</Text><TextInput style={styles.input} placeholder="usuario" placeholderTextColor={yunke.textSecondary} value={instagram} onChangeText={setInstagram} autoCapitalize="none" autoCorrect={false} /></View>
+            <View style={styles.inputRow}><Ionicons name="logo-instagram" size={18} color={colors.textSecondary} /><Text style={styles.inputPrefix}>instagram.com/</Text><TextInput style={styles.input} placeholder="usuario" placeholderTextColor={colors.textSecondary} value={instagram} onChangeText={setInstagram} autoCapitalize="none" autoCorrect={false} /></View>
             <View style={styles.inputDivider} />
-            <View style={styles.inputRow}><Ionicons name="logo-facebook" size={18} color={yunke.textSecondary} /><Text style={styles.inputPrefix}>facebook.com/</Text><TextInput style={styles.input} placeholder="usuario" placeholderTextColor={yunke.textSecondary} value={facebook} onChangeText={setFacebook} autoCapitalize="none" autoCorrect={false} /></View>
+            <View style={styles.inputRow}><Ionicons name="logo-facebook" size={18} color={colors.textSecondary} /><Text style={styles.inputPrefix}>facebook.com/</Text><TextInput style={styles.input} placeholder="usuario" placeholderTextColor={colors.textSecondary} value={facebook} onChangeText={setFacebook} autoCapitalize="none" autoCorrect={false} /></View>
             <View style={styles.inputDivider} />
-            <View style={styles.inputRow}><Ionicons name="globe-outline" size={18} color={yunke.textSecondary} /><TextInput style={styles.input} placeholder="Sitio Web" placeholderTextColor={yunke.textSecondary} value={webUrl} onChangeText={setWebUrl} autoCapitalize="none" /></View>
+            <View style={styles.inputRow}><Ionicons name="globe-outline" size={18} color={colors.textSecondary} /><TextInput style={styles.input} placeholder="Sitio Web" placeholderTextColor={colors.textSecondary} value={webUrl} onChangeText={setWebUrl} autoCapitalize="none" /></View>
           </View>
 
           <Pressable style={styles.saveButton} onPress={handleGuardar} disabled={saving}>
@@ -280,31 +285,32 @@ export default function CreateSponsorScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
   header: { paddingTop: 60, paddingBottom: 24, paddingHorizontal: 24, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 },
   backButton: { flexDirection: 'row', alignItems: 'center', paddingBottom: 16, gap: 4 },
   backText: { fontSize: 16, fontFamily: 'Montserrat_500Medium', color: yunke.white },
   headerTitle: { fontSize: 26, fontFamily: 'Montserrat_900Black', color: yunke.white, letterSpacing: -0.5 },
   portadaContainer: { marginHorizontal: 24, marginTop: 20, marginBottom: 16 },
-  portada: { width: '100%', height: 160, borderRadius: 16, backgroundColor: yunke.card, justifyContent: 'center', alignItems: 'center' },
+  portada: { width: '100%', height: 160, borderRadius: 16, backgroundColor: theme.card, justifyContent: 'center', alignItems: 'center' },
   logoContainer: { alignItems: 'center', marginBottom: 24 },
-  logo: { width: 100, height: 100, borderRadius: 20, backgroundColor: yunke.card, justifyContent: 'center', alignItems: 'center' },
-  placeholder: { borderWidth: 2, borderColor: yunke.border, borderStyle: 'dashed' },
-  photoText: { fontSize: 12, fontFamily: 'Montserrat_500Medium', color: yunke.textSecondary, marginTop: 6 },
-  inputGroup: { backgroundColor: yunke.card, borderRadius: 16, paddingHorizontal: 16, marginHorizontal: 24, marginBottom: 16, shadowColor: yunke.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
+  logo: { width: 100, height: 100, borderRadius: 20, backgroundColor: theme.card, justifyContent: 'center', alignItems: 'center' },
+  placeholder: { borderWidth: 2, borderColor: theme.border, borderStyle: 'dashed' },
+  photoText: { fontSize: 12, fontFamily: 'Montserrat_500Medium', color: theme.textSecondary, marginTop: 6 },
+  inputGroup: { backgroundColor: theme.card, borderRadius: 16, paddingHorizontal: 16, marginHorizontal: 24, marginBottom: 16, shadowColor: theme.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 50 },
-  input: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.text, paddingVertical: 12 },
-  inputPrefix: { fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary },
-  checkboxLabel: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: yunke.text },
-  inputDivider: { height: 1, backgroundColor: yunke.border },
-  sectionTitle: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12, marginLeft: 28 },
+  input: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: theme.text, paddingVertical: 12 },
+  inputPrefix: { fontSize: 16, fontFamily: 'Montserrat_400Regular', color: theme.textSecondary },
+  checkboxLabel: { flex: 1, fontSize: 16, fontFamily: 'Montserrat_400Regular', color: theme.text },
+  inputDivider: { height: 1, backgroundColor: theme.border },
+  sectionTitle: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12, marginLeft: 28 },
   galleryContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginHorizontal: 24, marginBottom: 24 },
   galleryItem: { position: 'relative' },
   galleryThumbnail: { width: 80, height: 80, borderRadius: 12 },
-  galleryRemoveBtn: { position: 'absolute', top: -6, right: -6, backgroundColor: yunke.card, borderRadius: 11 },
-  galleryAddBtn: { width: 80, height: 80, borderRadius: 12, borderWidth: 2, borderColor: yunke.border, borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center' },
-  galleryAddText: { fontSize: 10, fontFamily: 'Montserrat_500Medium', color: yunke.textSecondary, marginTop: 2 },
+  galleryRemoveBtn: { position: 'absolute', top: -6, right: -6, backgroundColor: theme.card, borderRadius: 11 },
+  galleryAddBtn: { width: 80, height: 80, borderRadius: 12, borderWidth: 2, borderColor: theme.border, borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center' },
+  galleryAddText: { fontSize: 10, fontFamily: 'Montserrat_500Medium', color: theme.textSecondary, marginTop: 2 },
   saveButton: { backgroundColor: yunke.primary, marginHorizontal: 24, height: 52, borderRadius: 14, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 8, shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 },
   saveButtonText: { color: yunke.white, fontSize: 16, fontFamily: 'Montserrat_600SemiBold' },
 });

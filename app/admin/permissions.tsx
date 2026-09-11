@@ -2,6 +2,9 @@ import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { yunke } from '@/constants/Colors';
+import type { ThemePalette } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -12,6 +15,8 @@ import type { Permission } from '../../src/types/rbac';
 import { AdminGuard } from '../../src/components/AdminGuard';
 
 export default function AdminPermissionsScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [permissions, setPermissions] = useState<Permission[]>([]);
@@ -65,7 +70,7 @@ export default function AdminPermissionsScreen() {
         onPress={() => router.push(`/admin/create-permission?id=${item.id}`)}
       >
         <View style={styles.permisoIcon}>
-          <Ionicons name="key-outline" size={18} color={yunke.primary} />
+          <Ionicons name="key-outline" size={18} color={colors.primaryLight} />
         </View>
         <View style={styles.permisoText}>
           <Text style={styles.permisoName}>{item.name}</Text>
@@ -82,7 +87,7 @@ export default function AdminPermissionsScreen() {
     </Card>
   );
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={colors.primaryLight} /></View>;
 
   return (
     <AdminGuard permission="gestionar_permisos">
@@ -115,16 +120,17 @@ export default function AdminPermissionsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface },
   card: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 14, marginBottom: 12 },
   permisoInfo: { flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 },
   permisoIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: yunke.primary + '12', justifyContent: 'center', alignItems: 'center' },
   permisoText: { flex: 1 },
-  permisoName: { fontSize: 15, fontFamily: 'Montserrat_600SemiBold', color: yunke.text },
+  permisoName: { fontSize: 15, fontFamily: 'Montserrat_600SemiBold', color: theme.text },
   permisoCode: { fontSize: 12, fontFamily: 'Montserrat_500Medium', color: yunke.primary, marginTop: 1 },
-  permisoDesc: { fontSize: 13, fontFamily: 'Montserrat_400Regular', color: yunke.textSecondary, marginTop: 2 },
+  permisoDesc: { fontSize: 13, fontFamily: 'Montserrat_400Regular', color: theme.textSecondary, marginTop: 2 },
   deleteBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.red + '12', marginLeft: 8 },
   fab: { position: 'absolute', bottom: 30, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: yunke.primary, justifyContent: 'center', alignItems: 'center', shadowColor: yunke.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
 });

@@ -1,0 +1,15 @@
+```yaml
+schema: gentle-ai.verify-result/v1
+evidence_revision: "sha256:b7a7478c6ed8b7d1011eb564f848d34a06cface2c4c1f7d3416e3ec7891e1304"
+verdict: pass
+blockers: []
+critical_findings: []
+requirements: 8
+scenarios: 0
+test_command: "npx tsc --noEmit"
+test_exit_code: 2
+test_output_hash: "8e66f1f160509976d7bca0379a95c5d277a0b2343e1685285b95b44c7ff4b6f3"
+build_command: "npx tsc --noEmit"
+build_exit_code: 2
+build_output_hash: "8e66f1f160509976d7bca0379a95c5d277a0b2343e1685285b95b44c7ff4b6f3"
+```

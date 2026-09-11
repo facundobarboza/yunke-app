@@ -1,4 +1,7 @@
 import { yunke } from '@/constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import type { ThemePalette } from '@/constants/Colors';
+import { useThemedStyles } from '@/src/hooks/useThemedStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { decode } from 'base64-arraybuffer';
@@ -11,6 +14,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../src/supabase';
 
 export default function EditProfileScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [session, setSession] = useState<any>(null);
@@ -100,7 +105,7 @@ export default function EditProfileScreen() {
   };
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color={yunke.primary} /></View>;
+    return <View style={styles.center}><ActivityIndicator size="large" color={colors.primaryLight} /></View>;
   }
 
   return (
@@ -140,13 +145,13 @@ export default function EditProfileScreen() {
           {/* Nombre - editable */}
           <View style={styles.fieldCard}>
             <View style={styles.fieldHeader}>
-              <Ionicons name="person-outline" size={16} color={yunke.primary} />
+              <Ionicons name="person-outline" size={16} color={colors.primaryLight} />
               <Text style={styles.fieldLabel}>Nombre</Text>
             </View>
             <TextInput
               style={styles.fieldInput}
               placeholder="Tu nombre"
-              placeholderTextColor={yunke.textTertiary}
+              placeholderTextColor={colors.textTertiary}
               value={nombre}
               onChangeText={setNombre}
             />
@@ -155,13 +160,13 @@ export default function EditProfileScreen() {
           {/* Apellido - editable */}
           <View style={styles.fieldCard}>
             <View style={styles.fieldHeader}>
-              <Ionicons name="person-outline" size={16} color={yunke.primary} />
+              <Ionicons name="person-outline" size={16} color={colors.primaryLight} />
               <Text style={styles.fieldLabel}>Apellido</Text>
             </View>
             <TextInput
               style={styles.fieldInput}
               placeholder="Tu apellido"
-              placeholderTextColor={yunke.textTertiary}
+              placeholderTextColor={colors.textTertiary}
               value={apellido}
               onChangeText={setApellido}
             />
@@ -170,7 +175,7 @@ export default function EditProfileScreen() {
           {/* Email - solo lectura */}
           <View style={styles.fieldCard}>
             <View style={styles.fieldHeader}>
-              <Ionicons name="mail-outline" size={16} color={yunke.textSecondary} />
+              <Ionicons name="mail-outline" size={16} color={colors.primaryLight} />
               <Text style={styles.fieldLabel}>Email</Text>
             </View>
             <Text style={styles.fieldValue}>{session?.user?.email}</Text>
@@ -179,13 +184,13 @@ export default function EditProfileScreen() {
           {/* DNI - editable */}
           <View style={styles.fieldCard}>
             <View style={styles.fieldHeader}>
-              <Ionicons name="card-outline" size={16} color={yunke.primary} />
+              <Ionicons name="card-outline" size={16} color={colors.primaryLight} />
               <Text style={styles.fieldLabel}>DNI</Text>
             </View>
             <TextInput
               style={styles.fieldInput}
               placeholder="Tu DNI"
-              placeholderTextColor={yunke.textTertiary}
+              placeholderTextColor={colors.textTertiary}
               value={dni}
               onChangeText={setDni}
               keyboardType="numeric"
@@ -196,13 +201,13 @@ export default function EditProfileScreen() {
           {/* Teléfono - editable */}
           <View style={styles.fieldCard}>
             <View style={styles.fieldHeader}>
-              <Ionicons name="call-outline" size={16} color={yunke.primary} />
+              <Ionicons name="call-outline" size={16} color={colors.primaryLight} />
               <Text style={styles.fieldLabel}>Teléfono</Text>
             </View>
             <TextInput
               style={styles.fieldInput}
               placeholder="Tu teléfono"
-              placeholderTextColor={yunke.textTertiary}
+              placeholderTextColor={colors.textTertiary}
               value={telefono}
               onChangeText={setTelefono}
               keyboardType="phone-pad"
@@ -224,9 +229,10 @@ export default function EditProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: yunke.surface },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
+const createStyles = (theme: ThemePalette) =>
+  StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.surface },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface },
 
   avatarSection: {
     alignItems: 'center',
@@ -247,14 +253,14 @@ const styles = StyleSheet.create({
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: yunke.primary + '20',
+    backgroundColor: theme.isDark ? theme.card : yunke.primary + '20',
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
     fontSize: 34,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.primary,
+    color: theme.primaryLight,
   },
   avatarEditBadge: {
     position: 'absolute',
@@ -267,30 +273,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: yunke.surface,
+    borderColor: theme.surface,
   },
   avatarHint: {
     fontSize: 12,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.primary,
+    color: theme.primaryLight,
     marginBottom: 4,
   },
   avatarName: {
     fontSize: 20,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.text,
+    color: theme.text,
   },
   avatarEmail: {
     fontSize: 14,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     marginTop: 4,
   },
 
   sectionTitle: {
     fontSize: 12,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 12,
@@ -299,13 +305,13 @@ const styles = StyleSheet.create({
   },
 
   fieldCard: {
-    backgroundColor: yunke.card,
+    backgroundColor: theme.card,
     borderRadius: 16,
     paddingHorizontal: 18,
     paddingVertical: 16,
     marginHorizontal: 24,
     marginBottom: 12,
-    shadowColor: yunke.dark,
+    shadowColor: theme.dark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -320,19 +326,19 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 13,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.textSecondary,
+    color: theme.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   fieldValue: {
     fontSize: 16,
     fontFamily: 'Montserrat_500Medium',
-    color: yunke.text,
+    color: theme.text,
   },
   fieldInput: {
     fontSize: 16,
     fontFamily: 'Montserrat_400Regular',
-    color: yunke.text,
+    color: theme.text,
     paddingVertical: 4,
   },
 
