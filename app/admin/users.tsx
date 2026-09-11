@@ -262,8 +262,8 @@ const createStyles = (theme: ThemePalette) =>
   userName: { fontSize: 15, fontFamily: 'Montserrat_600SemiBold', color: theme.text },
   userEmail: { fontSize: 13, fontFamily: 'Montserrat_400Regular', color: theme.textSecondary, marginTop: 1 },
   chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 },
-  chip: { backgroundColor: yunke.primary + '15', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
-  chipText: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: yunke.primary },
+  chip: { backgroundColor: theme.isDark ? yunke.primary + '45' : yunke.primary + '15', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, borderWidth: 1, borderColor: theme.isDark ? theme.border : 'transparent' },
+  chipText: { fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: theme.primaryLight },
   noRoles: { fontSize: 12, fontFamily: 'Montserrat_400Regular', color: theme.textTertiary, marginTop: 4, fontStyle: 'italic' },
 
   // Modal
@@ -297,7 +297,7 @@ const createStyles = (theme: ThemePalette) =>
   roleToggleLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
   roleToggleInfo: { flex: 1 },
   roleToggleName: { fontSize: 15, fontFamily: 'Montserrat_500Medium', color: theme.text },
-  roleToggleNameActive: { fontFamily: 'Montserrat_600SemiBold', color: yunke.primary },
+  roleToggleNameActive: { fontFamily: 'Montserrat_600SemiBold', color: theme.primaryLight },
   roleToggleDesc: { fontSize: 12, fontFamily: 'Montserrat_400Regular', color: theme.textSecondary, marginTop: 2 },
   modalCloseButton: { marginHorizontal: 24, marginTop: 16, height: 48, borderRadius: 14, backgroundColor: theme.surface, justifyContent: 'center', alignItems: 'center' },
   modalCloseButtonText: { fontSize: 16, fontFamily: 'Montserrat_600SemiBold', color: theme.textSecondary },

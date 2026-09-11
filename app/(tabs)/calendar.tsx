@@ -312,7 +312,7 @@ const createStyles = (theme: ThemePalette) =>
   cardCompeticion: {
     fontSize: 10,
     fontFamily: 'Montserrat_500Medium',
-    color: yunke.primary,
+    color: theme.primaryLight,
   },
 
   // Match content

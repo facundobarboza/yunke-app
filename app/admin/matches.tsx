@@ -189,7 +189,7 @@ export default function AdminMatchesScreen() {
 
           {item.jugado ? (
             <Pressable style={styles.editBtn} onPress={() => abrirModalResultado(item)}>
-              <Ionicons name="create-outline" size={14} color={colors.primaryLight} />
+              <Ionicons name="create-outline" size={14} color={yunke.white} />
               <Text style={styles.editBtnText}>Editar</Text>
             </Pressable>
           ) : esPasado ? (
@@ -320,7 +320,7 @@ const createStyles = (theme: ThemePalette) =>
   cardCompeticion: {
     fontSize: 11,
     fontFamily: 'Montserrat_500Medium',
-    color: yunke.primary,
+    color: theme.primaryLight,
   },
 
   // Match content
@@ -437,7 +437,7 @@ const createStyles = (theme: ThemePalette) =>
   editBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: yunke.primary + '12',
+    backgroundColor: yunke.primary,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
@@ -446,7 +446,7 @@ const createStyles = (theme: ThemePalette) =>
   editBtnText: {
     fontSize: 12,
     fontFamily: 'Montserrat_600SemiBold',
-    color: yunke.primary,
+    color: yunke.white,
   },
   scheduledContainer: {
     flexDirection: 'row',
@@ -517,7 +517,7 @@ const createStyles = (theme: ThemePalette) =>
     color: theme.textSecondary,
   },
   penalesToggleTextActive: {
-    color: yunke.primary,
+    color: theme.primaryLight,
   },
   toggleTrack: {
     width: 48,
