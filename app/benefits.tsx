@@ -14,6 +14,7 @@ type Beneficio = {
   descuento: string;
   detalle: string;
   icono: string;
+  terminos: string | null;
 };
 
 export default function BenefitsScreen() {
@@ -28,7 +29,7 @@ export default function BenefitsScreen() {
   const cargarBeneficios = async () => {
     const { data, error } = await supabase
       .from('beneficios')
-      .select('id, tienda, descuento, detalle, icono')
+      .select('id, tienda, descuento, detalle, icono, terminos')
       .eq('is_active', true)
       .order('orden', { ascending: true });
 

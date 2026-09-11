@@ -1,9 +1,12 @@
 import { yunke } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import { decode } from 'base64-arraybuffer';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { supabase } from '../../src/supabase';
 import { AdminGuard } from '../../src/components/AdminGuard';
 
@@ -34,7 +37,9 @@ export default function CreateBenefitScreen() {
   const [tienda, setTienda] = useState('');
   const [descuento, setDescuento] = useState('');
   const [detalle, setDetalle] = useState('');
+  const [terminos, setTerminos] = useState('');
   const [icono, setIcono] = useState('pricetag-outline');
+  const [portadaUri, setPortadaUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -47,8 +52,28 @@ export default function CreateBenefitScreen() {
       setTienda(data.tienda);
       setDescuento(data.descuento);
       setDetalle(data.detalle);
+      setTerminos(data.terminos ?? '');
       setIcono(data.icono);
+      setPortadaUri(data.portada ?? null);
     }
+  };
+
+  const pickPortada = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') { Alert.alert('Permiso denegado'); return; }
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [16, 9], quality: 0.8 });
+    if (!result.canceled) setPortadaUri(result.assets[0].uri);
+  };
+
+  const uploadPortada = async (uri: string): Promise<string | null> => {
+    if (uri.startsWith('http')) return uri;
+    const fileName = `${Date.now()}.jpg`;
+    const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+    const arrayBuffer = decode(base64);
+    const { error } = await supabase.storage.from('beneficios').upload(fileName, arrayBuffer, { contentType: 'image/jpeg' });
+    if (error) throw error;
+    const { data } = supabase.storage.from('beneficios').getPublicUrl(fileName);
+    return data.publicUrl;
   };
 
   const handleGuardar = async () => {
@@ -59,7 +84,9 @@ export default function CreateBenefitScreen() {
     setSaving(true);
 
     try {
-      const payload = { tienda, descuento, detalle, icono };
+      const payload: Record<string, any> = { tienda, descuento, detalle, icono, terminos: terminos || null };
+      const finalPortada = portadaUri ? await uploadPortada(portadaUri) : null;
+      if (finalPortada) payload.portada = finalPortada;
 
       if (isEditing) {
         const { error } = await supabase.from('beneficios').update(payload).eq('id', id);
@@ -113,6 +140,22 @@ export default function CreateBenefitScreen() {
               ))}
             </View>
 
+            {/* Portada selector */}
+            <Text style={styles.sectionTitle}>PORTADA DEL COMERCIO (opcional)</Text>
+            {portadaUri ? (
+              <View style={styles.portadaPreview}>
+                <Image source={{ uri: portadaUri }} style={styles.portadaImage} />
+                <Pressable style={styles.portadaRemove} onPress={() => setPortadaUri(null)}>
+                  <Ionicons name="close" size={16} color={yunke.white} />
+                </Pressable>
+              </View>
+            ) : (
+              <Pressable style={styles.portadaPicker} onPress={pickPortada}>
+                <Ionicons name="image-outline" size={28} color={yunke.textSecondary} />
+                <Text style={styles.portadaPickerText}>Subir imagen de portada</Text>
+              </Pressable>
+            )}
+
             {/* Campos */}
             <Text style={styles.sectionTitle}>INFORMACIÓN</Text>
             <View style={styles.inputGroup}>
@@ -129,6 +172,11 @@ export default function CreateBenefitScreen() {
               <View style={styles.inputRow}>
                 <Ionicons name="document-text-outline" size={18} color={yunke.textSecondary} />
                 <TextInput style={styles.input} placeholder="Detalle del beneficio" placeholderTextColor={yunke.textSecondary} value={detalle} onChangeText={setDetalle} multiline />
+              </View>
+              <View style={styles.inputDivider} />
+              <View style={styles.inputRow}>
+                <Ionicons name="reader-outline" size={18} color={yunke.textSecondary} />
+                <TextInput style={styles.input} placeholder="Términos y condiciones (letra chica, opcional)" placeholderTextColor={yunke.textSecondary} value={terminos} onChangeText={setTerminos} multiline />
               </View>
             </View>
 
@@ -227,6 +275,47 @@ const styles = StyleSheet.create({
   iconOptionActive: {
     backgroundColor: yunke.primary,
     borderColor: yunke.primary,
+  },
+
+  // Portada
+  portadaPicker: {
+    height: 140,
+    borderRadius: 16,
+    backgroundColor: yunke.card,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: yunke.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 24,
+  },
+  portadaPickerText: {
+    fontSize: 14,
+    fontFamily: 'Montserrat_500Medium',
+    color: yunke.textSecondary,
+  },
+  portadaPreview: {
+    height: 140,
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 24,
+    position: 'relative',
+  },
+  portadaImage: {
+    width: '100%',
+    height: '100%',
+  },
+  portadaRemove: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   inputGroup: { 

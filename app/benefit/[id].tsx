@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { supabase } from '../../src/supabase';
 
 const { width } = Dimensions.get('window');
@@ -14,6 +14,8 @@ type Beneficio = {
   descuento: string;
   detalle: string;
   icono: string;
+  terminos: string | null;
+  portada: string | null;
 };
 
 export default function BenefitDetailScreen() {
@@ -29,7 +31,7 @@ export default function BenefitDetailScreen() {
   const fetchBeneficio = async () => {
     const { data } = await supabase
       .from('beneficios')
-      .select('id, tienda, descuento, detalle, icono')
+      .select('id, tienda, descuento, detalle, icono, terminos, portada')
       .eq('id', id)
       .single();
 
@@ -45,31 +47,49 @@ export default function BenefitDetailScreen() {
     return <View style={styles.center}><Text style={{ color: yunke.textSecondary }}>No se encontró el beneficio.</Text></View>;
   }
 
+  const renderHeroContent = () => (
+    <>
+      <Pressable style={styles.backButton} onPress={() => router.back()}>
+        <View style={styles.backButtonBg}>
+          <Ionicons name="chevron-back" size={24} color={yunke.white} />
+        </View>
+      </Pressable>
+
+      <View style={styles.heroContent}>
+        <View style={styles.iconContainer}>
+          <Ionicons name={beneficio.icono as any} size={40} color={yunke.white} />
+        </View>
+      </View>
+    </>
+  );
+
   return (
     <>
       <Stack.Screen />
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
 
-        {/* HERO CON GRADIENTE DORADO */}
+        {/* HERO CON PORTADA O GRADIENTE DORADO */}
         <View style={styles.heroSection}>
-          <LinearGradient
-            colors={yunke.gradientGold}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.heroGradient}
-          >
-            <Pressable style={styles.backButton} onPress={() => router.back()}>
-              <View style={styles.backButtonBg}>
-                <Ionicons name="chevron-back" size={24} color={yunke.white} />
+          {beneficio.portada ? (
+            <ImageBackground
+              source={{ uri: beneficio.portada }}
+              style={styles.heroGradient}
+              imageStyle={styles.heroImage}
+            >
+              <View style={styles.heroOverlay}>
+                {renderHeroContent()}
               </View>
-            </Pressable>
-
-            <View style={styles.heroContent}>
-              <View style={styles.iconContainer}>
-                <Ionicons name={beneficio.icono as any} size={40} color={yunke.white} />
-              </View>
-            </View>
-          </LinearGradient>
+            </ImageBackground>
+          ) : (
+            <LinearGradient
+              colors={yunke.gradientGold}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroGradient}
+            >
+              {renderHeroContent()}
+            </LinearGradient>
+          )}
         </View>
 
         {/* DESCUENTO BADGE */}
@@ -89,6 +109,17 @@ export default function BenefitDetailScreen() {
           <Text style={styles.sectionTitle}>Beneficio</Text>
           <Text style={styles.descriptionText}>{beneficio.detalle}</Text>
         </View>
+
+        {/* TÉRMINOS Y CONDICIONES (letra chica) */}
+        {!!beneficio.terminos && (
+          <View style={styles.terminosCard}>
+            <View style={styles.terminosHeader}>
+              <Ionicons name="reader-outline" size={14} color={yunke.textSecondary} />
+              <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Términos y condiciones</Text>
+            </View>
+            <Text style={styles.terminosText}>{beneficio.terminos}</Text>
+          </View>
+        )}
 
         {/* NOTA */}
         <View style={styles.noteCard}>
@@ -115,6 +146,15 @@ const styles = StyleSheet.create({
     height: '100%',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
+    overflow: 'hidden',
+  },
+  heroImage: {
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+  },
+  heroOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(26,40,88,0.55)',
   },
   backButton: {
     position: 'absolute',
@@ -210,6 +250,27 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat_400Regular',
     color: yunke.text,
     lineHeight: 24,
+  },
+
+  // Términos y condiciones (letra chica)
+  terminosCard: {
+    backgroundColor: yunke.card,
+    marginHorizontal: 24,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    opacity: 0.85,
+  },
+  terminosHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  terminosText: {
+    fontSize: 12,
+    fontFamily: 'Montserrat_400Regular',
+    color: yunke.textSecondary,
+    lineHeight: 18,
   },
 
   // Nota

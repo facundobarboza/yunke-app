@@ -4,12 +4,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFeatureFlag } from '../../src/hooks/useFeatureFlag';
 import { supabase } from '../../src/supabase';
 
 const { width } = Dimensions.get('window');
+
+// Foto fija de la camiseta del club — vive como asset porque es intencionalmente estática
+const HEADER_IMAGE = require('../../assets/images/home-header.jpeg');
 
 type Partido = {
   id: string;
@@ -33,7 +36,16 @@ type Sponsor = {
 type Categoria = {
   id: number;
   nombre: string;
+  foto_url: string | null;
   jugadores_count?: number;
+};
+
+/** "RRGGBB" hex -> rgba string, for translucent gradient overlays */
+const withOpacity = (hex: string, opacity: number) => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${opacity})`;
 };
 
 const CATEGORY_GRADIENTS: readonly (readonly [string, string])[] = [
@@ -94,7 +106,7 @@ export default function HomeScreen() {
     // Cargar categorías con conteo de jugadores para las tarjetas
     const { data: catsConCount } = await supabase
       .from('categorias')
-      .select('id, nombre');
+      .select('id, nombre, foto_url');
 
     if (catsConCount) {
       const counts = await Promise.all(
@@ -231,13 +243,18 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}>
-      {/* HEADER CON GRADIENTE AZUL PREMIUM */}
-      <LinearGradient
-        colors={yunke.gradientHeader}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      {/* HEADER CON FOTO DE FONDO + OVERLAY AZUL */}
+      <ImageBackground
+        source={HEADER_IMAGE}
         style={[styles.header, { paddingTop: insets.top }]}
+        resizeMode="cover"
       >
+        <LinearGradient
+          colors={['rgba(26,40,88,0.85)', 'rgba(32,48,112,0.78)']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
         <Image 
           source={require('../../assets/images/yunke-logo.png')} 
           style={styles.headerLogo} 
@@ -245,7 +262,7 @@ export default function HomeScreen() {
         />
         <Text style={styles.clubTitle}>YUNKE</Text>
         <Text style={styles.clubSubtitle}>FÚTBOL CLUB</Text>
-      </LinearGradient>
+      </ImageBackground>
 
       {/* CARRUSEL DE SPONSORS */}
       {sponsors.length > 0 && (
@@ -299,24 +316,26 @@ export default function HomeScreen() {
 
       {/* BANNER HACERTE SOCIO - Solo visible si el flag está habilitado */}
       {showMembershipBanner && (
-        <LinearGradient
-          colors={yunke.gradientRed}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.socioBanner}
-        >
-          {/* <View style={styles.bannerBadge}>
-            <Text style={styles.bannerBadgeText}>EXCLUSIVO</Text>
-          </View> */}
+        <Pressable style={styles.socioBanner} onPress={() => router.push('/benefits')}>
+          <LinearGradient
+            colors={yunke.gradientHeaderDark}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={StyleSheet.absoluteFill}
+          />
+          {/* Estrella gigante como marca de agua */}
+          <Ionicons name="star" size={140} color="rgba(245,166,35,0.08)" style={styles.bannerWatermark} />
           <View style={styles.bannerIconContainer}>
-            <Ionicons name="star" size={28} color={yunke.white} />
+            <Ionicons name="gift-outline" size={28} color={yunke.gold} />
           </View>
-          <Pressable style={styles.bannerContent} onPress={() => router.push('/benefits')}>
+          <View style={styles.bannerContent}>
+            <View style={styles.bannerBadge}>
+              <Text style={styles.bannerBadgeText}>SOCIOS</Text>
+            </View>
             <Text style={styles.bannerTitle}>Beneficios Exclusivos</Text>
             <Text style={styles.bannerSubtitle}>Descubrí todo lo que ganás por ser socio del club</Text>
-          </Pressable>
-          <Ionicons name="chevron-forward" size={24} color={yunke.white} />
-        </LinearGradient>
+          </View>
+        </Pressable>
       )}
 
       {/* SECCIÓN DE CATEGORÍAS */}
@@ -332,8 +351,19 @@ export default function HomeScreen() {
                     style={styles.categoryCard}
                     onPress={() => router.push({ pathname: '/team', params: { categoria: cat.id } })}
                   >
+                    {cat.foto_url && (
+                      <Image
+                        source={{ uri: cat.foto_url }}
+                        style={StyleSheet.absoluteFill}
+                        resizeMode="cover"
+                      />
+                    )}
                     <LinearGradient
-                      colors={gradient}
+                      colors={
+                        cat.foto_url
+                          ? [withOpacity(gradient[0], 0.78), withOpacity(gradient[1], 0.72)]
+                          : gradient
+                      }
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
                       style={styles.categoryGradient}
@@ -369,7 +399,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: yunke.surface },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: yunke.surface },
   
-  // Header con gradiente
+  // Header con foto de fondo + overlay azul
   header: {
     paddingHorizontal: 24,
     paddingTop: 60,
@@ -377,6 +407,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
+    overflow: 'hidden', // aplica el radio al ImageBackground
+    backgroundColor: yunke.primary, // fallback mientras carga la foto
     shadowColor: yunke.dark,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
@@ -409,7 +441,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontFamily: 'Montserrat_700Bold',
-    color: yunke.text,
+    color: yunke.primary,
     marginBottom: 15,
     paddingHorizontal: 24,
   },
@@ -620,25 +652,33 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   bannerBadge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: 'rgba(255,255,255,0.25)',
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(245,166,35,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(245,166,35,0.45)',
     paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    paddingVertical: 3,
+    borderRadius: 999,
+    marginBottom: 6,
   },
   bannerBadgeText: {
-    color: yunke.white,
+    color: yunke.gold,
     fontSize: 10,
     fontFamily: 'Montserrat_700Bold',
     letterSpacing: 1,
+  },
+  bannerWatermark: {
+    position: 'absolute',
+    right: -14,
+    bottom: -14,
   },
   bannerIconContainer: {
     width: 52,
     height: 52,
     borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(245,166,35,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(245,166,35,0.35)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
