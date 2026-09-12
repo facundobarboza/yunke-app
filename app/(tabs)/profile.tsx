@@ -349,20 +349,38 @@ export default function ProfileScreen() {
       {profile?.is_socio ? (
         // CARNET DIGITAL (SI ES SOCIO) - Siempre visible si es socio
         <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardClubName}>CLUB YUNKE</Text>
-            <Text style={styles.cardMemberLabel}>SOCIO Nº</Text>
-          </View>
-          <View style={styles.cardBody}>
-            <Text style={styles.cardName}>{profile?.nombre || 'Sin nombre'} {profile?.apellido || ''}</Text>
-            <Text style={styles.cardDni}>DNI: {profile?.dni || 'No registrado'}</Text>
-          </View>
-          <View style={styles.cardFooter}>
-            <View style={styles.statusBadge}>
-              <Ionicons name="checkmark-circle" size={14} color={yunke.white} />
-              <Text style={styles.statusText}>SOCIO ACTIVO</Text>
+          <LinearGradient
+            colors={yunke.gradientHeader}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.cardGradient}
+          >
+            {/* Franja dorada superior */}
+            <View style={styles.cardGoldBar} />
+
+            <View style={styles.cardHeader}>
+              <View>
+                <Text style={styles.cardClubName}>CLUB YUNKE</Text>
+                <Text style={styles.cardClubSub}>Carnet digital de socio</Text>
+              </View>
+              <View style={styles.cardCrest}>
+                <Ionicons name="star" size={22} color={yunke.gold} />
+              </View>
             </View>
-          </View>
+
+            <View style={styles.cardBody}>
+              <Text style={styles.cardName}>{profile?.nombre || 'Sin nombre'} {profile?.apellido || ''}</Text>
+              <Text style={styles.cardDni}>DNI {profile?.dni || 'No registrado'}</Text>
+            </View>
+
+            <View style={styles.cardFooter}>
+              <Text style={styles.cardStatusLabel}>ESTADO</Text>
+              <View style={styles.statusBadge}>
+                <Ionicons name="checkmark-circle" size={13} color={yunke.dark} />
+                <Text style={styles.statusText}>SOCIO ACTIVO</Text>
+              </View>
+            </View>
+          </LinearGradient>
         </View>
       ) : showMembershipBanner ? (
         // BANNER HACERSE SOCIO (SI NO ES SOCIO Y FLAG ESTÁ HABILITADO)
@@ -737,34 +755,56 @@ const createStyles = (theme: ThemePalette) =>
   
   // Carnet Socio Premium
   card: { 
-    backgroundColor: theme.dark, 
     borderRadius: 20, 
-    padding: 24, 
     marginHorizontal: 24,
     marginTop: 20,
+    overflow: 'hidden',
     shadowColor: theme.dark, 
     shadowOffset: { width: 0, height: 10 }, 
-    shadowOpacity: 0.2, 
+    shadowOpacity: 0.25, 
     shadowRadius: 20, 
     elevation: 10, 
   },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardClubName: { color: yunke.gold, fontSize: 18, fontFamily: 'Montserrat_900Black', letterSpacing: 1 },
-  cardMemberLabel: { color: theme.textSecondary, fontSize: 11, fontFamily: 'Montserrat_600SemiBold' },
-  cardBody: { borderBottomWidth: 1, borderBottomColor: theme.darkSoft, paddingBottom: 15, marginTop: 20 },
-  cardName: { color: yunke.white, fontSize: 22, fontFamily: 'Montserrat_700Bold', textTransform: 'uppercase' },
-  cardDni: { color: theme.textSecondary, fontSize: 14, fontFamily: 'Montserrat_400Regular', marginTop: 5 },
-  cardFooter: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 15 },
+  cardGradient: {
+    padding: 24,
+    paddingTop: 0,
+  },
+  cardGoldBar: {
+    height: 6,
+    backgroundColor: yunke.gold,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
+    marginHorizontal: -24,
+    marginBottom: 20,
+  },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  cardClubName: { color: yunke.gold, fontSize: 18, fontFamily: 'Montserrat_900Black', letterSpacing: 1.5 },
+  cardClubSub: { color: 'rgba(255,255,255,0.7)', fontSize: 10, fontFamily: 'Montserrat_500Medium', marginTop: 3, letterSpacing: 0.5 },
+  cardCrest: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(245,166,35,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardBody: { paddingBottom: 18, marginTop: 22, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.15)' },
+  cardName: { color: yunke.white, fontSize: 22, fontFamily: 'Montserrat_700Bold', textTransform: 'uppercase', letterSpacing: 0.5 },
+  cardDni: { color: 'rgba(255,255,255,0.7)', fontSize: 14, fontFamily: 'Montserrat_400Regular', marginTop: 6 },
+  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 },
+  cardStatusLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 10, fontFamily: 'Montserrat_600SemiBold', letterSpacing: 1, textTransform: 'uppercase' },
   statusBadge: { 
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     paddingHorizontal: 12, 
     paddingVertical: 6, 
     borderRadius: 8, 
     backgroundColor: yunke.gold 
   },
-  statusText: { color: yunke.white, fontSize: 11, fontFamily: 'Montserrat_700Bold' },
+  statusText: { color: yunke.dark, fontSize: 11, fontFamily: 'Montserrat_700Bold', letterSpacing: 0.5 },
 
   // Banner No Socio Premium
   bannerCard: { 
